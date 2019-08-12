@@ -12,7 +12,7 @@ class DataExtractor(object):
         self.saving_path = saving_path
         self.existing_ids = self._get_existing_ids()
 
-    def _get_existing_ids(self):
+    def _get_existing_ids(self): #todo: maybe it's not a good idea ?
         all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
         return list(map(lambda name: re.search(r'tt\d+', name).group(0), all_saved_files))
 
@@ -30,6 +30,24 @@ class IMDBApiExtractor(DataExtractor):
             user_api_key = f.read()
         return user_api_key
 
+    @staticmethod
+    def _extract_a_single_id(movie_id, user_api_key):
+        response = requests.get('http://www.omdbapi.com/?i={}&apikey={}&?plot=full'.format(movie_id,
+                                                                                           user_api_key))
+
+        if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
+            logging.info("Request limit reached! Lets wait 24 hours")
+            time.sleep(86500)
+            response = requests.get('http://www.omdbapi.com/?i={}&apikey={}&?plot=full'.format(movie_id,
+                                                                                               user_api_key))
+            # raise TypeError("Request limit reached!")
+
+        if response.json()['Response'] == 'False':
+            logging.info("Response == False ? at {}".format(movie_id))
+            return None
+            # raise ValueError("Response == False ? at {}".format(movie_id))
+
+        return response
 
     def extract_data(self, ids_to_query):
         """
@@ -39,26 +57,15 @@ class IMDBApiExtractor(DataExtractor):
         """
         user_api_key = self._get_user_api_key()  # todo: is this a good way of doing this?
 
-        logging.info('Extract {} movies data:'.format(len(ids_to_query)))
-        logging.info(ids_to_query)
+        logging.info('Extract {} movies data: {}'.format(len(ids_to_query), ids_to_query))
+
         for i, movie_id in enumerate(ids_to_query):
-            response = requests.get('http://www.omdbapi.com/?i={}&apikey={}&?plot=full'.format(movie_id,
-                                                                                               user_api_key))
-
-            if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
-                print("Request limit reached! Lets wait 24 hours")
-                time.sleep(86500)
-                response = requests.get('http://www.omdbapi.com/?i={}&apikey={}&?plot=full'.format(movie_id,
-                                                                                                   user_api_key))
-                # raise TypeError("Request limit reached!")
-
-            if response.json()['Response'] == 'False':
-                logging.info("Response == False ? at {}".format(movie_id))
-                continue
-                # raise ValueError("Response == False ? at {}".format(movie_id))
-
-            self.save(data=response, movie_id=movie_id)
+            if movie_id not in self.existing_ids: # if it's already existing then don't query it # todo: add a better cache invalidation
+                response_data = self._extract_a_single_id(movie_id, user_api_key)
+                if response_data:  # if it's not None
+                    self.save(data=response_data, movie_id=movie_id)
 
             percent_queried = 100 * (i + 1) / len(ids_to_query)
             logging.info('Finished: {}%'.format(round(percent_queried, 2)))
+
 
