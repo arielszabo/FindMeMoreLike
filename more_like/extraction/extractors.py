@@ -28,9 +28,9 @@ class DataExtractor(object):
         """
         for i, movie_id in enumerate(ids_to_query):
             if movie_id not in self.existing_ids: # if it's already existing then don't query it # todo: add a better cache invalidation
-                response_data = self._extract_a_single_id(movie_id) # This method needs to be implemented
-                if response_data:  # if it's not None
-                    self.save(data=response_data, movie_id=movie_id)
+                single_movie_data = self._extract_a_single_id(movie_id) # This method needs to be implemented
+                if single_movie_data:  # if it's not None
+                    self.save(data=single_movie_data, movie_id=movie_id)
 
             percent_queried = 100 * (i + 1) / len(ids_to_query)
             logging.info('Finished: {}%'.format(round(percent_queried, 2)))
@@ -68,3 +68,75 @@ class IMDBApiExtractor(DataExtractor):
 
         return response
 
+class WikiApiExtractor(DataExtractor):
+    def __init__(self, imdb_api_saving_path, *args, **kwargs): # todo: is this the best way?
+        super().__init__(*args, **kwargs)
+        self.imdb_api_saving_path = imdb_api_saving_path
+        self.api_url = r'https://en.wikipedia.org/w/api.php'
+
+    def _build_text_query(self, movie_id):
+        file_name = os.path.join(self.imdb_api_saving_path, '{}.json'.format(movie_id))
+        if os.path.exists(file_name):
+            with open(file_name, 'r') as jfile:
+                movie_json = json.load(jfile)
+            query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type'], movie_json['Director']]
+            return ' '.join(query_info)
+
+        else:
+            logging.info("There is no IMDB data for this IMDB_id")
+            return None
+
+    def _get_page_id_by_text_search(self, text_to_search_for):
+        if len(text_to_search_for) > 300: # WIKI Search request have a maximum allowed length of 300 chars
+            text_to_search_for = text_to_search_for[:300]
+        get_params = {
+            'action': 'query',
+            'format': 'json',
+            'list': 'search',
+            'srsearch': text_to_search_for
+        }
+        response = requests.get(url=self.api_url, params=get_params)
+
+        if int(response.status_code) != 200:
+            logging.info(f'The request for "{text_to_search_for}" returned with status_code: {response.status_code}')
+            # todo: something better
+            return None
+
+        if response.json()['query']['searchinfo']['totalhits'] == 0:
+            logging.info(f'"{text_to_search_for}" have no results')
+            return None  # todo: something better
+
+        if 'error' in response.json():
+            logging.info(f'"{text_to_search_for}" had an error')
+            return None  # todo: something better
+
+        return response.json()["query"]["search"][0]["pageid"]  # the first one is the best match
+
+    def _extract_text_first_section(self, page_id):
+        params = {
+            'action': 'query',
+            'format': 'json',
+            'prop': 'extracts',
+            'exintro': 'True',
+            'pageids': page_id
+        }
+        response = requests.get(url=self.api_url, params=params)
+
+        if int(response.status_code) != 200:
+            logging.info(f'The request for "{page_id}" returned with status_code: {response.status_code}') #todo: something better
+            return None
+
+        html_content = response.json()['query']['pages'][str(page_id)]['extract']
+        return BeautifulSoup(html_content, 'html.parser').get_text()
+
+    def _extract_a_single_id(self, movie_id):
+        text_query = self._build_text_query(movie_id)
+        if text_query:  # if it's not None
+            wiki_page_id = self._get_page_id_by_text_search(text_query)
+            if wiki_page_id:  # if it's not None
+                text_content = self._extract_text_first_section(wiki_page_id)
+                if text_content:  # if it's not None
+                    wiki_data = {'text': text_content,
+                                 'wiki_page_id': wiki_page_id,
+                                 'imdb_id': movie_id}
+                    return wiki_data # else will return None and the 'extract_data' method won't save it
