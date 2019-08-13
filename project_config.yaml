@@ -1,3 +1,4 @@
 user_api_key_path: 'omdb_user_key.txt'
-imdb_api_saving_path: 'raw_imdb_data'
-wiki_api_saving_path: 'raw_wiki_data'
+api_data_saving_path:
+  imdb: 'raw_imdb_data'
+  wiki: 'raw_wiki_data'
