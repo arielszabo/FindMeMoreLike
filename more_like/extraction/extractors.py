@@ -5,12 +5,12 @@ import glob
 import requests
 import time
 import logging
-import BeautifulSoup
+from bs4 import BeautifulSoup
 
 class DataExtractor(object):
     def __init__(self, project_config, saving_path):
         self.project_config = project_config
-        self.saving_path = saving_path
+        self.saving_path = saving_path # todo: maybe add an extractor type arg and eith that arg go to the relevant key in the config?
         self.existing_ids = self._get_existing_ids()
 
     def _get_existing_ids(self): #todo: maybe it's not a good idea ?
@@ -21,13 +21,12 @@ class DataExtractor(object):
         pass  # This method needs to be implemented todo: add an assertion if not with the class name
 
     def extract_data(self, ids_to_query):
-        """
-        Query and save movie data. Alert and raise errors if we reach the request limit or if the 'Response' is false.
-        :param [list] ids_to_query: A list of movie ids to query the IMDB API
-        :return: None, save the data json files
-        """
+        if not isinstance(ids_to_query, (tuple, list)):
+            ids_to_query = [ids_to_query]
         for i, movie_id in enumerate(ids_to_query):
-            if movie_id not in self.existing_ids: # if it's already existing then don't query it # todo: add a better cache invalidation
+            if movie_id in self.existing_ids: # if it's already existing then don't query it # todo: add a better cache invalidation
+                logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
+            else:
                 single_movie_data = self._extract_a_single_id(movie_id) # This method needs to be implemented
                 if single_movie_data:  # if it's not None
                     self.save(data=single_movie_data, movie_id=movie_id)
@@ -38,7 +37,6 @@ class DataExtractor(object):
     def save(self, data, movie_id):
         with open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:
             json.dump(data, j_file)
-
 
 class IMDBApiExtractor(DataExtractor):
     def __init__(self, *args, **kwargs): # todo: is this the best way?
@@ -66,7 +64,7 @@ class IMDBApiExtractor(DataExtractor):
             return None
             # raise ValueError("Response == False ? at {}".format(movie_id))
 
-        return response
+        return response.json()
 
 class WikiApiExtractor(DataExtractor):
     def __init__(self, imdb_api_saving_path, *args, **kwargs): # todo: is this the best way?
