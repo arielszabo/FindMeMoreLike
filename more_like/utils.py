@@ -22,6 +22,7 @@ def get_ids_from_web_page(html_url):
 
     return set(ids)
 
+
 def concatenate_vectors(project_config):
     """
     Open all the json files which hold for each IMDb id the movie's vector, concatenate them to a pandas DataFrame.
@@ -45,7 +46,7 @@ def calculate_similarity(vectors_df, project_config):
     Save for each movie id a dict with the other movie id's as the keys and their similarity as values.
 
 
-    :param vectors_df: [pandas' DataFrame]
+    :param vectors_df: [pandas' DataFrame] index must be the movies' id
     :param project_config: [dict] the project configuration
     """
     if project_config['similarity_method'] == 'cosine':
@@ -58,6 +59,8 @@ def calculate_similarity(vectors_df, project_config):
 
     save_similarity_measures(similarity_df, project_config=project_config)
 
+    return similarity_df
+
 
 def save_similarity_measures(similarity_df, project_config):
     """
@@ -66,6 +69,7 @@ def save_similarity_measures(similarity_df, project_config):
     :param similarity_df: [pandas' DataFrame]
     :param project_config: [dict] the project configuration
     """
+    os.makedirs(project_config['similar_list_saving_path'], exist_ok=True)
     for idx, row in similarity_df.iterrows():
         file_name = os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(idx))
         row.sort_values(ascending=False).to_json(file_name)
