@@ -34,4 +34,4 @@ def get_text_vectors(txt, doc2vec_model):
                                   remove_punctuations=True,
                                   remove_if_not_alpha=True,
                                   stem_word=False)
-    return doc2vec_model.infer_vector(clean_token_text, epochs=10000)
+    return doc2vec_model.infer_vector(clean_token_text, epochs=10000).tolist()
