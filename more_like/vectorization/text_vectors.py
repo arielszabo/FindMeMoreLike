@@ -26,3 +26,11 @@ def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remo
 
             tokenize_words.append(word)
     return tokenize_words
+
+def get_text_vectors(txt, doc2vec):
+    clean_token_text = token_text(full_text=txt,
+                                  remove_stop_words=True,
+                                  remove_punctuations=True,
+                                  remove_if_not_alpha=True,
+                                  stem_word=False)
+    return doc2vec.infer_vector(clean_token_text)
