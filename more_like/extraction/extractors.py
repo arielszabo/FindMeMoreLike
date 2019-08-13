@@ -21,7 +21,7 @@ class DataExtractor(object):
         pass  # This method needs to be implemented todo: add an assertion if not with the class name
 
     def extract_data(self, ids_to_query):
-        if not isinstance(ids_to_query, (tuple, list)):
+        if not isinstance(ids_to_query, (tuple, list, set)):
             ids_to_query = [ids_to_query]
         for i, movie_id in enumerate(ids_to_query):
             if movie_id in self.existing_ids: # if it's already existing then don't query it # todo: add a better cache invalidation
@@ -81,7 +81,7 @@ class WikiApiExtractor(DataExtractor):
             return ' '.join(query_info)
 
         else:
-            logging.info("There is no IMDB data for this IMDB_id")
+            logging.info("There is no IMDb data for this {} IMDb id".format(movie_id))
             return None
 
     def _get_page_id_by_text_search(self, text_to_search_for):
