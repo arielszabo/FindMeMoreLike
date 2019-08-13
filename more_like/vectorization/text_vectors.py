@@ -2,6 +2,7 @@ import nltk
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 import string
+import re
 
 
 def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remove_if_not_alpha=True, stem_word=False):
@@ -11,6 +12,7 @@ def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remo
     punctuations = list(string.punctuation)
 
     tokenize_words = []
+    full_text = re.sub(r'-+', ' ', full_text)
     for sentence in nltk.sent_tokenize(full_text.lower()):
         for word in nltk.word_tokenize(sentence):
             if word in stop_words and remove_stop_words == True:
