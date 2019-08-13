@@ -14,7 +14,7 @@ def open_json(full_file_path):
     return x
 
 
-def get_the_vectors(project_config):
+def get_the_vectors(project_config): # todo: REFACTOR this is not the way this should be
     doc2vec = Doc2Vec.load(project_config['doc2vec_model_path'])
 
     os.makedirs(project_config['vectors_saving_path'], exist_ok=True)

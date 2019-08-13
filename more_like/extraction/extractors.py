@@ -17,8 +17,8 @@ class DataExtractor(object):
         all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
         return list(map(lambda name: re.search(r'tt\d+', name).group(0), all_saved_files))
 
-    def _extract_a_single_id(self, movie_id): # This method needs to be implemented
-        pass  # This method needs to be implemented todo: add an assertion if not with the class name
+    def _extract_a_single_id(self, movie_id):
+        raise NotImplementedError("This method needs to be implemented here {}".format(type(self).__name__))
 
     def extract_data(self, ids_to_query):
         if not isinstance(ids_to_query, (tuple, list, set)):
@@ -85,6 +85,7 @@ class WikiApiExtractor(DataExtractor):
             return None
 
     def _get_page_id_by_text_search(self, text_to_search_for):
+        #todo: maybe do a new search if the first one cant find nothing ?
         if len(text_to_search_for) > 300: # WIKI Search request have a maximum allowed length of 300 chars
             text_to_search_for = text_to_search_for[:300]
         get_params = {
