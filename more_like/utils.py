@@ -5,6 +5,7 @@ import os
 import json
 import pandas as pd
 from sklearn import metrics
+from tqdm import tqdm
 
 def get_ids_from_web_page(html_url):
     """
@@ -30,7 +31,9 @@ def concatenate_vectors(project_config):
     :return: [pandas' DataFrame]
     """
     vectors_data = {}
-    for vector_file_name in os.listdir(project_config['vectors_saving_path']):
+    for vector_file_name in tqdm(os.listdir(project_config['vectors_saving_path']),
+                                 desc='Load vectors to concatenate',
+                                 leave=False):
         with open(os.path.join(project_config['vectors_saving_path'], vector_file_name), 'r') as json_file:
             vector = json.load(json_file)
 
@@ -75,7 +78,9 @@ def save_similarity_measures(similarity_df, project_config):
     :param project_config: [dict] the project configuration
     """
     os.makedirs(project_config['similar_list_saving_path'], exist_ok=True)
-    for idx, row in similarity_df.iterrows():
+    for idx, row in tqdm(similarity_df.iterrows(),
+                         desc='Saving similarity measures',
+                         leave=False):
         file_name = os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(idx))
         # todo: save here the top K (form config) to save time in sorting later?
         row.sort_values(ascending=False).reset_index(name='similarity_value').to_json(file_name, orient='records')

@@ -6,6 +6,7 @@ import requests
 import time
 import logging
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 class DataExtractor(object):
     def __init__(self, project_config, saving_path):
@@ -23,16 +24,13 @@ class DataExtractor(object):
     def extract_data(self, ids_to_query):
         if not isinstance(ids_to_query, (tuple, list, set)):
             ids_to_query = [ids_to_query]
-        for i, movie_id in enumerate(ids_to_query):
+        for i, movie_id in tqdm(enumerate(ids_to_query), desc='Extracted'):
             if movie_id in self.existing_ids: # if it's already existing then don't query it # todo: add a better cache invalidation
                 logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
             else:
                 single_movie_data = self._extract_a_single_id(movie_id) # This method needs to be implemented
                 if single_movie_data:  # if it's not None
                     self.save(data=single_movie_data, movie_id=movie_id)
-
-            percent_queried = 100 * (i + 1) / len(ids_to_query)
-            logging.info('Finished: {}%'.format(round(percent_queried, 2)))
 
     def save(self, data, movie_id):
         with open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:

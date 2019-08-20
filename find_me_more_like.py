@@ -51,12 +51,12 @@ if __name__ == '__main__':
 
     logging.info(project_config)
 
+    # GET The data:
     logging.info("Create folders to save raw data:")
     for api, saving_path in project_config['api_data_saving_path'].items():
         logging.info("raw data from the '{}' api is saved here - {}".format(api, saving_path))
         os.makedirs(saving_path, exist_ok=True)
 
-    # GET The data:
     imdb_extractor = extraction.IMDBApiExtractor(project_config=project_config,
                                                  saving_path=project_config['api_data_saving_path']['imdb'])
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
                                                  project_config=project_config,
                                                  saving_path=project_config['api_data_saving_path']['wiki'])
 
-    ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/chart/top?ref_=nv_mv_250')
+    ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
 
 
 
