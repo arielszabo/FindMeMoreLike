@@ -65,6 +65,11 @@ def calculate_similarity(vectors_df, project_config):
 def save_similarity_measures(similarity_df, project_config):
     """
     iterate over each line in the similarity DataFrame and save it to a json.
+    Which looks like this:
+    A list where each element is a dict of movie id and it's similarity value to the index movie id.
+    The list is sorted from the highest similarity_value to the lowest
+    [{'imdbID': , 'similarity_value':}, ...]
+
 
     :param similarity_df: [pandas' DataFrame]
     :param project_config: [dict] the project configuration
@@ -72,19 +77,5 @@ def save_similarity_measures(similarity_df, project_config):
     os.makedirs(project_config['similar_list_saving_path'], exist_ok=True)
     for idx, row in similarity_df.iterrows():
         file_name = os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(idx))
-        row.sort_values(ascending=False).to_json(file_name)  # todo: save here the top K (form config) to save time in sorting later?
-
-
-def load_and_sort(movie_id, project_config):
-    """
-    Load the movie id's similarity json and sort.
-    Return a sorted list of tuples (movie id, similarity value)
-
-    :param movie_id: [str] the movie id
-    :param project_config: [dict] the project configuration
-    :return: list of tuples sorted by the similarity value from top to bottom. [(movie id, similarity value), ...]
-    """
-    with open(os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(movie_id)), 'r') as jfile:
-        x = json.load(jfile)
-
-    return sorted(x.items(), key=lambda kv: kv[1], reverse=True)
+        # todo: save here the top K (form config) to save time in sorting later?
+        row.sort_values(ascending=False).reset_index(name='similarity_value').to_json(file_name, orient='records')
