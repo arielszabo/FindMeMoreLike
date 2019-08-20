@@ -6,3 +6,4 @@ enwiki_dbow/
 vectors_data/
 similar_list_data/
 .ipynb_checkpoints/
+*.ipynb
