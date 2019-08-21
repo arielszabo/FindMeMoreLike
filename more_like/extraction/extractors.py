@@ -107,16 +107,16 @@ class WikiApiExtractor(DataExtractor):
                 # todo: something better
                 return None
 
-            if response.json()['query']['searchinfo']['totalhits'] == 0:
-                logging.info(f'"{text_to_search_for}" have no results')
-                # reconstruct the query_properties with less info so maybe the query will succeed:
-                query_properties = query_properties[:-1]
-
             if 'error' in response.json():
                 logging.info(f'"{text_to_search_for}" had an error')
                 return None
 
-            return response.json()["query"]["search"][0]["pageid"]  # the first one is the best match
+            if response.json()['query']['searchinfo']['totalhits'] == 0:
+                logging.info(f'"{text_to_search_for}" have no results')
+                # reconstruct the query_properties with less info so maybe the query will succeed:
+                query_properties = query_properties[:-1]
+            else:
+                return response.json()["query"]["search"][0]["pageid"]  # the first one is the best match
 
     @staticmethod
     def adjust_to_maximum_allowed_query_length(query_properties, max_length=300):
@@ -130,7 +130,7 @@ class WikiApiExtractor(DataExtractor):
         total_length = 0
         for i in query_properties:
             total_length += len(i) + 1  # the additional 1 is for the space between words
-            if total_length <= max_length:
+            if total_length <= max_length + 1: # the additional 1 is for the extra space after the last word
                 allowed_size_query_properties.append(i)
 
         return allowed_size_query_properties
