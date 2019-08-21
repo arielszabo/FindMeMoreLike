@@ -6,6 +6,12 @@ import json
 import pandas as pd
 from sklearn import metrics
 from tqdm import tqdm
+import logging
+
+def open_json(full_file_path):
+    with open(full_file_path, 'r') as jfile:
+        x = json.load(jfile)
+    return x
 
 def get_ids_from_web_page(html_url):
     """

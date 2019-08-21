@@ -8,12 +8,6 @@ from tqdm import tqdm
 from more_like import extraction, vectorization, utils
 
 
-def open_json(full_file_path):
-    with open(full_file_path, 'r') as jfile:
-        x = json.load(jfile)
-    return x
-
-
 def get_the_vectors(project_config): # todo: REFACTOR this is not the way this should be
     doc2vec = Doc2Vec.load(project_config['doc2vec_model_path'])
 
@@ -22,9 +16,9 @@ def get_the_vectors(project_config): # todo: REFACTOR this is not the way this s
     imdb_data_path = project_config['api_data_saving_path']['imdb']
     wiki_data_path = project_config['api_data_saving_path']['wiki']
     for file_name in tqdm(os.listdir(imdb_data_path)):
-        imdb_data = open_json(os.path.join(imdb_data_path, file_name))
+        imdb_data = utils.open_json(os.path.join(imdb_data_path, file_name))
         if file_name in os.listdir(wiki_data_path):
-            wiki_data = open_json(os.path.join(wiki_data_path, file_name))
+            wiki_data = utils.open_json(os.path.join(wiki_data_path, file_name))
             imdb_data['Plot'] += ' ' + wiki_data['text']
 
         else:
