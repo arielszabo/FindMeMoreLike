@@ -11,10 +11,10 @@ from tqdm import tqdm
 class DataExtractor(object):
     def __init__(self, project_config, saving_path):
         self.project_config = project_config
-        self.saving_path = saving_path # todo: maybe add an extractor type arg and eith that arg go to the relevant key in the config?
+        self.saving_path = saving_path # todo: maybe add an extractor type arg and with that arg go to the relevant key in the config?
         self.existing_ids = self._get_existing_ids()
 
-    def _get_existing_ids(self): #todo: maybe it's not a good idea ?
+    def _get_existing_ids(self):
         all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
         return list(map(lambda name: re.search(r'tt\d+', name).group(0), all_saved_files))
 
@@ -76,38 +76,64 @@ class WikiApiExtractor(DataExtractor):
             with open(file_name, 'r') as jfile:
                 movie_json = json.load(jfile)
             query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type'], movie_json['Director']]
-            return ' '.join(query_info)
+            return query_info
 
         else:
             logging.info("There is no IMDb data for this {} IMDb id".format(movie_id))
             return None
 
-    def _get_page_id_by_text_search(self, text_to_search_for):
-        #todo: maybe do a new search if the first one cant find nothing ?
-        if len(text_to_search_for) > 300: # WIKI Search request have a maximum allowed length of 300 chars
-            text_to_search_for = text_to_search_for[:300]
-        get_params = {
-            'action': 'query',
-            'format': 'json',
-            'list': 'search',
-            'srsearch': text_to_search_for
-        }
-        response = requests.get(url=self.api_url, params=get_params)
+    def _get_page_id_by_text_search(self, query_properties):
+        """
 
-        if int(response.status_code) != 200:
-            logging.info(f'The request for "{text_to_search_for}" returned with status_code: {response.status_code}')
-            # todo: something better
-            return None
+        :param query_properties: [list] a list of the movie properties to use to build the text query.
+        :return:
+        """
+        # WIKI Search request have a maximum allowed length of 300 chars
+        query_properties = self.adjust_to_maximum_allowed_query_length(query_properties, max_length=300)
 
-        if response.json()['query']['searchinfo']['totalhits'] == 0:
-            logging.info(f'"{text_to_search_for}" have no results')
-            return None  # todo: something better
+        while query_properties:  # while the list is not empty
+            text_to_search_for = ' '.join(query_properties)
 
-        if 'error' in response.json():
-            logging.info(f'"{text_to_search_for}" had an error')
-            return None  # todo: something better
+            get_params = {
+                'action': 'query',
+                'format': 'json',
+                'list': 'search',
+                'srsearch': text_to_search_for
+            }
+            response = requests.get(url=self.api_url, params=get_params)
 
-        return response.json()["query"]["search"][0]["pageid"]  # the first one is the best match
+            if int(response.status_code) != 200:
+                logging.info(f'The request for "{text_to_search_for}" returned with status_code: {response.status_code}')
+                # todo: something better
+                return None
+
+            if response.json()['query']['searchinfo']['totalhits'] == 0:
+                logging.info(f'"{text_to_search_for}" have no results')
+                # reconstruct the query_properties with less info so maybe the query will succeed:
+                query_properties = query_properties[:-1]
+
+            if 'error' in response.json():
+                logging.info(f'"{text_to_search_for}" had an error')
+                return None
+
+            return response.json()["query"]["search"][0]["pageid"]  # the first one is the best match
+
+    @staticmethod
+    def adjust_to_maximum_allowed_query_length(query_properties, max_length=300):
+        """
+
+        :param query_properties: [list] a list of the movie properties to use to build the text query.
+        :param max_length: [int] the maximum size of characters wiki allows to send in a query.
+        :return:
+        """
+        allowed_size_query_properties = []
+        total_length = 0
+        for i in query_properties:
+            total_length += len(i) + 1  # the additional 1 is for the space between words
+            if total_length <= max_length:
+                allowed_size_query_properties.append(i)
+
+        return allowed_size_query_properties
 
     def _extract_text_first_section(self, page_id):
         params = {
@@ -133,7 +159,7 @@ class WikiApiExtractor(DataExtractor):
             if wiki_page_id:  # if it's not None
                 text_content = self._extract_text_first_section(wiki_page_id)
                 if text_content:  # if it's not None
-                    wiki_data = {'text': text_content,
+                    wiki_data = {'text': text_content.lower(),
                                  'wiki_page_id': wiki_page_id,
                                  'imdb_id': movie_id}
                     return wiki_data # else will return None and the 'extract_data' method won't save it
