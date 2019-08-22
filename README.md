@@ -5,7 +5,9 @@ Pre-Trained Doc2Vec model is saved in the 'enwiki_dbow' folder and it is from ht
 
 
 # TODO:
-1) Download more movies
-2) maybe use a db for the raw data
-3) clean the raw data jsons - add this as a method to the extractors
-4) get all the actors ?
+* Tests ! expand what we already have
+* Make a POC with the API
+* Download more movies
+* maybe use a db for the raw data
+* clean the raw data jsons - add this as a method to the extractors
+* get all the actors ?
