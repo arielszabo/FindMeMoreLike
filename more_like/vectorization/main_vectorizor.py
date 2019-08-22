@@ -41,7 +41,7 @@ def load_data(project_config):
             logging.info('{} has no wiki data'.format(file_name))
         all_data.append(imdb_data)
 
-    return pd.DataFrame(all_data)  # todo: clean this DataFrame, do a 'total text' column etc
+    return pd.DataFrame(all_data).set_index('imdbID')  # todo: clean this DataFrame, do a 'total text' column etc
 
 
 def create_vectors(project_config):
