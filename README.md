@@ -7,6 +7,7 @@ Pre-Trained Doc2Vec model is saved in the 'enwiki_dbow' folder and it is from ht
 # TODO:
 * Tests ! expand what we already have
 * Make a POC with the API
+* make the WIKI extractor better
 * Download more movies
 * maybe use a db for the raw data
 * clean the raw data jsons - add this as a method to the extractors
