@@ -40,9 +40,9 @@ def infer_doc2vec_vector(row, doc2vec_model):
     return doc2vec_model.infer_vector(clean_token_text, epochs=10000).tolist()
 
 
-def get_text_vectors(df, project_config):
+def get_text_vectors(df, doc2vec_model_path):
     np.random.seed(123)
-    doc2vec = Doc2Vec.load(project_config['doc2vec_model_path'])
+    doc2vec = Doc2Vec.load(doc2vec_model_path)
 
     df['text'] = df['text'].fillna('')
     df['full_text'] = df.apply(lambda row: row['text'] + ' ' + row['Plot'], axis=1)
