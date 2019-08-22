@@ -11,7 +11,8 @@ similar_list_saving_path: 'similar_list_data'
 doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
 
 vectorization:
-  text_vectors: true
+  - text_vectors
+  - genre
 
 
 similarity_method: 'cosine'
