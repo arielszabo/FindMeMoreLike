@@ -52,7 +52,7 @@ def create_vectors(project_config):
             'callable': text_vectors.get_text_vectors,
             'params': {'doc2vec_model_path': project_config['doc2vec_model_path']}
         },
-        'genre': {
+        'genre_vectors': {
             'callable': extract_from_comma_separated_strings,
             'params': {'column_name': 'genre'}
         }

@@ -12,7 +12,7 @@ doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
 
 vectorization:
   - text_vectors
-  - genre
+  - genre_vectors
 
 
 similarity_method: 'cosine'
