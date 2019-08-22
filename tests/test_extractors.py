@@ -93,14 +93,25 @@ def test_extractors():
 
 
     # WIKI
-    wiki_ids_to_query = ['tt0019254', 'tt9352780', 'tt10550884']
-    wiki_extractor.extract_data(ids_to_query=wiki_ids_to_query)
+    wiki_extractor.extract_data(ids_to_query=['tt0019254', 'tt9352780', 'tt10550884'])
 
-    for i in wiki_ids_to_query:
-        saved_wiki = utils.open_json(os.path.join('tests', 'saved_data_for_testing', 'wiki', '{}.json'.format(i)))
-        new_file_path = os.path.join(wiki_extractor.saving_path, '{}.json'.format(i))
-        extracted_wiki = utils.open_json(new_file_path)
+    extracted_wiki, saved_wiki, new_file_path = _extract_and_load(tt='tt0019254', extractor_instance=wiki_extractor)
+    assert json.dumps(extracted_wiki, sort_keys=True) == json.dumps(saved_wiki, sort_keys=True)
+    os.remove(new_file_path)  # delete the new file so next time it will need to be queried
 
-        # assert json.dumps(extracted_wiki, sort_keys=True) == json.dumps(saved_wiki, sort_keys=True)
-        assert extracted_wiki['text'] == saved_wiki['text']
-        os.remove(new_file_path)  # delete the new file so next time it will need to be queried
+    extracted_wiki, saved_wiki, new_file_path = _extract_and_load(tt='tt9352780', extractor_instance=wiki_extractor)
+    assert json.dumps(extracted_wiki, sort_keys=True) == json.dumps(saved_wiki, sort_keys=True)
+    os.remove(new_file_path)  # delete the new file so next time it will need to be queried
+
+    extracted_wiki, saved_wiki, new_file_path = _extract_and_load(tt='tt10550884', extractor_instance=wiki_extractor)
+    assert json.dumps(extracted_wiki, sort_keys=True) == json.dumps(saved_wiki, sort_keys=True)
+    os.remove(new_file_path)  # delete the new file so next time it will need to be queried
+
+
+
+def _extract_and_load(tt, extractor_instance):
+    saved_wiki = utils.open_json(os.path.join('tests', 'saved_data_for_testing', 'wiki', '{}.json'.format(tt)))
+    new_file_path = os.path.join(extractor_instance.saving_path, '{}.json'.format(tt))
+    extracted_wiki = utils.open_json(new_file_path)
+
+    return extracted_wiki, saved_wiki, new_file_path
