@@ -66,8 +66,6 @@ def calculate_similarity(vectors_df, project_config):
 
     similarity_df = pd.DataFrame(similarity, index=vectors_df.index, columns=vectors_df.index)
 
-    save_similarity_measures(similarity_df, project_config=project_config)
-
     return similarity_df
 
 
