@@ -12,6 +12,7 @@ class DataExtractor(object):
     def __init__(self, project_config, saving_path):
         self.project_config = project_config
         self.saving_path = saving_path # todo: maybe add an extractor type arg and with that arg go to the relevant key in the config?
+        os.makedirs(self.saving_path, exist_ok=True)
         self.existing_ids = self._get_existing_ids()
 
     def _get_existing_ids(self):
