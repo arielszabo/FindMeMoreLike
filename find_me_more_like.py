@@ -9,34 +9,7 @@ from tqdm import tqdm
 from more_like import extraction, vectorization, utils
 
 
-def get_the_vectors(project_config): # todo: REFACTOR this is not the way this should be
-    doc2vec = Doc2Vec.load(project_config['doc2vec_model_path'])
-
-    os.makedirs(project_config['vectors_saving_path'], exist_ok=True)
-
-    imdb_data_path = project_config['api_data_saving_path']['imdb']
-    wiki_data_path = project_config['api_data_saving_path']['wiki']
-    for file_name in tqdm(os.listdir(imdb_data_path)):
-        imdb_data = utils.open_json(os.path.join(imdb_data_path, file_name))
-        if file_name in os.listdir(wiki_data_path):
-            wiki_data = utils.open_json(os.path.join(wiki_data_path, file_name))
-            imdb_data['Plot'] += ' ' + wiki_data['text']
-
-        else:
-            logging.info('{} has no wiki data'.format(file_name))
-
-        vec = vectorization.get_text_vectors(txt=imdb_data['Plot'], doc2vec_model=doc2vec)
-
-        with open(os.path.join(project_config['vectors_saving_path'], file_name), 'w') as jfile:
-            json.dump(vec, jfile)
-
-
-def get_the_data(project_config):
-    logging.info("Create folders to save raw data:")
-    for api, saving_path in project_config['api_data_saving_path'].items():
-        logging.info("raw data from the '{}' api is saved here - {}".format(api, saving_path))
-        os.makedirs(saving_path, exist_ok=True)
-
+def get_the_data(project_config):  # todo: put this in a seperate file and import like this 'more_like.get_the_data'
     imdb_extractor = extraction.IMDBApiExtractor(project_config=project_config,
                                                  saving_path=project_config['api_data_saving_path']['imdb'])
 
@@ -69,15 +42,9 @@ if __name__ == '__main__':
     # GET The data:
     get_the_data(project_config)
 
-    # # CREATE The Vectors
-    # get_the_vectors(project_config=project_config)
-    #
-    # # CONCAT The Vectors
-    # vectors_df = utils.concatenate_vectors(project_config)
-
     # CREATE The Vectors
     vectors_df = vectorization.create_vectors(project_config)
-    vectors_df.to_pickle('vectors_df_{}.pickle'.format(datetime.datetime.now().strftime('%d_%m_%Y')))
+    # vectors_df.to_pickle('vectors_df_{}.pickle'.format(datetime.datetime.now().strftime('%d_%m_%Y')))
 
     # CALCULATE similarity
     similarity_df = utils.calculate_similarity(vectors_df, project_config)

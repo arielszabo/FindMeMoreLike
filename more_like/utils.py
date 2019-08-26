@@ -30,25 +30,6 @@ def get_ids_from_web_page(html_url):
     return set(ids)
 
 
-def concatenate_vectors(project_config):
-    """
-    Open all the json files which hold for each IMDb id the movie's vector, concatenate them to a pandas DataFrame.
-    :param project_config: [dict] the project configuration
-    :return: [pandas' DataFrame]
-    """
-    vectors_data = {}
-    for vector_file_name in tqdm(os.listdir(project_config['vectors_saving_path']),
-                                 desc='Load vectors to concatenate',
-                                 leave=False):
-        with open(os.path.join(project_config['vectors_saving_path'], vector_file_name), 'r') as json_file:
-            vector = json.load(json_file)
-
-        imdb_id = vector_file_name.split('.')[0] # to get only the part before the '.json' # todo: maybe do a regex?
-        vectors_data[imdb_id] = vector
-
-    return pd.DataFrame.from_dict(vectors_data, orient='index')
-
-
 def calculate_similarity(vectors_df, project_config):
     """
     calculate the similarity for the vectors.
