@@ -2,6 +2,7 @@ import yaml
 import logging
 import os
 import json
+import datetime
 from gensim.models import Doc2Vec
 from tqdm import tqdm
 
@@ -30,22 +31,7 @@ def get_the_vectors(project_config): # todo: REFACTOR this is not the way this s
             json.dump(vec, jfile)
 
 
-if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            # logging.FileHandler("{0}/{1}.log".format(logPath, fileName)),
-            logging.StreamHandler()
-        ])
-
-
-    with open('project_config.yaml', 'r') as yfile:
-        project_config = yaml.load(yfile)
-
-    logging.info(project_config)
-
-    # GET The data:
+def get_the_data(project_config):
     logging.info("Create folders to save raw data:")
     for api, saving_path in project_config['api_data_saving_path'].items():
         logging.info("raw data from the '{}' api is saved here - {}".format(api, saving_path))
@@ -65,13 +51,36 @@ if __name__ == '__main__':
     imdb_extractor.extract_data(ids_to_query=ids_to_query)
     wiki_extractor.extract_data(ids_to_query=ids_to_query)
 
+if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            # logging.FileHandler("{0}/{1}.log".format(logPath, fileName)),
+            logging.StreamHandler()
+        ])
+
+
+    with open('project_config.yaml', 'r') as yfile:
+        project_config = yaml.load(yfile)
+
+    logging.info(project_config)
+
+    # GET The data:
+    get_the_data(project_config)
+
+    # # CREATE The Vectors
+    # get_the_vectors(project_config=project_config)
+    #
+    # # CONCAT The Vectors
+    # vectors_df = utils.concatenate_vectors(project_config)
 
     # CREATE The Vectors
-    get_the_vectors(project_config=project_config)
-
-
-    # CONCAT The Vectors
-    vectors_df = utils.concatenate_vectors(project_config)
+    vectors_df = vectorization.create_vectors(project_config)
+    vectors_df.to_pickle('vectors_df_{}.pickle'.format(datetime.datetime.now().strftime('%d_%m_%Y')))
 
     # CALCULATE similarity
-    utils.calculate_similarity(vectors_df, project_config)
+    similarity_df = utils.calculate_similarity(vectors_df, project_config)
+
+    utils.save_similarity_measures(similarity_df, project_config=project_config)
+

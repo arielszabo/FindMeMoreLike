@@ -60,7 +60,7 @@ def create_vectors(project_config):
 
     all_vectors = []
     for vectorization_method in project_config['vectorization']:
-        if vectorization_method in vectorization_config:
+        if vectorization_method in vectorization_config:  # todo: Do I need this if? worst case a Key Error will raise which is a good thing in this case
             vectorizer = vectorization_config[vectorization_method]
 
             vectors = vectorizer['callable'](df, **vectorizer['params'])
