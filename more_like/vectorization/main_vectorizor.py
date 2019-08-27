@@ -41,8 +41,13 @@ def load_data(project_config):
             logging.info('{} has no wiki data'.format(file_name))
         all_data.append(imdb_data)
 
-    return pd.DataFrame(all_data).set_index('imdbID')  # todo: clean this DataFrame, do a 'total text' column etc
+    df = pd.DataFrame(all_data).set_index('imdbID')  # todo: clean this DataFrame, do a 'total text' column etc
 
+    # todo: change this:
+    df['text'] = df['text'].fillna('')
+    df['full_text'] = df.apply(lambda row: row['text'] + ' ' + row['Plot'], axis=1)
+
+    return df
 
 def create_vectors(project_config):
     df = load_data(project_config)
@@ -50,7 +55,11 @@ def create_vectors(project_config):
     vectorization_config = {
         'text_vectors': {
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': project_config['doc2vec_model_path']}
+            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'full_text'}
+        },
+        'title_vectors': {
+            'callable': text_vectors.get_text_vectors,
+            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'Title'}
         },
         'genre_vectors': {
             'callable': extract_from_comma_separated_strings,

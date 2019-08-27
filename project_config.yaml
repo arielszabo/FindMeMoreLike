@@ -12,6 +12,7 @@ doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
 
 vectorization:
   - text_vectors
+  - title_vectors
   - genre_vectors
 
 

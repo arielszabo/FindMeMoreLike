@@ -31,8 +31,8 @@ def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remo
     return tokenize_words
 
 
-def infer_doc2vec_vector(row, doc2vec_model):
-    clean_token_text = token_text(full_text=row['full_text'],
+def infer_doc2vec_vector(row, text_column_name, doc2vec_model):
+    clean_token_text = token_text(full_text=row[text_column_name],
                                   remove_stop_words=True, # todo: maybe it's better if this would be False
                                   remove_punctuations=True,
                                   remove_if_not_alpha=True,
@@ -40,12 +40,14 @@ def infer_doc2vec_vector(row, doc2vec_model):
     return doc2vec_model.infer_vector(clean_token_text, epochs=10000).tolist()
 
 
-def get_text_vectors(df, doc2vec_model_path):
+def get_text_vectors(df, text_column_name, doc2vec_model_path):
     np.random.seed(123)
     doc2vec = Doc2Vec.load(doc2vec_model_path)
 
-    df['text'] = df['text'].fillna('')
-    df['full_text'] = df.apply(lambda row: row['text'] + ' ' + row['Plot'], axis=1)
-    vectors_df = df.progress_apply(infer_doc2vec_vector, axis=1, doc2vec_model=doc2vec, result_type='expand')  # progress_apply is apply with tqdm progress bar
+    vectors_df = df.progress_apply(infer_doc2vec_vector,
+                                   axis=1,
+                                   text_column_name=text_column_name,
+                                   doc2vec_model=doc2vec,
+                                   result_type='expand')  # progress_apply is apply with tqdm progress bar
     vectors_df.columns = ['doc2vec_{}'.format(col) for col in vectors_df.columns]
     return vectors_df
