@@ -26,6 +26,43 @@ def extract_from_comma_separated_strings(full_df, column_name):
     # return pd.DataFrame(df_array, columns=fields, index=full_df.index)
 
 
+def rated_vectors(df, rated_col_name):
+    def _change_rating(movie_rating):
+        # what todo with UNRATED is it as Not Rated?
+        ratings_convertor = {
+            'R': 'Restricted',
+            'G': 'General Audiences',
+            'TV-Y': 'General Audiences',
+            'TV-Y7': 'General Audiences',  # this is not exactly 'General Audiences' but it's close enough
+            'TV-Y7-FV': 'General Audiences',  # this is not exactly 'General Audiences' but it's close enough
+            'TV-G': 'General Audiences',
+            'PG': 'Parental Guidance Suggested',
+            'TV-PG': 'Parental Guidance Suggested',
+            'GP': 'Parental Guidance Suggested',
+            'M/PG': 'Parental Guidance Suggested',
+            'M': 'Parental Guidance Suggested',
+            'PG-13': 'Parents Strongly Cautioned',
+            'TV-14': 'Parents Strongly Cautioned', # not exactly 'Parents Strongly Cautioned' but it's close enough
+            'NC-17': 'Adults Only',
+            'TV-MA': 'Adults Only',
+            'NR': 'Not Rated',
+            'X': 'Adults Only',
+            'N/A': None,
+            'NOT RATED': 'Not Rated',
+            'Not Rated': 'Not Rated',
+            'APPROVED': 'APPROVED',
+            'PASSED': 'PASSED',
+            'UNRATED': 'UNRATED'
+
+        }
+        if movie_rating not in ratings_convertor:
+            raise ValueError('This movie rating: {} does not exist in the convertor...'.format(movie_rating))
+        else:
+            return ratings_convertor[movie_rating]
+
+    return pd.get_dummies(df[rated_col_name].apply(_change_rating), dummy_na=True)
+
+
 def load_data(project_config):
     all_data = []
 
@@ -50,6 +87,7 @@ def load_data(project_config):
 
     return df
 
+
 def create_vectors(project_config):
     df = load_data(project_config)
 
@@ -65,7 +103,11 @@ def create_vectors(project_config):
         'genre_vectors': {
             'callable': extract_from_comma_separated_strings,
             'params': {'column_name': 'genre'}
-        }
+        },
+        # 'rated_vectors': {
+        #     'callable': rated_vectors,
+        #     'params': {'rated_col_name': 'Rated'}
+        # }
     }
 
     all_vectors = []
