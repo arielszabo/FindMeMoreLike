@@ -70,13 +70,14 @@ class WikiApiExtractor(DataExtractor):
         super().__init__(*args, **kwargs)
         self.imdb_api_saving_path = imdb_api_saving_path
         self.api_url = r'https://en.wikipedia.org/w/api.php'
+        self.rest_api_url = 'https://en.wikipedia.org/api/rest_v1'
 
     def _build_text_query(self, movie_id):
         file_name = os.path.join(self.imdb_api_saving_path, '{}.json'.format(movie_id))
         if os.path.exists(file_name):
             with open(file_name, 'r') as jfile:
                 movie_json = json.load(jfile)
-            query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type'], movie_json['Director']]
+            query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type']] # , movie_json['Director']
             return query_info
 
         else:
@@ -117,7 +118,8 @@ class WikiApiExtractor(DataExtractor):
                 # reconstruct the query_properties with less info so maybe the query will succeed:
                 query_properties = query_properties[:-1]
             else:
-                return response.json()["query"]["search"][0]["pageid"]  # the first one is the best match
+                best_match = response.json()["query"]["search"][0]  # the first one is the best match
+                return best_match["pageid"], best_match["title"]
 
     @staticmethod
     def adjust_to_maximum_allowed_query_length(query_properties, max_length=300):
@@ -151,14 +153,36 @@ class WikiApiExtractor(DataExtractor):
             return None
 
         html_content = response.json()['query']['pages'][str(page_id)]['extract']
-        return BeautifulSoup(html_content, 'html.parser').get_text()
+        soup = BeautifulSoup(html_content, 'html.parser').get_text()
+
+        return '\n'.join([p.get_text() for p in soup.find_all('p')])
+
+    def _extract_all_text(self, page_title):
+        res = requests.get('{rest_api_path}/page/html/{title}?redirect=true'.format(rest_api_path=self.rest_api_url,
+                                                                                    title=page_title.replace(' ', '_')
+                                                                                    ))
+        if int(res.status_code) != 200:
+            logging.info(f'The request for "{page_title}" returned with status_code: {res.status_code}') #todo: something better
+            return None
+
+        soup = BeautifulSoup(res.text, 'html.parser')
+        return '\n'.join([p.get_text() for p in soup.find_all('p')])
+
+    # @staticmethod
+    # def _movie_related_page_found(text):
+    #     for word in ['movie', 'film', 'show', 'television']:
+    #         if re.findall(r'[\s\b]?{}[\s\b]?'.format(word), text.lower()):  # if it not empty
+    #             return True
+    #     return False
 
     def _extract_a_single_id(self, movie_id):
         text_query = self._build_text_query(movie_id)
         if text_query:  # if it's not None
-            wiki_page_id = self._get_page_id_by_text_search(text_query)
-            if wiki_page_id:  # if it's not None
-                text_content = self._extract_text_first_section(wiki_page_id)
+            wiki_page_id, wiki_page_title = self._get_page_id_by_text_search(text_query)
+            # if wiki_page_id:  # if it's not None
+            #     text_content = self._extract_text_first_section(wiki_page_id)
+            if wiki_page_title:  # if it's not None
+                text_content = self._extract_all_text(page_title=wiki_page_title)
                 if text_content:  # if it's not None
                     wiki_data = {'text': text_content.lower(),
                                  'wiki_page_id': wiki_page_id,
