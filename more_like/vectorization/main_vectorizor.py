@@ -20,9 +20,10 @@ def extract_from_comma_separated_strings(full_df, column_name):
     vec = CountVectorizer(tokenizer=tokenizer_comma_separated_strings)
 
     df_array = vec.fit_transform(full_df[column_name.lower()].fillna('Not_provided')).toarray()
-    fields = ['{}_{}'.format(column_name, col).lower() for col in vec.get_feature_names()]
+    return pd.DataFrame(df_array, columns=vec.get_feature_names(), index=full_df.index)
+    # fields = ['{}_{}'.format(column_name, col).lower() for col in vec.get_feature_names()]
 
-    return pd.DataFrame(df_array, columns=fields, index=full_df.index)
+    # return pd.DataFrame(df_array, columns=fields, index=full_df.index)
 
 
 def load_data(project_config):
@@ -70,9 +71,11 @@ def create_vectors(project_config):
     all_vectors = []
     for vectorization_method in project_config['vectorization']:
         if vectorization_method in vectorization_config:  # todo: Do I need this if? worst case a Key Error will raise which is a good thing in this case
+            logging.info("Starting to create the {}".format(vectorization_method))
             vectorizer = vectorization_config[vectorization_method]
 
             vectors = vectorizer['callable'](df, **vectorizer['params'])
+            vectors.columns = ['{}_{}'.format(vectorization_method, col) for col in vectors.columns]
 
             all_vectors.append(vectors)
 

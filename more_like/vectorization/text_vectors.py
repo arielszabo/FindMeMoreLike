@@ -33,7 +33,7 @@ def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remo
 
 def infer_doc2vec_vector(row, text_column_name, doc2vec_model):
     clean_token_text = token_text(full_text=row[text_column_name],
-                                  remove_stop_words=True, # todo: maybe it's better if this would be False
+                                  remove_stop_words=False, # todo: maybe it's better if this would be False
                                   remove_punctuations=True,
                                   remove_if_not_alpha=True,
                                   stem_word=False)
