@@ -7,6 +7,7 @@ import re
 from sklearn.feature_extraction.text import CountVectorizer
 from .. import utils
 from . import text_vectors
+import datetime
 
 
 def tokenizer_comma_separated_strings(full_string):
@@ -113,6 +114,12 @@ def create_vectors(project_config):
     all_vectors = []
     for vectorization_method in project_config['vectorization']:
         if vectorization_method in vectorization_config:  # todo: Do I need this if? worst case a Key Error will raise which is a good thing in this case
+            cache_file_path = os.path.join(project_config['vectors_cache_path'], '{}.pickle'.format('vectorization_method'))
+            # if os.path.exists(cache_file_path) and \
+            #         datetime.datetime.fromtimestamp(os.path.getmtime(cache_file_path)) >= df['insertion_time'].max():
+            #     logging.info("Load cached {}".format(vectorization_method))
+            #     vectors = pd.read_pickle(cache_file_path)
+            # else:
             logging.info("Starting to create the {}".format(vectorization_method))
             vectorizer = vectorization_config[vectorization_method]
 
