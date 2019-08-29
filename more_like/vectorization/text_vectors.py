@@ -37,7 +37,7 @@ def infer_doc2vec_vector(row, text_column_name, doc2vec_model):
                                   remove_punctuations=True,
                                   remove_if_not_alpha=True,
                                   stem_word=False)
-    return doc2vec_model.infer_vector(clean_token_text, epochs=10000).tolist()
+    return doc2vec_model.infer_vector(clean_token_text).tolist() # todo: , epochs=1000 ?
 
 
 def get_text_vectors(df, text_column_name, doc2vec_model_path):
