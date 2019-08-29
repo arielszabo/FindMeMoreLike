@@ -178,10 +178,11 @@ class WikiApiExtractor(DataExtractor):
     def _extract_a_single_id(self, movie_id):
         text_query = self._build_text_query(movie_id)
         if text_query:  # if it's not None
-            wiki_page_id, wiki_page_title = self._get_page_id_by_text_search(text_query)
+            page_data = self._get_page_id_by_text_search(text_query)
             # if wiki_page_id:  # if it's not None
             #     text_content = self._extract_text_first_section(wiki_page_id)
-            if wiki_page_title:  # if it's not None
+            if page_data:  # if it's not None
+                wiki_page_id, wiki_page_title = page_data
                 text_content = self._extract_all_text(page_title=wiki_page_title)
                 if text_content:  # if it's not None
                     wiki_data = {'text': text_content.lower(),
