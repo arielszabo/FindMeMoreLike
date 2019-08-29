@@ -1,4 +1,4 @@
-h1 {
+.titles {
     color: white;
     text-align: center;
     text-transform: capitalize;
@@ -6,6 +6,14 @@ h1 {
     line-height: 1.5;
     text-shadow: 3px 2px 5px black;
     /* font-family: impact; */
+}
+
+#main {
+    font-size:100px;
+}
+
+#secondary {
+    font-size:25px;
 }
 
 .bg_image {
@@ -21,6 +29,21 @@ h1 {
     top:0;
     left:0;
     z-index:-1;
+}
+
+.imdb-button {
+color: #ffffff;
+background: #D5760B;
+}
+
+.imdb-button:hover {
+color: #000000;
+background: #8A4900;
+}
+
+.imdb-button:focus {
+color: #000000;
+background: #8A4900;
 }
 
 .main_search {

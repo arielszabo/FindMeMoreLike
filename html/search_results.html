@@ -7,8 +7,8 @@
 
     <!-- Bootstrap CSS -->
     <!-- todo: the first link was provided by boostrap the other form w3schools, seem the other one is better-->
-    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"-->
-    <!--integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="custom.css">
 
@@ -17,24 +17,34 @@
 <!--<body>-->
 <body style="background-image: linear-gradient(-90deg, orange, black);">
 <div class="bg_image"></div>
-<!-- todo: this should be in the amount of data given by the query:-->
+
 <div class="container">
-    <h1 style="font-size:100px"><strong>Find more like:</strong></h1>
+    <h1 style="font-size:100px"><strong>Find more like</strong></h1>
     <h1 style="font-size:50px">We have found these to be similar:</h1>
     <div class="panel-group" id="accordion">
-        <div class="panel panel-default" style="">
-            <div class="panel-heading">
-                <img src="imgs/film-background-13340679666UC.jpg" class="img-responsive">
-                <h4 class="panel-title">
+
+
+        <div class="panel panel-default">
+
+            <div class="panel-heading row m-0">
+                <img src="imgs/film-background-13340679666UC.jpg" class="col-sm-2"> <!-- todo: resize all images ! -->
+                <h4 class="panel-title col-sm-10" style="font-size:30px">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                        Title 1</a>
+                        <strong>Title 1 loooooooooong loooooooooooong title</strong></a>
                 </h4>
             </div>
+
             <div id="collapse1" class="panel-collapse collapse">
                 <div class="panel-body"> Title Description ...
                 </div>
+                <button type="button" class="btn btn-primary imdb-button">
+                    <a href="https://imdb.com">Link to IMDb</a>
+                </button>
+                <!-- todo: put here a link and margin etc-->
             </div>
         </div>
+
+
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -67,6 +77,7 @@
         </div>
     </div>
 </div>
+
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
