@@ -3,8 +3,18 @@ import utils
 import os
 
 app = Flask(__name__)
+root = os.path.dirname(os.path.dirname(__file__))
+
+def _send(filename):
+    with open(filename, 'r') as f:
+        return f.read()
 
 @app.route('/')
+def main():
+    return _send(os.path.join(root, 'html', 'homepage.html'))
+
+
+@app.route('/hello')
 def hello():
     return jsonify({'about': 'Hello World!'})
 
@@ -37,5 +47,5 @@ def load_showing_data(imdb_id):
 # todo: cookie-based authentication
 # todo: deal with bad inputs (?)
 # todo: connect to an actual server
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+    # app.run(debug=True)
