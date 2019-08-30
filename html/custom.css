@@ -12,7 +12,9 @@ body {
 }
 
 #main_title {
+    font-weight: bold;
     font-size:100px;
+
 }
 
 #secondary_title {
@@ -126,10 +128,10 @@ background: #8A4900;
 }
 
 .main_search form .inner-form .input-field.search_btn_section .btn-search:hover {
-  background: #690000;
+  background: #008A13;
 }
 
 
 .main_search form .inner-form .input-field.search_btn_section .btn-search:focus {
-  background: #690000;
+  background: #008A13;
 }
