@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, Response
 import json
 import os
 
@@ -11,14 +11,10 @@ def _open_json(full_file_path):
         return json.load(jfile)
 
 
-def _send(filename):
-    with open(filename, 'r') as f:
-        return f.read()
-
 
 @app.route('/')
 def main():
-    return _send(os.path.join(root, 'html', 'homepage.html'))
+    return render_template('homepage.html')
 
 
 @app.route('/hello')
@@ -51,6 +47,40 @@ def load_showing_data(imdb_id):
         })
     else:
         raise FileNotFoundError('.... ? ... ') #todo: is this how you should do it ?
+
+### TODO: static page for the time of transition
+@app.route("/<path:filename>")
+def static_file(filename = None):
+    #index.html  redirect
+
+    mime = 'text/html'
+    try:
+        content = open(root + '/html/' + filename, 'rb').read()
+    except Exception:
+        return not_found()
+
+    if filename[-4:] == '.css':
+        mime = 'text/css'
+    elif filename[-5:] == '.json':
+        mime = 'application/javascript'
+    elif filename[-3:] == '.js':
+        mime = 'application/javascript'
+    elif filename[-4:] == '.xml':
+        mime = 'text/xml'
+    elif filename[-4:] == '.jpg':
+        mime = 'image/jpg'
+    elif filename[-4:] == '.ico':
+        mime = 'image/x-icon'
+    return Response(content, mimetype=mime)
+
+@app.errorhandler(404)
+def not_found(e = None):
+    return render_template('404.html',
+                       h1='404',
+                       title='Four Oh Four',
+                       ), 404
+
+
 
 # todo: cookie-based authentication
 # todo: deal with bad inputs (?)
