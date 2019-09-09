@@ -4,6 +4,11 @@
 Pre-Trained Doc2Vec model is saved in the 'enwiki_dbow' folder and it is from https://github.com/jhlau/doc2vec
 
 
+## Web - development
+```
+FLASK_APP=webapp.api FLASK_DEBUG=1 flask run --port 5000
+```
+
 # TODO:
 * Tests ! expand what we already have
 * Make a POC with the API

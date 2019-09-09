@@ -33,6 +33,12 @@
                         <strong>Title 1 loooooooooong loooooooooooong title (YEAR)</strong></a>
                 </h4>
             </div>
+            <div>
+                {% for x in abc %}
+                    <H3>{{x.imdb_id}}</H3>
+                    <i>{{x.value}}</i>
+                {% endfor %}
+            </div>
 
             <div id="collapse1" class="panel-collapse collapse">
                 <div class="panel-body"> Title Description ...

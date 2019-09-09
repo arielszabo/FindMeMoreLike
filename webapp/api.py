@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, Response
+from flask import Flask, jsonify, render_template, Response, request
 import json
 import os
 
@@ -21,6 +21,12 @@ def main():
 def hello():
     return jsonify({'about': 'Hello World!'})
 
+
+@app.route('/search')
+def search():
+    # return request.args['search']
+    results = [{'imdb_id': 'tt18219', 'value': 0.99}, {'imdb_id': 'tt11', 'value': 0.8}]
+    return render_template('search_results.html', abc=results)
 
 @app.route('/find/<string:imdb_id>')
 def find_most_similar(imdb_id):
