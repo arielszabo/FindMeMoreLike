@@ -22,7 +22,7 @@
     <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
     <h2  id="secondary_title" class="titles">We have found these to be similar:</h2>
     <div class="panel-group" id="accordion">
-
+        {% for x in abc %}
 
         <div class="panel panel-default">
 
@@ -30,18 +30,13 @@
                 <img src="imgs/film-background-13340679666UC.jpg" class="col-sm-2"> <!-- todo: resize all images ! -->
                 <h4 class="panel-title col-sm-10">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                        <strong>Title 1 loooooooooong loooooooooooong title (YEAR)</strong></a>
+                        <strong>Title 1 loooooooooong loooooooooooong {{x.imdb_id}} (YEAR)</strong></a>
                 </h4>
             </div>
-            <div>
-                {% for x in abc %}
-                    <H3>{{x.imdb_id}}</H3>
-                    <i>{{x.value}}</i>
-                {% endfor %}
-            </div>
+
 
             <div id="collapse1" class="panel-collapse collapse">
-                <div class="panel-body"> Title Description ...
+                <div class="panel-body"> Title Description ... {{x.value}}
                 </div>
                 <button type="button" class="btn btn-primary imdb-button">
                     <a href="https://imdb.com">Link to IMDb</a>
@@ -50,37 +45,38 @@
             </div>
         </div>
 
+        {% endfor %}
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
-                        Collapsible Group 2</a>
-                </h4>
-            </div>
-            <div id="collapse2" class="panel-collapse collapse">
-                <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                    commodo consequat.
-                </div>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-                        Collapsible Group 3</a>
-                </h4>
-            </div>
-            <div id="collapse3" class="panel-collapse collapse">
-                <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-                    commodo consequat.
-                </div>
-            </div>
-        </div>
+        <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading">-->
+                <!--<h4 class="panel-title">-->
+                    <!--<a data-toggle="collapse" data-parent="#accordion" href="#collapse2">-->
+                        <!--Collapsible Group 2</a>-->
+                <!--</h4>-->
+            <!--</div>-->
+            <!--<div id="collapse2" class="panel-collapse collapse">-->
+                <!--<div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,-->
+                    <!--sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad-->
+                    <!--minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea-->
+                    <!--commodo consequat.-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading">-->
+                <!--<h4 class="panel-title">-->
+                    <!--<a data-toggle="collapse" data-parent="#accordion" href="#collapse3">-->
+                        <!--Collapsible Group 3</a>-->
+                <!--</h4>-->
+            <!--</div>-->
+            <!--<div id="collapse3" class="panel-collapse collapse">-->
+                <!--<div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,-->
+                    <!--sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad-->
+                    <!--minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea-->
+                    <!--commodo consequat.-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
     </div>
 </div>
 
