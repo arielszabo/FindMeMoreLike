@@ -54,33 +54,8 @@ def load_showing_data(imdb_id):
     else:
         raise FileNotFoundError('.... ? ... ') #todo: is this how you should do it ?
 
-### TODO: static page for the time of transition
-@app.route("/<path:filename>")
-def static_file(filename = None):
-    #index.html  redirect
-
-    mime = 'text/html'
-    try:
-        content = open(root + '/html/' + filename, 'rb').read()
-    except Exception:
-        return not_found()
-
-    if filename[-4:] == '.css':
-        mime = 'text/css'
-    elif filename[-5:] == '.json':
-        mime = 'application/javascript'
-    elif filename[-3:] == '.js':
-        mime = 'application/javascript'
-    elif filename[-4:] == '.xml':
-        mime = 'text/xml'
-    elif filename[-4:] == '.jpg':
-        mime = 'image/jpg'
-    elif filename[-4:] == '.ico':
-        mime = 'image/x-icon'
-    return Response(content, mimetype=mime)
-
 @app.errorhandler(404)
-def not_found(e = None):
+def not_found():
     return render_template('404.html',
                        h1='404',
                        title='Four Oh Four',
