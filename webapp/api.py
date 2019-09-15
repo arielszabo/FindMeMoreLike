@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, Response, request
+from flask import Flask, jsonify, render_template, Response, request, redirect
 import json
 import os
 
@@ -16,14 +16,18 @@ def _open_json(full_file_path):
 def main():
     return render_template('homepage.html')
 
+@app.route('/search')
+def search_redirect():
+    query = request.args.get('search')
+    return redirect('/search/' + query)
 
 @app.route('/search/<string:imdb_id>')
 def search(imdb_id):
     file_path = os.path.join('similar_list_data', '{}.json'.format(imdb_id))  # todo: load path from config
-    similarity_list = _open_json(file_path)[:5]
+    similarity_list = _open_json(file_path)[:10]
     results = [load_presentation_data(similar_movie['imdbID']) for similar_movie in similarity_list]
 
-    return render_template('search_results.html', similarity_results=results)
+    return render_template('search_results.html', similarity_results=results, search_request=imdb_id)
 
 
 def load_presentation_data(imdb_id):

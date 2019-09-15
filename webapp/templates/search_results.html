@@ -20,7 +20,7 @@
 
 <div class="container">
     <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
-    <h2  id="secondary_title" class="titles">We have found these to be similar:</h2>
+    <h2  id="secondary_title" class="titles">These are similar to {{search_request}}:</h2>
     <div class="panel-group" id="accordion">
         {% for imdb_data in similarity_results %}
 
@@ -28,55 +28,23 @@
 
             <div class="panel-heading row m-0">
                 <img src={{imdb_data.Poster}} class="col-sm-2"> <!-- todo: resize all images ! -->
-                <h4 class="panel-title col-sm-10">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                        <strong>{{imdb_data.Title}} {{imdb_data.Year}}</strong></a>
-                </h4>
-            </div>
+                <h4 class="panel-title col-sm-10">{{imdb_data.Title}} ({{imdb_data.Year}})</h4>
 
+                <p> {{imdb_data.Plot}} </p>
 
-            <div id="collapse1" class="panel-collapse collapse">
-                <div class="panel-body"> {{imdb_data.Plot}}
-                </div>
-                <button type="button" class="btn btn-primary imdb-button">
+                <p> Directed by - {{imdb_data.Director}} </p>
+                <button>
                     <a href={{imdb_data.IMDb_path}}>Link to IMDb</a>
                 </button>
                 <!-- todo: put here a link and margin etc-->
             </div>
+
+
+
         </div>
 
         {% endfor %}
 
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading">-->
-                <!--<h4 class="panel-title">-->
-                    <!--<a data-toggle="collapse" data-parent="#accordion" href="#collapse2">-->
-                        <!--Collapsible Group 2</a>-->
-                <!--</h4>-->
-            <!--</div>-->
-            <!--<div id="collapse2" class="panel-collapse collapse">-->
-                <!--<div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,-->
-                    <!--sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad-->
-                    <!--minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea-->
-                    <!--commodo consequat.-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading">-->
-                <!--<h4 class="panel-title">-->
-                    <!--<a data-toggle="collapse" data-parent="#accordion" href="#collapse3">-->
-                        <!--Collapsible Group 3</a>-->
-                <!--</h4>-->
-            <!--</div>-->
-            <!--<div id="collapse3" class="panel-collapse collapse">-->
-                <!--<div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipisicing elit,-->
-                    <!--sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad-->
-                    <!--minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea-->
-                    <!--commodo consequat.-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
     </div>
 </div>
 
