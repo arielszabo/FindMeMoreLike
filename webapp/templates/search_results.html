@@ -22,24 +22,24 @@
     <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
     <h2  id="secondary_title" class="titles">We have found these to be similar:</h2>
     <div class="panel-group" id="accordion">
-        {% for x in abc %}
+        {% for imdb_data in similarity_results %}
 
         <div class="panel panel-default">
 
             <div class="panel-heading row m-0">
-                <img src="/static/imgs/film-background-13340679666UC.jpg" class="col-sm-2"> <!-- todo: resize all images ! -->
+                <img src={{imdb_data.Poster}} class="col-sm-2"> <!-- todo: resize all images ! -->
                 <h4 class="panel-title col-sm-10">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                        <strong>Title 1 loooooooooong loooooooooooong {{x.imdb_id}} (YEAR)</strong></a>
+                        <strong>{{imdb_data.Title}} {{imdb_data.Year}}</strong></a>
                 </h4>
             </div>
 
 
             <div id="collapse1" class="panel-collapse collapse">
-                <div class="panel-body"> Title Description ... {{x.value}}
+                <div class="panel-body"> {{imdb_data.Plot}}
                 </div>
                 <button type="button" class="btn btn-primary imdb-button">
-                    <a href="https://imdb.com">Link to IMDb</a>
+                    <a href={{imdb_data.IMDb_path}}>Link to IMDb</a>
                 </button>
                 <!-- todo: put here a link and margin etc-->
             </div>
