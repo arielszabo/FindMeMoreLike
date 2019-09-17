@@ -50,4 +50,3 @@ if __name__ == '__main__':
     similarity_df = utils.calculate_similarity(vectors_df, project_config)
 
     utils.save_similarity_measures(similarity_df, project_config=project_config)
-
