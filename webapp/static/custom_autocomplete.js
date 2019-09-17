@@ -1,7 +1,7 @@
 var options = {
-	url: "static/countries.json",
+	url: "static/title_and_id_mapping.json",
 
-	getValue: "name",
+	getValue: "title",
 
 	list: {
 		match: {
@@ -9,7 +9,7 @@ var options = {
 		},
 		maxNumberOfElements: 10,
 		onSelectItemEvent: function() {
-			var value = $("#provider-json").getSelectedItemData().code;
+			var value = $("#provider-json").getSelectedItemData().imdbid;
 
 			$("#data-holder").val(value).trigger("change");
 		},
