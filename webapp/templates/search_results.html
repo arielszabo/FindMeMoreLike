@@ -1,23 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <!-- todo: the first link was provided by boostrap the other form w3schools, seem the other one is better-->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/custom.css">
-
-    <title>FindMeMoreLike_HomePage</title>
-</head>
-<!--<body>-->
-<body>
-<div class="bg_image"></div>
-
+{% include 'include/header.html' %}
 <div class="container">
     <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
     <h2  id="secondary_title" class="titles">These are similar to {{search_request}}:</h2>
@@ -27,15 +8,19 @@
         <div class="panel panel-default">
 
             <div class="panel-heading row m-0">
-                <img src={{imdb_data.Poster}} class="col-sm-2"> <!-- todo: resize all images ! -->
+                <!--<div class="col-sm-2">-->
+                    <!--<p> This is as long as this may be it seidkdksdk dshdshjdjdj dskdkdsk dsjdksdlsds</p>-->
+                    <img src={{imdb_data.Poster}} class="col-sm-2 poster_img"> <!-- todo: resize all images ! -->
+                <!--</div>-->
+
                 <h4 class="panel-title col-sm-10">{{imdb_data.Title}} ({{imdb_data.Year}})</h4>
 
-                <p> {{imdb_data.Plot}} </p>
+                <!--<p> {{imdb_data.Plot}} </p>-->
 
-                <p> Directed by - {{imdb_data.Director}} </p>
-                <button>
-                    <a href={{imdb_data.IMDb_path}}>Link to IMDb</a>
-                </button>
+                <!--<p> Directed by - {{imdb_data.Director}} </p>-->
+                <!--<button>-->
+                    <!--<a href={{imdb_data.IMDb_path}}>Link to IMDb</a>-->
+                <!--</button>-->
                 <!-- todo: put here a link and margin etc-->
             </div>
 
@@ -47,17 +32,4 @@
 
     </div>
 </div>
-
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-</body>
-</html>
+{% include 'include/footer.html' %}
