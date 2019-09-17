@@ -16,7 +16,7 @@ var options = {
 	},
 	highlightPhrase: true,
 
-	theme: "square"
+	theme: "bootstrap"
 };
 
 $("#provider-json").easyAutocomplete(options);
