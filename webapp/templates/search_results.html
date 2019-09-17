@@ -1,35 +1,43 @@
 {% include 'include/header.html' %}
-<div class="container">
+<div class="container"> <!--# todo make sure this is centered no matter the inline text length-->
     <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
-    <h2  id="secondary_title" class="titles">These are similar to {{search_request}}:</h2>
-    <div class="panel-group" id="accordion">
-        {% for imdb_data in similarity_results %}
-
-        <div class="panel panel-default">
-
-            <div class="panel-heading row m-0">
-                <!--<div class="col-sm-2">-->
-                    <!--<p> This is as long as this may be it seidkdksdk dshdshjdjdj dskdkdsk dsjdksdlsds</p>-->
-                    <img src={{imdb_data.Poster}} class="col-sm-2 poster_img"> <!-- todo: resize all images ! -->
-                <!--</div>-->
-
-                <h4 class="panel-title col-sm-10">{{imdb_data.Title}} ({{imdb_data.Year}})</h4>
-
-                <!--<p> {{imdb_data.Plot}} </p>-->
-
-                <!--<p> Directed by - {{imdb_data.Director}} </p>-->
-                <!--<button>-->
-                    <!--<a href={{imdb_data.IMDb_path}}>Link to IMDb</a>-->
-                <!--</button>-->
-                <!-- todo: put here a link and margin etc-->
+    <div class="row">
+        <div class="panel panel-default widget">
+            <div class="panel-heading">
+                <h2  id="secondary_title" class="titles">These are similar to {{search_request}}:</h2>
             </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                     {% for imdb_data in similarity_results %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-xs-2 col-md-1">
+                                <img src="{{imdb_data.Poster}}" class="img-circle img-responsive" alt="" /></div>
+                            <div class="col-xs-10 col-md-11">
+                                <div>
+                                    <a href={{imdb_data.IMDb_path}}>
+                                        {{imdb_data.Title}} ({{imdb_data.Year}})</a>
+                                    <div class="mic-info">
+                                        Directed by: {{imdb_data.Director}}
+                                    </div>
+                                </div>
+                                <div class="comment-text">
+                                   {{imdb_data.Plot}}
+                                </div>
+                                <div class="action">
+                                    <button>
+                                        <a href={{imdb_data.IMDb_path}}>Link to IMDb</a>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
 
-
-
+                </ul>
+                <a href="#" class="btn btn-primary btn-sm btn-block" role="button"><span class="glyphicon glyphicon-refresh"></span> More</a>
+            </div>
         </div>
-
-        {% endfor %}
-
     </div>
 </div>
 {% include 'include/footer.html' %}
