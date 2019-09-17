@@ -51,24 +51,24 @@ def test_build_text_query():
 def test_wiki_adjust_to_maximum_allowed_query_length():
     # This is an static method:
 
-    x = extraction.WikiApiExtractor.adjust_to_maximum_allowed_query_length(query_properties=['1234', '5678', '90'],
-                                                                           max_length=10)
+    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+                                                                          max_length=10)
     assert x == ['1234', '5678']
 
-    x = extraction.WikiApiExtractor.adjust_to_maximum_allowed_query_length(query_properties=['1234', '5678', '90'],
-                                                                           max_length=100)
+    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+                                                                          max_length=100)
     assert x == ['1234', '5678', '90']
 
-    x = extraction.WikiApiExtractor.adjust_to_maximum_allowed_query_length(query_properties=['1234', '5678', '90'],
-                                                                           max_length=1)
+    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+                                                                          max_length=1)
     assert x == []
 
-    x = extraction.WikiApiExtractor.adjust_to_maximum_allowed_query_length(query_properties=['1234', '5678', '90'],
-                                                                           max_length=6)
+    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+                                                                          max_length=6)
     assert x == ['1234']
 
-    x = extraction.WikiApiExtractor.adjust_to_maximum_allowed_query_length(query_properties=['1234', '5678', '90'],
-                                                                           max_length=4)
+    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+                                                                          max_length=4)
     assert x == ['1234']
 
 

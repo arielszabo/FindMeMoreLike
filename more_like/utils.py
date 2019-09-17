@@ -21,12 +21,12 @@ def get_ids_from_web_page(html_url):
     page = requests.get(url=html_url)
     soup = BeautifulSoup(page.text, 'html.parser')
 
-    ids = []
+    ids = set()
     for link in soup.find_all('a'):
         for idx in re.findall(r'tt\d+', str(link)):
-            ids.append(idx)
+            ids.add(idx)
 
-    return set(ids)
+    return ids
 
 
 def calculate_similarity(vectors_df, project_config):
