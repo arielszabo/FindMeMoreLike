@@ -7,7 +7,7 @@ VERSION_NUMBER = "0.0.1"
 ONE_PAGE_SUGGESTIONS_AMOUNT = 10
 
 app = Flask(__name__)
-root = os.path.dirname(os.path.dirname(__file__))
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def _open_json(full_file_path):
@@ -27,7 +27,7 @@ def main():
 @app.route('/search')
 def search_redirect():
     query = request.args.get('imdbid')
-    title = request.args.get('title')
+    title = request.args.get('movie-name')
     return redirect('/search/' + query + '/' + title)
 
 @app.route('/search/<string:imdb_id>/<string:title>')
@@ -60,12 +60,12 @@ def load_presentation_data(imdb_id):
         raise FileNotFoundError(f'.... {file_path} ... ') #todo: is this how you should do it ?
 
 
-@app.errorhandler(404)
-def not_found():
-    return render_template('404.html',
-                       h1='404',
-                       title='Four Oh Four',
-                       ), 404
+# @app.errorhandler(404)
+# def not_found():
+#     return render_template('404.html',
+#                        h1='404',
+#                        title='Four Oh Four',
+#                        ), 404
 
 
 
