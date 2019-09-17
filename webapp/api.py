@@ -21,7 +21,7 @@ def main():
 
 @app.route('/search')
 def search_redirect():
-    query = request.args.get('search')
+    query = request.args.get('imdbid')
     return redirect('/search/' + query)
 
 @app.route('/search/<string:imdb_id>')

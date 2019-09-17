@@ -1,10 +1,10 @@
 {% include 'include/header.html' %}
-<div class="container"> <!--# todo make sure this is centered no matter the inline text length-->
+<div class="container"> <!--# todo make sure this is centered no matter the inline text length https://bootsnipp.com/snippets/yPoe-->
     <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
     <div class="row">
         <div class="panel panel-default widget">
             <div class="panel-heading">
-                <h2  id="secondary_title" class="titles">These are similar to {{search_request}}:</h2>
+                <h2 class="titles">These are similar to {{search_request}}:</h2>
             </div>
             <div class="panel-body">
                 <ul class="list-group">
@@ -12,8 +12,11 @@
                     <li class="list-group-item">
                         <div class="row">
                             <div class="col-xs-2 col-md-1">
-                                <img src="{{imdb_data.Poster}}" class="img-circle img-responsive" alt="" /></div>
-                            <div class="col-xs-10 col-md-11">
+                                <a href={{imdb_data.IMDb_path}}>
+                                    <img src="{{imdb_data.Poster}}" class="poster_img" alt="" />
+                                </a>
+                            </div>
+                            <div class="col-xs-8 col-md-10">
                                 <div>
                                     <a href={{imdb_data.IMDb_path}}>
                                         {{imdb_data.Title}} ({{imdb_data.Year}})</a>
@@ -24,11 +27,9 @@
                                 <div class="comment-text">
                                    {{imdb_data.Plot}}
                                 </div>
-                                <div class="action">
-                                    <button>
-                                        <a href={{imdb_data.IMDb_path}}>Link to IMDb</a>
-                                    </button>
-                                </div>
+                            </div>
+                            <div class="col-xs-2 col-md-1">
+                                Seen / Not-Seen buttom is coming soon ..
                             </div>
                         </div>
                     </li>
