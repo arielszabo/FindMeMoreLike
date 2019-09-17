@@ -2,6 +2,9 @@ from flask import Flask, jsonify, render_template, Response, request, redirect
 import json
 import os
 
+VERSION_NUMBER = "0.0.1"
+ONE_PAGE_SUGGESTIONS_AMOUNT = 10
+
 app = Flask(__name__)
 root = os.path.dirname(os.path.dirname(__file__))
 
@@ -14,7 +17,7 @@ def _open_json(full_file_path):
 
 @app.route('/')
 def main():
-    return render_template('homepage.html')
+    return render_template('homepage.html', version_number=VERSION_NUMBER)
 
 @app.route('/search')
 def search_redirect():
@@ -24,10 +27,13 @@ def search_redirect():
 @app.route('/search/<string:imdb_id>')
 def search(imdb_id):
     file_path = os.path.join('similar_list_data', '{}.json'.format(imdb_id))  # todo: load path from config
-    similarity_list = _open_json(file_path)[:10]
+    similarity_list = _open_json(file_path)[:ONE_PAGE_SUGGESTIONS_AMOUNT]
     results = [load_presentation_data(similar_movie['imdbID']) for similar_movie in similarity_list]
 
-    return render_template('search_results.html', similarity_results=results, search_request=imdb_id)
+    return render_template('search_results.html',
+                           similarity_results=results,
+                           search_request=imdb_id,
+                           version_number=VERSION_NUMBER)
 
 
 def load_presentation_data(imdb_id):
