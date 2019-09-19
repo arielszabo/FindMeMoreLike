@@ -28,18 +28,27 @@ def main():
 def search_redirect():
     query = request.args.get('imdbid')
     title = request.args.get('movie-name')
-    return redirect('/search/' + query + '/' + title)
+    page_index = request.args.get('page_index', default=0)
+    return redirect(f'/search/{query}/{title}/{page_index}')
 
-@app.route('/search/<string:imdb_id>/<string:title>')
-def search(imdb_id, title):
+@app.route('/search/<string:imdb_id>/<string:title>/<int:page_index>')
+def search(imdb_id, title, page_index):
+    if page_index < 0: # todo: what ?
+        page_index = 0
     file_path = os.path.join(root, project_config["similar_list_saving_path"], '{}.json'.format(imdb_id))
-    similarity_list = _open_json(file_path)[:ONE_PAGE_SUGGESTIONS_AMOUNT]
-    results = [load_presentation_data(similar_movie['imdbID']) for similar_movie in similarity_list]
+    similarity_list = _open_json(file_path)
+
+    start_index = ONE_PAGE_SUGGESTIONS_AMOUNT*page_index
+    end_index = ONE_PAGE_SUGGESTIONS_AMOUNT*(page_index+1)
+    sliced_similarity_list = similarity_list[start_index:end_index]
+
+    results = [load_presentation_data(similar_movie['imdbID']) for similar_movie in sliced_similarity_list]
 
     return render_template('search_results.html',
                            similarity_results=results,
                            request_title=title,
-                           search_request=imdb_id,
+                           search_request=imdb_id,  #todo: rename
+                           current_page_index=page_index,
                            version_number=VERSION_NUMBER)
 
 

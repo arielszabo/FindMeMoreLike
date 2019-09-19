@@ -36,12 +36,24 @@
                     {% endfor %}
 
                 </ul>
-                <a href="#" class="btn btn-primary btn-sm btn-block" role="button"><span class="glyphicon glyphicon-refresh"></span> More</a>
-
-                <a href="/"><span class="btn btn-primary">Search another title</span></a><!--todo: change the text-->
+                <div class="row">
+                      <div class="col">
+                          <!--# todo is this the right link ? -->
+                          <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index - 1}}"  class="btn btn-primary btn-sm btn-block" role="button">
+                              <span class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
+                      </div>
+                      <div class="col">
+                          <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index + 1}}"  class="btn btn-primary btn-sm btn-block" role="button">
+                              Next Page <span class="glyphicon glyphicon-chevron-right"></span></a>
+                      </div>
+                </div>
             </div>
         </div>
     </div>
+    <center>
+        <a href="/" class="btn btn-primary btn-sm" role="button">
+                    <span class="glyphicon glyphicon-home"> Home Page</span>
+        </a>
+    </center>
 </div>
-
 {% include 'include/footer.html' %}
