@@ -1,10 +1,10 @@
 {% include 'include/header.html' %}
 <div class="container"> <!--# todo make sure this is centered no matter the inline text length https://bootsnipp.com/snippets/yPoe-->
-    <h1 id="main_title" class="titles"><strong>Find more like</strong></h1>
+    <a href="/"><h1 id="main_title" class="titles"><strong>Find more like</strong></h1></a>
     <div class="row">
         <div class="panel panel-default widget">
             <div class="panel-heading">
-                <h2 class="titles">These are similar to {{request_title}}:</h2>
+                <h2 class="titles">These are similar to "{{request_title}}":</h2>
             </div>
             <div class="panel-body">
                 <ul class="list-group">
@@ -37,8 +37,11 @@
 
                 </ul>
                 <a href="#" class="btn btn-primary btn-sm btn-block" role="button"><span class="glyphicon glyphicon-refresh"></span> More</a>
+
+                <a href="/"><span class="btn btn-primary">Search another title</span></a><!--todo: change the text-->
             </div>
         </div>
     </div>
 </div>
+
 {% include 'include/footer.html' %}
