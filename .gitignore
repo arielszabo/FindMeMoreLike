@@ -1,0 +1,14 @@
+*__pycache__/
+omdb_user_key.txt
+raw_wiki_data/
+raw_imdb_data/
+enwiki_dbow/
+vectors_data/
+similar_list_data/
+.ipynb_checkpoints/
+*.ipynb
+vectors_cache/
+all_movie_ids_to_query.json
+tests/testing_raw_wiki_data/tt0019254.json
+tests/testing_raw_wiki_data/tt10550884.json
+tests/testing_raw_wiki_data/tt9352780.json

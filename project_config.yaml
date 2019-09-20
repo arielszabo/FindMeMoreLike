@@ -1,0 +1,20 @@
+user_api_key_path: 'omdb_user_key.txt'
+
+api_data_saving_path:
+  imdb: 'raw_imdb_data'
+  wiki: 'raw_wiki_data'
+
+vectors_cache_path: 'vectors_cache'
+vectors_saving_path: 'vectors_data'
+
+similar_list_saving_path: 'similar_list_data'
+
+doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
+
+vectorization:
+  - text_vectors
+  - title_vectors
+  - genre_vectors
+
+
+similarity_method: 'cosine'
