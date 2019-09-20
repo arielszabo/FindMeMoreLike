@@ -40,6 +40,18 @@ body {
 
 }
 
+.centered-container {
+    min-height: 100vh;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+        justify-content: center;
+  -ms-flex-align: center;
+        align-items: center;
+  background-size: cover;
+  background-position: center center;
+}
+
 .main_search {
   min-height: 100vh;
   display: -ms-flexbox;
