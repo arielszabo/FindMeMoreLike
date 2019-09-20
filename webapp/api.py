@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, Response, request, redirect
+from flask import Flask, jsonify, render_template, Response, request, redirect, abort
 import json
 import os
 import yaml
@@ -8,6 +8,7 @@ VERSION_NUMBER = "0.0.1"
 ONE_PAGE_SUGGESTIONS_AMOUNT = 10
 
 app = Flask(__name__)
+
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -37,7 +38,9 @@ def search(imdb_id, title, page_index):
     file_path = os.path.join(root, project_config["similar_list_saving_path"], '{}.json'.format(imdb_id))
     similarity_list = _open_json(file_path)
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
-    # todo: if page_index > max_page_number -> 404
+    if page_index > max_page_number:
+        abort(404, description="Resource not found")
+
     start_index = ONE_PAGE_SUGGESTIONS_AMOUNT*page_index
     end_index = ONE_PAGE_SUGGESTIONS_AMOUNT*(page_index+1)
     sliced_similarity_list = similarity_list[start_index:end_index]
@@ -70,13 +73,12 @@ def load_presentation_data(imdb_id):
         raise FileNotFoundError(f'.... {file_path} ... ') #todo: is this how you should do it ?
 
 
-# @app.errorhandler(404)
-# def not_found():
-#     return render_template('404.html',
-#                        h1='404',
-#                        title='Four Oh Four',
-#                        ), 404
-
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html',
+                       h1='404',
+                       title='Four Oh Four',
+                       ), 404
 
 
 # todo: cookie-based authentication
