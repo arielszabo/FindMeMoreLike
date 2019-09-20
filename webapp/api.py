@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template, Response, request, redirect
 import json
 import os
 import yaml
+import math
 
 VERSION_NUMBER = "0.0.1"
 ONE_PAGE_SUGGESTIONS_AMOUNT = 10
@@ -33,11 +34,10 @@ def search_redirect():
 
 @app.route('/search/<string:imdb_id>/<string:title>/<int:page_index>')
 def search(imdb_id, title, page_index):
-    if page_index < 0: # todo: what ?
-        page_index = 0
     file_path = os.path.join(root, project_config["similar_list_saving_path"], '{}.json'.format(imdb_id))
     similarity_list = _open_json(file_path)
-
+    max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
+    # todo: if page_index > max_page_number -> 404
     start_index = ONE_PAGE_SUGGESTIONS_AMOUNT*page_index
     end_index = ONE_PAGE_SUGGESTIONS_AMOUNT*(page_index+1)
     sliced_similarity_list = similarity_list[start_index:end_index]
@@ -49,6 +49,7 @@ def search(imdb_id, title, page_index):
                            request_title=title,
                            search_request=imdb_id,  #todo: rename
                            current_page_index=page_index,
+                           max_page_number=max_page_number,
                            version_number=VERSION_NUMBER)
 
 

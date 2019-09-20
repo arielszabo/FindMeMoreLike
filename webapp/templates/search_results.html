@@ -29,7 +29,7 @@
                                 </div>
                             </div>
                             <div class="col-xs-2 col-md-1">
-                               <input type="checkbox" name="SeenThis"> Seen <!--# todo add a show seen movies after login -->
+                                <input type="checkbox" name="SeenThis"> Seen <!--# todo add a show seen movies after login -->
                             </div>
                         </div>
                     </li>
@@ -38,13 +38,16 @@
                 </ul>
                 <div class="row">
                       <div class="col">
-                          <!--# todo is this the right link ? -->
-                          <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index - 1}}"  class="btn btn-primary btn-sm btn-block" role="button">
+                          {% if current_page_index > 0 %}
+                            <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index - 1}}"  class="btn btn-primary btn-sm btn-block" role="button">
                               <span class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
+                          {% endif %}
                       </div>
                       <div class="col">
+                          {% if current_page_index < max_page_number %}
                           <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index + 1}}"  class="btn btn-primary btn-sm btn-block" role="button">
                               Next Page <span class="glyphicon glyphicon-chevron-right"></span></a>
+                          {% endif %}
                       </div>
                 </div>
             </div>
