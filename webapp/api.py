@@ -18,7 +18,7 @@ def _open_json(full_file_path):
 
 
 with open(os.path.join(root, 'project_config.yaml'), 'r') as yfile:
-    project_config = yaml.load(yfile)
+    project_config = yaml.load(yfile, Loader=yaml.FullLoader)
 
 
 

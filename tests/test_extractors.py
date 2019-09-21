@@ -8,7 +8,7 @@ from more_like import extraction, vectorization, utils
 
 def load_test_config():
     with open(os.path.join('tests', 'testing_config.yaml'), 'r') as yfile:
-        testing_config = yaml.load(yfile)
+        testing_config = yaml.load(yfile, Loader=yaml.FullLoader)
     return testing_config
 
 

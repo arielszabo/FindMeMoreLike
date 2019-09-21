@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
 
     with open('project_config.yaml', 'r') as yfile:
-        project_config = yaml.load(yfile)
+        project_config = yaml.load(yfile, Loader=yaml.FullLoader)
 
     logging.info(project_config)
 
