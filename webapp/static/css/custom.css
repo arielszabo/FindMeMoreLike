@@ -66,7 +66,6 @@ body {
     -ms-flex-align: center;
         align-items: center;
     padding: 100px;
-
 }
 
 /* todo: do we need this ? and why */
@@ -74,10 +73,6 @@ body {
   width: 100%;
   max-width: 800px;
   margin-bottom: 0;
-
-
-
-
 
 }
 

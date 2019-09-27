@@ -66,11 +66,19 @@ def load_presentation_data(imdb_id):
             'Plot': imdb_data['Plot'],
             'Year': imdb_data['Year'],
             'Poster': imdb_data['Poster'],
+            'imdbID': imdb_data['imdbID'],
             'IMDb_path': 'https://www.imdb.com/title/{}/'.format(imdb_id)
         }
 
     else:
         raise FileNotFoundError(f'.... {file_path} ... ') #todo: is this how you should do it ?
+
+@app.route('/save_seen_checkbox', methods=["POST"])
+def save_seen_checkbox():
+    imdbID = request.form.get("id")
+    checkbox_status = request.form.get("status")
+
+    return jsonify({"ok": 1})
 
 
 @app.errorhandler(404)
