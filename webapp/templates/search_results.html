@@ -28,9 +28,15 @@
                                 </div>
                             </div>
                             <div class="col-xs-2 col-md-1">
-                                <input type="checkbox" name="SeenThis" class="seen-checkbox"
-                                       id="{{imdb_data.imdbID}}_checkbox"> Seen <!--# todo add a show seen movies after login -->
-                            </div>
+                                <div class="pretty p-switch p-fill p-toggle">
+                                    <input type="checkbox" class="seen-checkbox" name="SeenThis" id="{{imdb_data.imdbID}}_checkbox"/>
+                                    <div class="state p-success p-on">
+                                        <label>Seen</label>
+                                    </div>
+                                    <div class="state p-danger p-off">
+                                        <label>Not Seen</label>
+                                    </div>
+                                </div>
                         </div>
                     </li>
                     {% endfor %}
