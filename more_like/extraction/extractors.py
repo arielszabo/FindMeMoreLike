@@ -47,11 +47,11 @@ class IMDBApiExtractor(DataExtractor):
 
 
     def _get_user_api_key(self):
-        if not os.path.exists(self.project_config['user_api_key_path']):
-            assert FileNotFoundError(f"Save you OMDb api key in the file {self.project_config['user_api_key_path']}."
+        if not os.path.exists(self.project_config['keys_config_path']):
+            assert FileNotFoundError(f"Save you OMDb api key in the file {self.project_config['keys_config_path']}."
                                      f" Please read the README file for more info")
-        with open(self.project_config['user_api_key_path'], 'r') as f:
-            user_api_key = f.read()
+        with open(self.project_config['keys_config_path'], 'r') as f:
+            user_api_key = json.load(f)["omdb_user_key"]
         return user_api_key
 
     def _extract_a_single_id(self, movie_id):

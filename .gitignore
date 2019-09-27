@@ -1,5 +1,5 @@
 *__pycache__/
-omdb_user_key.txt
+keys_config.yaml
 raw_wiki_data/
 raw_imdb_data/
 enwiki_dbow/

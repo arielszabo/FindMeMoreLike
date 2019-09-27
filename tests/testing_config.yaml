@@ -1,4 +1,4 @@
-user_api_key_path: 'omdb_user_key.txt'
+keys_config_path: 'keys_config.yaml'
 
 api_data_saving_path:
   imdb: 'tests/testing_raw_imdb_data'
