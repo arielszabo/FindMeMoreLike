@@ -1,22 +1,24 @@
-var options = {
-	url: "static/title_and_id_mapping.json",
+$().ready(function() {
+    var options = {
+        url: "static/title_and_id_mapping.json",
 
-	getValue: "title",
+        getValue: "title",
 
-	list: {
-		match: {
-			enabled: true
-		},
-		maxNumberOfElements: 10,
-		onSelectItemEvent: function() {
-			var value = $("#provider-json").getSelectedItemData().imdbid;
+        list: {
+            match: {
+                enabled: true
+            },
+            maxNumberOfElements: 10,
+            onSelectItemEvent: function() {
+                var value = $("#provider-json").getSelectedItemData().imdbid;
 
-			$("#data-holder").val(value).trigger("change");
-		},
-	},
-	highlightPhrase: true,
+                $("#data-holder").val(value).trigger("change");
+            },
+        },
+        highlightPhrase: true,
 
-	theme: "bootstrap"
-};
+        theme: "bootstrap"
+    };
 
-$("#provider-json").easyAutocomplete(options);
+    $("#provider-json").easyAutocomplete(options);
+});
