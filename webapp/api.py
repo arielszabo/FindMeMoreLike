@@ -61,11 +61,6 @@ def load_user(user_id):
     return get_user_by_id(user_id)
 
 
-@app.route('/')
-def main():
-    return render_template('homepage.html', version_number=VERSION_NUMBER, current_user=current_user)
-
-
 def get_google_provider_cfg():  # todo: add error handling
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
@@ -151,12 +146,18 @@ def logout():
     return redirect(url_for("main"))
 
 
+@app.route('/')
+def main():
+    return render_template('homepage.html', version_number=VERSION_NUMBER, current_user=current_user)
+
+
 @app.route('/search')
 def search_redirect():
     query = request.args.get('imdbid')
     title = request.args.get('movie-name')
     page_index = request.args.get('page_index', default=0)
     return redirect(f'/search/{query}/{title}/{page_index}')
+
 
 @app.route('/search/<string:imdb_id>/<string:title>/<int:page_index>')
 def search(imdb_id, title, page_index):
@@ -170,7 +171,13 @@ def search(imdb_id, title, page_index):
     end_index = ONE_PAGE_SUGGESTIONS_AMOUNT*(page_index+1)
     sliced_similarity_list = similarity_list[start_index:end_index]
 
-    results = [load_presentation_data(similar_movie['imdbID']) for similar_movie in sliced_similarity_list]
+    results = []
+    for similar_movie in sliced_similarity_list:
+        imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
+        results.append(imdb_id_presentation_data)
+
+    user_seen_imdb_id = get_user_seen_imdb_ids()
+    app.logger.info(user_seen_imdb_id)
 
     return render_template('search_results.html',
                            similarity_results=results,
@@ -178,6 +185,7 @@ def search(imdb_id, title, page_index):
                            search_request=imdb_id,  #todo: rename
                            current_page_index=page_index,
                            max_page_number=max_page_number,
+                           user_seen_imdb_id = user_seen_imdb_id,
                            version_number=VERSION_NUMBER)
 
 
@@ -197,6 +205,22 @@ def load_presentation_data(imdb_id):
 
     else:
         raise FileNotFoundError(f'.... {file_path} ... ') #todo: is this how you should do it ?
+
+
+def get_user_seen_imdb_ids():
+    if current_user.is_authenticated:
+        user_id = current_user.get_id()
+        with DB() as db:
+            rows = db.session.query(
+                SeenTitles
+            ).filter(
+                SeenTitles.user_id == user_id
+            ).all()
+
+            seen_imdb_ids = [row.imdb_id for row in rows]
+
+        return seen_imdb_ids
+
 
 @app.route('/save_seen_checkbox', methods=["POST"])
 def save_seen_checkbox():

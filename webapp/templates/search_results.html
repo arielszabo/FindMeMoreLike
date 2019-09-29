@@ -30,7 +30,13 @@
                                 <div class="col-xs-2 col-md-1">
                                     {% if current_user.is_authenticated %}
                                         <div class="pretty p-switch p-fill p-toggle">
-                                            <input type="checkbox" class="seen-checkbox" name="SeenThis" id="{{imdb_data.imdbID}}_checkbox"/>
+                                            {% if imdb_data.imdbID in user_seen_imdb_id %}
+                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
+                                                       id="{{imdb_data.imdbID}}_checkbox" checked="checked"/>
+                                            {% else %}
+                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
+                                                       id="{{imdb_data.imdbID}}_checkbox"/>
+                                            {% endif %}
                                             <div class="state p-success p-on">
                                                 <label>Seen</label>
                                             </div>
