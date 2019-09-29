@@ -43,12 +43,13 @@ class Users(Base):
     profile_pic = Column(TEXT, nullable=False)
 
 
-# class SeenTitles(Base):
-#     __tablename__ = 'seen_titles'
-#
-#     user_id = Column(INTEGER, nullable=False)
-#     imdb_id = Column(TEXT, nullable=False)
-#     # todo: make this uniuqe and fk to Users table
+class SeenTitles(Base):
+    __tablename__ = 'seen_titles'
+
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    user_id = Column(INTEGER, nullable=False)
+    imdb_id = Column(TEXT, nullable=False)
+    # todo: make this uniuqe and fk to Users table
 
 
 

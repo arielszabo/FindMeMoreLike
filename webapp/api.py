@@ -8,7 +8,7 @@ import math
 import requests
 
 # Internal imports todo: change
-from webapp.db import DB
+from webapp.db import DB, SeenTitles, Users
 from webapp.user import User, get_user_by_id
 
 
@@ -200,11 +200,30 @@ def load_presentation_data(imdb_id):
 
 @app.route('/save_seen_checkbox', methods=["POST"])
 def save_seen_checkbox():
-    imdbID = request.form.get("id")
+    imdbID, _ = request.form.get("id").split("_")
     checkbox_status = request.form.get("status")
+    checkbox_status = checkbox_status.lower() == 'true'  # todo: this value return stings
 
-    if current_user.is_authenticated():
+
+    if current_user.is_authenticated:
         user_id = current_user.get_id()
+        with DB() as db:
+            if checkbox_status:
+                seen_title = SeenTitles(user_id=user_id, imdb_id=imdbID)
+                db.session.add(seen_title)
+            else:
+                seen_titles = db.session.query(
+                    SeenTitles
+                ).filter(
+                    SeenTitles.user_id == user_id,
+                    SeenTitles.imdb_id == imdbID
+                ).all()
+
+                for seen_title in seen_titles:
+                    db.session.delete(seen_title)
+
+            db.session.commit()
+
 
     return jsonify({"ok": 1})
 
