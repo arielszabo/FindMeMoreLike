@@ -29,23 +29,27 @@
                                 </div>
                                 <div class="col-xs-2 col-md-1">
                                     {% if current_user.is_authenticated %}
-                                        <div class="pretty p-switch p-fill p-toggle">
-                                            {% if imdb_data.imdbID in user_seen_imdb_id %}
-                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
-                                                       id="{{imdb_data.imdbID}}_checkbox" checked="checked"/>
-                                            {% else %}
-                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
-                                                       id="{{imdb_data.imdbID}}_checkbox"/>
+                                    <input type="checkbox" data-toggle="toggle" name="SeenThis"
+                                           id="{{imdb_data.imdbID}}_checkbox"
+                                           {% if imdb_data.imdbID in user_seen_imdb_id %}
+                                                checked="checked"
                                             {% endif %}
-                                            <div class="state p-success p-on">
-                                                <label>Seen</label>
-                                            </div>
-                                            <div class="state p-danger p-off">
-                                                <label>Not Seen</label>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        <div><strong>Log in to use the Seen/Not Seen feature</strong></div>
+                                           data-on="Seen" data-size="small" data-off="Not<br>seen"
+                                           data-onstyle="success"  data-offstyle="danger">
+
+
+                                        <!--{% if imdb_data.imdbID in user_seen_imdb_id %}-->
+                                        <!--<input type="checkbox" data-toggle="toggle" name="SeenThis"-->
+                                               <!--id="{{imdb_data.imdbID}}_checkbox" checked="checked"-->
+                                               <!--data-on="Seen"  data-size="small" data-off="Not<br>seen"-->
+                                               <!--data-onstyle="success" data-offstyle="danger">-->
+
+                                        <!--{% else %}-->
+                                            <!--<input type="checkbox" data-toggle="toggle" name="SeenThis"-->
+                                                   <!--id="{{imdb_data.imdbID}}_checkbox"-->
+                                                   <!--data-on="Seen" data-size="small" data-off="Not<br>seen"-->
+                                                   <!--data-onstyle="success"  data-offstyle="danger">-->
+                                        <!--{% endif %}-->
                                     {% endif %}
                                 </div>
                             </div>
