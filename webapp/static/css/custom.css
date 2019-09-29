@@ -31,6 +31,12 @@ body {
    /* text-shadow: 3px 2px 5px black;*/
 }
 
+.login-titles {
+    color: white;
+
+
+}
+
 .bg-custom { background-color: #2b2b2b; }
 
 .shadowed { box-shadow: 0px 0px 25px -3px black;}
@@ -140,6 +146,7 @@ body {
 .main_search form .inner-form .input-field.search_btn_section .btn-search:focus {
   background: #ffd745;
 }
+
 
 .poster_img {
     border-radius: 15%;
