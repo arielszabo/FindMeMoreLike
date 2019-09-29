@@ -63,18 +63,19 @@ def load_user(user_id):
 
 @app.route('/')
 def main():
-    if current_user.is_authenticated:
-        return (
-            "<p>Hello, {}! You're logged in! Email: {}</p>"
-            "<div><p>Google Profile Picture:</p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.name, current_user.email, current_user.profile_pic
-            )
-        )
-    else:
-        return '<a class="button" href="/login">Google Login</a>'
-    # return render_template('homepage.html', version_number=VERSION_NUMBER)
+    # app.logger.info(type(current_user))
+    # if current_user.is_authenticated:
+    #     return (
+    #         "<p>Hello, {}! You're logged in! Email: {}</p>"
+    #         "<div><p>Google Profile Picture:</p>"
+    #         '<img src="{}" alt="Google profile pic"></img></div>'
+    #         '<a class="button" href="/logout">Logout</a>'.format(
+    #             current_user.name, current_user.email, current_user.profile_pic
+    #         )
+    #     )
+    # else:
+    #     return '<a class="button" href="/login">Google Login</a>'
+    return render_template('homepage.html', version_number=VERSION_NUMBER, current_user=current_user)
 
 
 def get_google_provider_cfg():  # todo: add error handling

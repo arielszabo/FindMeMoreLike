@@ -1,14 +1,16 @@
 # FindMeMoreLike
 
 
-Pre-Trained Doc2Vec model is saved in the 'enwiki_dbow' folder and it is from https://github.com/jhlau/doc2vec
+* Pre-Trained Doc2Vec model is saved in the 'enwiki_dbow' folder and it is from https://github.com/jhlau/doc2vec
+* Google Login methods are from here: https://realpython.com/flask-google-login/
 
 # Need to Know:
-- save your OMDb api key in the file: 'omdb_user_key.txt'
+- save your OMDb api key in the file: 'keys_config.yaml'
+- save your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET keys in the file: 'keys_config.yaml'
 
 ## Web - development
 ```
-FLASK_APP=webapp.api FLASK_DEBUG=1 flask run --port 5000
+FLASK_APP=webapp.api FLASK_DEBUG=1 flask run --port 5000 --cert=adhoc
 ```
 
 # TODO:
@@ -19,3 +21,7 @@ FLASK_APP=webapp.api FLASK_DEBUG=1 flask run --port 5000
 * maybe use a db for the raw data
 * clean the raw data jsons - add this as a method to the extractors
 * get all the actors ?
+
+
+* add /google routes
+* after Flask restart User must login again
