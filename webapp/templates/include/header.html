@@ -35,18 +35,18 @@
     <!--</div>-->
     <div class="d-flex flex-fill flex-row-reverse">
         {% if current_user.is_authenticated %}
-        <p class="login-titles navbar-text">Hello, {{ current_user.name }}!
-        <img src="{{current_user.profile_pic}}" width="20" height="20" alt="Google profile pic"><br>
-        You're logged in!</p>
+            <p class="login-titles navbar-text">Hello, {{ current_user.name }}!
+            <img src="{{current_user.profile_pic}}" width="20" height="20" alt="Google profile pic"><br>
+            You're logged in!</p>
 
-            <a class="button login-titles navbar-text" href="/logout">Logout</a>
+                <a class="button login-titles navbar-text" href="/logout">Logout</a>
         {% else %}
-        <button class="btn">
-            <a class="button login-titles navbar-text" href="/login">
+            <button class="btn">
+                <a class="button login-titles navbar-text" href="/login">
 
-                <img src="/static/imgs/google_sign_in/btn_google_signin_light_normal_web.png" alt="Google sign in">
-            </a>
-        </button>
+                    <img src="/static/imgs/google_sign_in/btn_google_signin_light_normal_web.png" alt="Google sign in">
+                </a>
+            </button>
         {% endif %}
     </div>
 
