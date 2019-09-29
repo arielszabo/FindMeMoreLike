@@ -1,38 +1,56 @@
-# http://flask.pocoo.org/docs/1.0/tutorial/database/
-import sqlite3
+from sqlalchemy import Column, create_engine
+from sqlalchemy.dialects.sqlite import TIMESTAMP, TEXT, BOOLEAN, INTEGER
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-import click
-from flask import current_app, g
-from flask.cli import with_appcontext
 
-def get_db():
-    if "db" not in g:
-        g.db = sqlite3.connect(
-            "sqlite_db", detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row
+DB_NAME = "sqlite_db"
+Base = declarative_base()
 
-    return g.db
 
-def close_db(e=None):
-    db = g.pop("db", None)
+class DB(object):
+    def __init__(self):
+        self.connection_string = f'sqlite:///{DB_NAME}'
+        self.engine = create_engine(self.connection_string)
+        self.session = None
 
-    if db is not None:
-        db.close()
 
-def init_db():
-    db = get_db()
+    def __enter__(self):
+        session = sessionmaker(expire_on_commit=False)
+        self.session = session(bind=self.engine)
 
-    with current_app.open_resource("schema.sql") as f:
-        db.executescript(f.read().decode("utf8"))
+        return self
 
-@click.command("init-db")
-@with_appcontext
-def init_db_command():
-    """Clear the existing data and create new tables."""
-    init_db()
-    click.echo("Initialized the database.")
 
-def init_app(app):
-    app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if not exc_type:
+            self.session.commit()
+
+        self.session.close()
+
+
+    def create_tables(self):
+        Base.metadata.create_all(self.engine)
+
+
+class Users(Base):
+    __tablename__ = 'users'
+
+    id = Column(TEXT, primary_key=True)
+    name = Column(TEXT, nullable=False)
+    email = Column(TEXT, unique=True, nullable=False)
+    profile_pic = Column(TEXT, nullable=False)
+
+
+class SeenTitles(Base):
+    __tablename__ = 'seen_titles'
+
+    id = Column(INTEGER, primary_key=True)
+    user_email = Column(TEXT, nullable=False)
+    imdbID = Column(TEXT, nullable=False)
+    seen = Column(BOOLEAN, nullable=False)
+
+
+
+
+
