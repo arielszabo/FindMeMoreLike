@@ -134,7 +134,7 @@ def callback():
 
     # Create a user in your db with the information provided by Google
     user = User(
-        id_=unique_id, name=users_name, email=users_email, profile_pic=picture
+        google_id=unique_id, name=users_name, email=users_email, profile_pic=picture
     )
 
     # Begin user session by logging the user in
@@ -202,6 +202,9 @@ def load_presentation_data(imdb_id):
 def save_seen_checkbox():
     imdbID = request.form.get("id")
     checkbox_status = request.form.get("status")
+
+    if current_user.is_authenticated():
+        user_id = current_user.get_id()
 
     return jsonify({"ok": 1})
 

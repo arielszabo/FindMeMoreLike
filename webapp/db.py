@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-DB_NAME = "sqlite_db"
+DB_NAME = "webapp_db"
 Base = declarative_base()
 
 
@@ -36,19 +36,19 @@ class DB(object):
 class Users(Base):
     __tablename__ = 'users'
 
-    id = Column(TEXT, primary_key=True)
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    google_id = Column(TEXT)
     name = Column(TEXT, nullable=False)
     email = Column(TEXT, unique=True, nullable=False)
     profile_pic = Column(TEXT, nullable=False)
 
 
-class SeenTitles(Base):
-    __tablename__ = 'seen_titles'
-
-    id = Column(INTEGER, primary_key=True)
-    user_email = Column(TEXT, nullable=False)
-    imdbID = Column(TEXT, nullable=False)
-    seen = Column(BOOLEAN, nullable=False)
+# class SeenTitles(Base):
+#     __tablename__ = 'seen_titles'
+#
+#     user_id = Column(INTEGER, nullable=False)
+#     imdb_id = Column(TEXT, nullable=False)
+#     # todo: make this uniuqe and fk to Users table
 
 
 

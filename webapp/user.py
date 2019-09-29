@@ -3,28 +3,35 @@ from flask_login import UserMixin
 from webapp.db import DB, Users
 
 class User(UserMixin):
-    def __init__(self, id_, name, email, profile_pic):
-        self.id = id_
+    def __init__(self, google_id, name, email, profile_pic):
+        self.google_id = google_id
         self.name = name
         self.email = email
         self.profile_pic = profile_pic
 
-        self.create_if_not_exist()
+        self.id = self.get_id()
 
-    def create_if_not_exist(self):
+    def get_id(self):
         with DB() as db:
-            query = db.session.query(Users).filter(Users.id == self.id)
+            query = db.session.query(Users).filter(Users.email == self.email)
             rows = query.all()  # id is unique so maximum one row will be returned
 
-        if not rows:  # if it's not an empty list
-            self.create_me()
+        if rows:  # if it's not an empty list
+            return rows[0].id
+        else:
+            create_id = self.create_me()
+            return create_id
 
 
     def create_me(self):
         with DB() as db:
-            new_user = Users(id=self.id, name=self.name, email=self.email, profile_pic=self.profile_pic)
+            new_user = Users(google_id=self.google_id, name=self.name, email=self.email, profile_pic=self.profile_pic)
             db.session.add(new_user)
-            db.session.commit()
+            db.session.flush()
+
+            create_id = new_user.id
+
+        return create_id
 
 
 def get_user_by_id(user_id):
@@ -36,7 +43,7 @@ def get_user_by_id(user_id):
 
         user_data = rows[0]
         user = User(
-            id_=user_data.id,
+            google_id=user_data.google_id,
             name=user_data.name,
             email=user_data.email,
             profile_pic=user_data.profile_pic
