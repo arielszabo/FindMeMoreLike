@@ -165,6 +165,7 @@ body {
 
 .prev_next_btns { background-color: #D69A19; }
 
+.btn-custom { background-color: #F5C518;   border: 1px solid #2b2b2b; }
 
 footer {
   position: fixed;
