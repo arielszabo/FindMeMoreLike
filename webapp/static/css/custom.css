@@ -33,6 +33,7 @@ body {
 
 .login-titles {
     color: white;
+    font-size: 25px;
 
 
 }
@@ -177,3 +178,4 @@ footer {
 }
 
 footer a { color: #333; }
+

@@ -155,12 +155,14 @@ def main():
 def search_redirect():
     query = request.args.get('imdbid')
     title = request.args.get('movie-name')
+    hide_seen_titles = request.args.get('hide-seen-titles')
     page_index = request.args.get('page_index', default=0)
-    return redirect(f'/search/{query}/{title}/{page_index}')
+    app.logger.info(hide_seen_titles)
+    return redirect(f'/search/{query}/{title}/{hide_seen_titles}/{page_index}')
 
 
-@app.route('/search/<string:imdb_id>/<string:title>/<int:page_index>')
-def search(imdb_id, title, page_index):
+@app.route('/search/<string:imdb_id>/<string:title>/<string:hide_seen_titles>/<int:page_index>')
+def search(imdb_id, title, hide_seen_titles, page_index):
     file_path = os.path.join(root, project_config["similar_list_saving_path"], '{}.json'.format(imdb_id))
     similarity_list = _open_json(file_path)
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
@@ -171,13 +173,19 @@ def search(imdb_id, title, page_index):
     end_index = ONE_PAGE_SUGGESTIONS_AMOUNT*(page_index+1)
     sliced_similarity_list = similarity_list[start_index:end_index]
 
+    user_seen_imdb_id = get_user_seen_imdb_ids()
+
     results = []
     for similar_movie in sliced_similarity_list:
         imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
+        if imdb_id_presentation_data["imdbID"] in user_seen_imdb_id:
+            imdb_id_presentation_data["user_seen"] = True
+            if hide_seen_titles.lower() == 'on':
+                continue
+        else:
+            imdb_id_presentation_data["user_seen"] = False
         results.append(imdb_id_presentation_data)
 
-    user_seen_imdb_id = get_user_seen_imdb_ids()
-    app.logger.info(user_seen_imdb_id)
 
     return render_template('search_results.html',
                            similarity_results=results,
@@ -185,7 +193,7 @@ def search(imdb_id, title, page_index):
                            search_request=imdb_id,  #todo: rename
                            current_page_index=page_index,
                            max_page_number=max_page_number,
-                           user_seen_imdb_id = user_seen_imdb_id,
+                           hide_seen_titles=hide_seen_titles,
                            version_number=VERSION_NUMBER)
 
 
@@ -220,6 +228,8 @@ def get_user_seen_imdb_ids():
             seen_imdb_ids = [row.imdb_id for row in rows]
 
         return seen_imdb_ids
+    else:
+        return []
 
 
 @app.route('/save_seen_checkbox', methods=["POST"])

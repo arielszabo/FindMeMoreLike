@@ -10,13 +10,12 @@
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">
-    <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
 
-
-
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 
     <!-- CSS file -->
     <link rel="stylesheet" href="/static/css/custom.css?v={{version_number}}">
+    <link rel="stylesheet" href="/static/css/checkbox_css.css?v={{version_number}}">
     <link rel="stylesheet" href="/static/css/easy-autocomplete.min.css">
     <link rel="stylesheet" href="/static/css/easy-autocomplete.themes.min.css">
 
@@ -26,7 +25,7 @@
 <body>
 <nav class="navbar bg-custom container shadowed">
     <div class="d-flex flex-fill">
-    <a href="/"><h1 id="main_title" class="navbar-brand boxed">Find Alike</h1></a>
+    <a href="/"><h1 id="main_title" class="navbar-brand boxed navbar-text">Find Alike</h1></a>
     </div>
     <!--<div class="d-flex flex-fill justify-content-center">-->
         <!--<form class="form-inline" method="GET" action="/search">-->
@@ -35,12 +34,26 @@
             <!--<input class="btn btn-search" type="submit" value="Search">-->
         <!--</form>-->
     <!--</div>-->
+    <!--{% if current_user.is_authenticated %}-->
+    <!--<div class="d-flex flex-fill">-->
+        <!--<p class="login-titles navbar-text">-->
+            <!--<img src="{{current_user.profile_pic}}" width="30" height="30" alt="Google profile pic">-->
+                    <!--Hello, {{ current_user.name }}!-->
+        <!--</p>-->
+    <!--</div>-->
+    <!--{% endif %}-->
     <div class="d-flex flex-fill flex-row-reverse">
         {% if current_user.is_authenticated %}
-            <p class="login-titles navbar-text">
-                <img src="{{current_user.profile_pic}}" width="20" height="20" alt="Google profile pic">
-                Hello, {{ current_user.name }}! <a class="button" href="/logout">Logout</a>
-            </p>
+        <p class="login-titles">
+            <img src="{{current_user.profile_pic}}" width="25" height="25" alt="Google profile pic">
+                    Hello, {{ current_user.name }}!
+            <br>
+                <a class="button" href="/logout">
+                    <button type="button" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-log-out"></span> Log out
+                    </button>
+                </a>
+        </p>
         {% else %}
             <button class="btn">
                 <a class="button login-titles navbar-text" href="/login">

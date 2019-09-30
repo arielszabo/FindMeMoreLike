@@ -10,12 +10,12 @@
                     {% for imdb_data in similarity_results %}
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="col-xs-2 col-md-1">
+                                <div class="col-xs-2 col-md-2">
                                     <a href={{imdb_data.IMDb_path}}>
                                         <img src="{{imdb_data.Poster}}" class="poster_img" alt="" />
                                     </a>
                                 </div>
-                                <div class="col-xs-8 col-md-10">
+                                <div class="col-xs-8 col-md-8">
                                     <div class="title">
                                         <a href={{imdb_data.IMDb_path}}>
                                             {{imdb_data.Title}} ({{imdb_data.Year}})</a>
@@ -27,22 +27,20 @@
                                        {{imdb_data.Plot}}
                                     </div>
                                 </div>
-                                <div class="col-xs-2 col-md-1">
+                                <div class="col-xs-2 col-md-2">
                                     {% if current_user.is_authenticated %}
-                                        <div class="pretty p-switch p-fill p-toggle">
-                                            {% if imdb_data.imdbID in user_seen_imdb_id %}
+                                        <div class="checkbox">
+                                            <label>
+                                            {% if imdb_data.user_seen %}
                                                 <input type="checkbox" class="seen-checkbox" name="SeenThis"
-                                                       id="{{imdb_data.imdbID}}_checkbox" checked="checked"/>
+                                                           id="{{imdb_data.imdbID}}_checkbox" checked="checked">
                                             {% else %}
                                                 <input type="checkbox" class="seen-checkbox" name="SeenThis"
                                                        id="{{imdb_data.imdbID}}_checkbox"/>
                                             {% endif %}
-                                            <div class="state p-success p-on">
-                                                <label>Seen</label>
-                                            </div>
-                                            <div class="state p-danger p-off">
-                                                <label>Not Seen</label>
-                                            </div>
+                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                            Mark as seen
+                                            </label>
                                         </div>
                                     {% else %}
                                         <div><strong>Log in to use the Seen/Not Seen feature</strong></div>
@@ -56,14 +54,14 @@
                 <div class="row">
                       <div class="col">
                           {% if current_page_index > 0 %}
-                            <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index - 1}}"
+                            <a href="/search/{{search_request}}/{{request_title}}/{{hide_seen_titles}}/{{current_page_index - 1}}"
                                class="btn btn-sm btn-block prev_next_btns" role="button">
                               <span class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
                           {% endif %}
                       </div>
                       <div class="col">
                           {% if current_page_index < max_page_number %}
-                          <a href="/search/{{search_request}}/{{request_title}}/{{current_page_index + 1}}"
+                          <a href="/search/{{search_request}}/{{request_title}}/{{hide_seen_titles}}/{{current_page_index + 1}}"
                              class="btn btn-sm btn-block prev_next_btns" role="button">
                               Next Page <span class="glyphicon glyphicon-chevron-right"></span></a>
                           {% endif %}
