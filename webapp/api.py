@@ -175,16 +175,7 @@ def search(imdb_id, title, hide_seen_titles, page_index):
 
     user_seen_imdb_id = get_user_seen_imdb_ids()
 
-    results = []
-    for similar_movie in sliced_similarity_list:
-        imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
-        if imdb_id_presentation_data["imdbID"] in user_seen_imdb_id:
-            imdb_id_presentation_data["user_seen"] = True
-            if hide_seen_titles.lower() == 'on':
-                continue
-        else:
-            imdb_id_presentation_data["user_seen"] = False
-        results.append(imdb_id_presentation_data)
+    results = get_movies_to_show(hide_seen_titles, sliced_similarity_list, user_seen_imdb_id)
 
 
     return render_template('search_results.html',
@@ -195,6 +186,20 @@ def search(imdb_id, title, hide_seen_titles, page_index):
                            max_page_number=max_page_number,
                            hide_seen_titles=hide_seen_titles,
                            version_number=VERSION_NUMBER)
+
+
+def get_movies_to_show(hide_seen_titles, sliced_similarity_list, user_seen_imdb_id):
+    results = []
+    for similar_movie in sliced_similarity_list:
+        imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
+        if imdb_id_presentation_data["imdbID"] in user_seen_imdb_id:
+            imdb_id_presentation_data["user_seen"] = True
+            if hide_seen_titles.lower() == 'on':
+                continue
+        else:
+            imdb_id_presentation_data["user_seen"] = False
+        results.append(imdb_id_presentation_data)
+    return results
 
 
 def load_presentation_data(imdb_id):
