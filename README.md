@@ -25,3 +25,26 @@ FLASK_APP=webapp.api FLASK_DEBUG=1 flask run --port 5000 --cert=adhoc
 
 * add /google routes
 * after Flask restart User must login again
+
+
+## Deployment hints
+
+As user ariel:
+
+```
+git clone https://github.com/arielszabo/FindMeMoreLike.git
+cd FindMeMoreLike
+mkdir db
+chmod a+w db
+
+ln -s /home/ariel/findmemorelike/config/nginx.conf /etc/nginx/sites-enabled/find-me-more-like.conf
+ln -s /home/ariel/findmemorelike/config/uwsgi.ini /etc/uwsgi/apps-enabled/find-me-more-like.ini
+
+mkdir ~/letsencrypt
+```
+
+As root:
+
+```
+certbot certonly --webroot -w /home/ariel/letsencrypt/ -d find-me-more-like.szabgab.com
+```
