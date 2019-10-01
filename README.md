@@ -15,15 +15,13 @@ FLASK_APP=webapp.api FLASK_DEBUG=1 flask run --port 5000 --cert=adhoc
 
 # TODO:
 * Tests ! expand what we already have
-* Make a POC with the API
 * make the WIKI extractor better
 * Download more movies
-* maybe use a db for the raw data
+
 * clean the raw data jsons - add this as a method to the extractors
 * get all the actors ?
 
 
-* add /google routes
 * after Flask restart User must login again
 
 
