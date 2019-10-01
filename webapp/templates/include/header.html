@@ -44,16 +44,18 @@
     <!--{% endif %}-->
     <div class="d-flex flex-fill flex-row-reverse">
         {% if current_user.is_authenticated %}
-        <p class="login-titles">
-            <img src="{{current_user.profile_pic}}" width="25" height="25" alt="Google profile pic">
-                    Hello, {{ current_user.name }}!
-            <br>
-                <a class="button" href="/logout">
-                    <button type="button" class="btn btn-default btn-sm">
-                        <span class="glyphicon glyphicon-log-out"></span> Log out
-                    </button>
-                </a>
-        </p>
+        <center>
+            <p class="login-titles">
+                <img src="{{current_user.profile_pic}}" width="25" height="25" alt="Google profile pic">
+                        Hello, {{ current_user.name }}!
+                <br>
+                    <a class="button" href="/logout">
+                        <button type="button" class="btn btn-default btn-sm">
+                            <span class="glyphicon glyphicon-log-out"></span> Log out
+                        </button>
+                    </a>
+            </p>
+        </center>
         {% else %}
             <button class="btn">
                 <a class="button login-titles navbar-text" href="/login">
