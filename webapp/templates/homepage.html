@@ -15,9 +15,15 @@
         <center>
             <div class="checkbox">
                 <label class="btn btn-custom">
-                    <input type="checkbox" name="hide-seen-titles">
-                    <span class="cr"><i class="cr-icon fa fa-check"></i></span>
-                    Hide titles you have already seen
+                    {% if current_user.is_authenticated %}
+                        <input type="checkbox" name="hide-seen-titles">
+                        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                        Hide titles you have already seen
+                    {% else %}
+                        <input type="checkbox" name="hide-seen-titles" disabled>
+                        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                        Hide titles you have already seen - <strong>login to use this </strong>
+                    {% endif %}
                 </label>
             </div>
         </center>
