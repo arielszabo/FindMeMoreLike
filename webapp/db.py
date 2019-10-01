@@ -5,7 +5,9 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_NAME = os.path.join(root, "db", "webapp_db")
+db_dir_path = "db"
+os.makedirs(db_dir_path, exist_ok=True)
+DB_NAME = os.path.join(root, db_dir_path, "webapp_db.db")
 Base = declarative_base()
 
 
