@@ -4,18 +4,35 @@
         <div class="panel panel-default widget">
             <div class="panel-heading">
                 <h2 class="titles">These are similar to "{{request_title}}":</h2>
+                {% if current_user.is_authenticated %}
+                    <center>
+                        <div> <!-- todo: make this better -->
+                            <a href="/" role="button">
+                                <label class="btn btn-custom">
+                                    {% if hide_seen_titles.lower() == 'on' %}
+                                    Show {{ user_seen_titles_amount }} titles you have already seen
+                                    {% else %}
+                                    Hide {{ user_seen_titles_amount }} titles you have already seen
+                                    {% endif %}
+                                </label>
+                            </a>
+                        </div>
+                    </center>
+
+                {% endif %}
             </div>
             <div class="panel-body">
                 <ul class="list-group">
                     {% for imdb_data in similarity_results %}
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="col-xs-2 col-md-2">
+                                <div class="row">
+                                <div class="col-xs-2 col-md-1">
                                     <a href={{imdb_data.IMDb_path}}>
                                         <img src="{{imdb_data.Poster}}" class="poster_img" alt="" />
                                     </a>
                                 </div>
-                                <div class="col-xs-8 col-md-8">
+                                <div class="col-xs-8 col-md-10">
                                     <div class="title">
                                         <a href={{imdb_data.IMDb_path}}>
                                             {{imdb_data.Title}} ({{imdb_data.Year}})</a>
@@ -27,9 +44,9 @@
                                        {{imdb_data.Plot}}
                                     </div>
                                 </div>
-                                <div class="col-xs-2 col-md-2">
+                                <div class="col-xs-2 col-md-1">
                                     {% if current_user.is_authenticated %}
-                                        <div class="checkbox">
+                                        <div class="checkbox comment-text">
                                             <label>
                                             {% if imdb_data.user_seen %}
                                                 <input type="checkbox" class="seen-checkbox" name="SeenThis"
@@ -38,7 +55,7 @@
                                                 <input type="checkbox" class="seen-checkbox" name="SeenThis"
                                                        id="{{imdb_data.imdbID}}_checkbox"/>
                                             {% endif %}
-                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-eye-open"></i></span>
                                             Mark as seen
                                             </label>
                                         </div>

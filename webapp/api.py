@@ -185,6 +185,7 @@ def search(imdb_id, title, hide_seen_titles, page_index):
                            current_page_index=page_index,
                            max_page_number=max_page_number,
                            hide_seen_titles=hide_seen_titles,
+                           user_seen_titles_amount=len(user_seen_imdb_id),
                            version_number=VERSION_NUMBER)
 
 

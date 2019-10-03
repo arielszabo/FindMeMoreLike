@@ -9,7 +9,7 @@
 .radio .cr {
     position: relative;
     display: inline-block;
-    border: 1px solid #a9a9a9;
+    border: 1.5px solid #a9a9a9;
     border-radius: .25em;
     width: 1.3em;
     height: 1.3em;
@@ -27,11 +27,15 @@
     font-size: .8em;
     line-height: 0;
     top: 50%;
-    left: 20%;
+    left: 10%;
 }
 
 .radio .cr .cr-icon {
     margin-left: 0.04em;
+}
+
+.checkbox label {
+  display: block;
 }
 
 .checkbox label input[type="checkbox"],
@@ -55,4 +59,8 @@
 .checkbox label input[type="checkbox"]:disabled + .cr,
 .radio label input[type="radio"]:disabled + .cr {
     opacity: .5;
+}
+
+.checkboxes label {
+  display: block;
 }
