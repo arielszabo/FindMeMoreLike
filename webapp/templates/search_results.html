@@ -7,15 +7,19 @@
                 {% if current_user.is_authenticated %}
                     <center>
                         <div> <!-- todo: make this better -->
-                            <a href="/" role="button">
+                        {% if hide_seen_titles.lower() == 'on' %}
+                            <a href="/search/{{search_request}}/None/{{current_page_index}}" role="button">
                                 <label class="btn btn-custom">
-                                    {% if hide_seen_titles.lower() == 'on' %}
                                     Show {{ user_seen_titles_amount }} titles you have already seen
-                                    {% else %}
-                                    Hide {{ user_seen_titles_amount }} titles you have already seen
-                                    {% endif %}
                                 </label>
                             </a>
+                        {% else %}
+                            <a href="/search/{{search_request}}/on/{{current_page_index}}" role="button">
+                                <label class="btn btn-custom">
+                                    Hide {{ user_seen_titles_amount }} titles you have already seen
+                                </label>
+                            </a>
+                        {% endif %}
                         </div>
                     </center>
 
