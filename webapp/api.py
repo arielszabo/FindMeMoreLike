@@ -170,12 +170,11 @@ def search(imdb_id, hide_seen_titles, page_index):
         abort(404, description="Resource not found")
 
     start_index = ONE_PAGE_SUGGESTIONS_AMOUNT*page_index
-    end_index = ONE_PAGE_SUGGESTIONS_AMOUNT*(page_index+1)
-    sliced_similarity_list = similarity_list[start_index:end_index]
+    sliced_similarity_list = similarity_list[start_index:]
 
-    user_seen_imdb_id = get_user_seen_imdb_ids()
+    user_seen_imdb_ids = get_user_seen_imdb_ids()
 
-    results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_id)
+    results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_ids)
 
 
     return render_template('search_results.html',
@@ -185,7 +184,7 @@ def search(imdb_id, hide_seen_titles, page_index):
                            current_page_index=page_index,
                            max_page_number=max_page_number,
                            hide_seen_titles=hide_seen_titles,
-                           user_seen_titles_amount=len(user_seen_imdb_id),
+                           user_seen_titles_amount=len(user_seen_imdb_ids),
                            version_number=VERSION_NUMBER)
 
 
@@ -204,8 +203,10 @@ def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_lis
         else:
             imdb_id_presentation_data["user_seen"] = False
         results.append(imdb_id_presentation_data)
-    return results
 
+        if len(results) == ONE_PAGE_SUGGESTIONS_AMOUNT:
+            return results
+    return results
 
 def load_presentation_data(imdb_id):
     file_path = os.path.join(root, project_config["api_data_saving_path"]["imdb"], '{}.json'.format(imdb_id))
