@@ -175,6 +175,8 @@ def search(imdb_id, hide_seen_titles, page_index):
     user_seen_imdb_ids = get_user_seen_imdb_ids()
 
     results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_ids)
+    results_imdb_ids = [result["imdbID"] for result in results]
+    page_user_seen_titles_amount = len(user_seen_imdb_ids.intersection(results_imdb_ids))
 
 
     return render_template('search_results.html',
@@ -184,7 +186,7 @@ def search(imdb_id, hide_seen_titles, page_index):
                            current_page_index=page_index,
                            max_page_number=max_page_number,
                            hide_seen_titles=hide_seen_titles,
-                           user_seen_titles_amount=len(user_seen_imdb_ids),
+                           page_user_seen_titles_amount=page_user_seen_titles_amount,
                            version_number=VERSION_NUMBER)
 
 
@@ -238,9 +240,9 @@ def get_user_seen_imdb_ids():
 
             seen_imdb_ids = [row.imdb_id for row in rows]
 
-        return seen_imdb_ids
+        return set(seen_imdb_ids)
     else:
-        return []
+        return set()
 
 
 @app.route('/save_seen_checkbox', methods=["POST"])

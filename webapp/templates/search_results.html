@@ -10,13 +10,13 @@
                         {% if hide_seen_titles.lower() == 'on' %}
                             <a href="/search/{{search_request}}/None/{{current_page_index}}" role="button">
                                 <label class="btn btn-custom">
-                                    Show {{ user_seen_titles_amount }} titles you have already seen
+                                    Show titles you have already seen
                                 </label>
                             </a>
                         {% else %}
                             <a href="/search/{{search_request}}/on/{{current_page_index}}" role="button">
                                 <label class="btn btn-custom">
-                                    Hide {{ user_seen_titles_amount }} titles you have already seen
+                                    Hide titles you have already seen ({{ page_user_seen_titles_amount }} on this page)
                                 </label>
                             </a>
                         {% endif %}
