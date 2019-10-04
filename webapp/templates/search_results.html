@@ -64,7 +64,14 @@
                                             </label>
                                         </div>
                                     {% else %}
-                                        <div><strong>Log in to use the Seen/Not Seen feature</strong></div>
+                                        <div class="checkbox comment-text">
+                                            <label data-toggle="tooltip" data-placement="bottom" title="Login to use this">
+                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
+                                                       id="{{imdb_data.imdbID}}_checkbox"  disabled/>
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-eye-open"></i></span>
+                                                Mark as seen
+                                            </label>
+                                        </div>
                                     {% endif %}
                                 </div>
                             </div>
