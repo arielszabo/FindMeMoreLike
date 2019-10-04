@@ -23,12 +23,14 @@ $().ready(function() {
     $("#provider-json").easyAutocomplete(options);
 
     $(".seen-checkbox").click(function(){
-    $.ajax({
+        $.ajax({
       type: 'POST',
       url: "/save_seen_checkbox",
       data: {"id": $(this).attr("id"), "status": $(this).is(":checked")}
 //      success: TODO
 //      error: TODO
     });
-    })
+    });
+
+
 });

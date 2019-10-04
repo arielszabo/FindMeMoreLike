@@ -107,7 +107,6 @@ body {
   border: 0;
   display: block;
   width: 100%;
-  padding: 10px 32px;
   font-size: 16px;
   color: #555555;
 }
@@ -156,11 +155,9 @@ body {
 }
 
 .widget .panel-body { padding:0px; }
-/*.widget .list-group { margin-bottom: 0; }*/
-/* .widget li.list-group-item {border-radius: 0;border: 0;border-top: 1px solid #ddd;} todo: maybe us it*/
 .widget li.list-group-item:hover { background-color: #F7F6E5; }
-.widget .mic-info { color: #666666;font-size: 12px; } /*todo: change this size*/
-.widget .comment-text { font-size: 1614; } /*todo: change this size*/
+.widget .mic-info { color: #666666; font-size: 12px; } /*todo: change this size*/
+.widget .comment-text { font-size: 14px; } /*todo: change this size*/
 .widget .title { font-size: 16px; }
 
 .prev_next_btns { background-color: #D69A19; }
