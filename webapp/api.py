@@ -154,17 +154,17 @@ def main():
 @app.route('/search')
 def search_redirect():
     query = request.args.get('imdbid')
-    title = request.args.get('movie-name')
     hide_seen_titles = request.args.get('hide-seen-titles')
     page_index = request.args.get('page_index', default=0)
     app.logger.info(hide_seen_titles)
-    return redirect(f'/search/{query}/{title}/{hide_seen_titles}/{page_index}')
+    return redirect(f'/search/{query}/{hide_seen_titles}/{page_index}')
 
 
-@app.route('/search/<string:imdb_id>/<string:title>/<string:hide_seen_titles>/<int:page_index>')
-def search(imdb_id, title, hide_seen_titles, page_index):
+@app.route('/search/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
+def search(imdb_id, hide_seen_titles, page_index):
     file_path = os.path.join(root, project_config["similar_list_saving_path"], '{}.json'.format(imdb_id))
     similarity_list = _open_json(file_path)
+    title = load_presentation_data(imdb_id)["Title"]
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
     if page_index > max_page_number:
         abort(404, description="Resource not found")
@@ -175,7 +175,7 @@ def search(imdb_id, title, hide_seen_titles, page_index):
 
     user_seen_imdb_id = get_user_seen_imdb_ids()
 
-    results = get_movies_to_show(hide_seen_titles, sliced_similarity_list, user_seen_imdb_id)
+    results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_id)
 
 
     return render_template('search_results.html',
@@ -189,10 +189,14 @@ def search(imdb_id, title, hide_seen_titles, page_index):
                            version_number=VERSION_NUMBER)
 
 
-def get_movies_to_show(hide_seen_titles, sliced_similarity_list, user_seen_imdb_id):
+def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_list, user_seen_imdb_id):
     results = []
     for similar_movie in sliced_similarity_list:
+        if similar_movie['imdbID'] == requested_imdbid:
+            continue
+
         imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
+
         if imdb_id_presentation_data["imdbID"] in user_seen_imdb_id:
             imdb_id_presentation_data["user_seen"] = True
             if hide_seen_titles.lower() == 'on':
