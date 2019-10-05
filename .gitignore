@@ -13,3 +13,4 @@ tests/testing_raw_wiki_data/tt0019254.json
 tests/testing_raw_wiki_data/tt10550884.json
 tests/testing_raw_wiki_data/tt9352780.json
 db/
+.idea/
