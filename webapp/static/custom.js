@@ -32,5 +32,8 @@ $().ready(function() {
     });
     });
 
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').tooltip({
+        container: 'body',
+        trigger: 'click ; hover ; focus'
+    });
 });
