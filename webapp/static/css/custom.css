@@ -134,10 +134,6 @@ body {
 }
 
 
-.main_search form .inner-form .input-field.search_btn_section .btn-search svg {
-  width: 20px;
-}
-
 .main_search form .inner-form .input-field.search_btn_section .btn-search:hover {
   background: #ffd745;
 }
@@ -176,3 +172,8 @@ footer {
 }
 
 footer a { color: #333; }
+
+.tooltip-inner {
+    font-size: 14px;
+}
+
