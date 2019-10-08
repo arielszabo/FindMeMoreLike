@@ -27,21 +27,21 @@
     <div class="d-flex flex-fill">
     <a href="/"><h1 id="main_title" class="navbar-brand boxed navbar-text">Find Alike</h1></a>
     </div>
+
     <!--<div class="d-flex flex-fill justify-content-center">-->
         <!--<form class="form-inline" method="GET" action="/search">-->
-            <!--<input id="provider-json" name="movie-name" class="form-control mr-sm-2" type="text" placeholder="Enter title here ..."> &lt;!&ndash; &ndash;&gt;-->
-            <!--<input id="data-holder" name="imdbid" type="hidden">-->
-            <!--<input class="btn btn-search" type="submit" value="Search">-->
+            <!--<div class="inner-form">-->
+                <!--<div class="input-field search_text_section">-->
+                    <!--<input id="provider-json" type="text" placeholder="Enter title here ... "/>-->
+                    <!--<input id="data-holder" name="imdbid" type="hidden">-->
+                <!--</div>-->
+                <!--<div class="input-field search_btn_section">-->
+                    <!--<input class="btn-search" type="submit" value="Search">-->
+                <!--</div>-->
+            <!--</div>-->
         <!--</form>-->
     <!--</div>-->
-    <!--{% if current_user.is_authenticated %}-->
-    <!--<div class="d-flex flex-fill">-->
-        <!--<p class="login-titles navbar-text">-->
-            <!--<img src="{{current_user.profile_pic}}" width="30" height="30" alt="Google profile pic">-->
-                    <!--Hello, {{ current_user.name }}!-->
-        <!--</p>-->
-    <!--</div>-->
-    <!--{% endif %}-->
+
     <div class="d-flex flex-fill flex-row-reverse">
         {% if current_user.is_authenticated %}
         <center>

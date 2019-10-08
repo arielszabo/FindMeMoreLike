@@ -4,26 +4,31 @@
         <div class="panel panel-default widget">
             <div class="panel-heading">
                 <h3 class="titles">These are similar to "{{request_title}}":</h3>
-                {% if current_user.is_authenticated %}
                     <center>
-                        <div> <!-- todo: make this better -->
-                        {% if hide_seen_titles.lower() == 'on' %}
-                            <a href="/search/{{search_request}}/None/{{current_page_index}}" role="button">
+                         <div>
+                          <a href="/" role="button">
                                 <label class="btn btn-custom">
-                                    Show titles you have already seen
+                                    <span class="glyphicon glyphicon-search"></span>
+                                    New Search
                                 </label>
-                            </a>
-                        {% else %}
-                            <a href="/search/{{search_request}}/on/{{current_page_index}}" role="button">
-                                <label class="btn btn-custom">
-                                    Hide titles you have already seen ({{ page_user_seen_titles_amount }} on this page)
-                                </label>
-                            </a>
+                          </a>
+                        {% if current_user.is_authenticated %}
+                            {% if hide_seen_titles.lower() == 'on' %}
+                                <a href="/search/{{search_request}}/None/{{current_page_index}}" role="button">
+                                    <label class="btn btn-custom">
+                                        Show titles you have already seen
+                                    </label>
+                                </a>
+                            {% else %}
+                                <a href="/search/{{search_request}}/on/{{current_page_index}}" role="button">
+                                    <label class="btn btn-custom">
+                                        Hide titles you have already seen ({{ page_user_seen_titles_amount }} on this page)
+                                    </label>
+                                </a>
+                            {% endif %}
                         {% endif %}
                         </div>
                     </center>
-
-                {% endif %}
             </div>
             <div class="panel-body">
                 <ul class="list-group">
@@ -98,11 +103,15 @@
             </div>
         </div>
     </div>
-    <!--todo: maybe add a go UP btn-->
-    <!--<center>-->
-        <!--<a href="/" class="btn prev_next_btns btn-sm" role="button">-->
-                    <!--<span class="glyphicon glyphicon-home"> Home Page</span>-->
-        <!--</a>-->
-    <!--</center>-->
+</div>
+<div>
+    <center>
+        <a href="/" role="button">
+            <label class="btn btn-custom">
+                <span class="glyphicon glyphicon-search"></span>
+                New Search
+            </label>
+        </a>
+    </center>
 </div>
 {% include 'include/footer.html' %}
