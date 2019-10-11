@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 
-from webapp.db import DB, Users
+from webapp.db_handler import DB, Users
 
 class User(UserMixin):
     def __init__(self, google_id, name, email, profile_pic):

@@ -8,7 +8,7 @@ import math
 import requests
 
 # Internal imports todo: change
-from webapp.db import DB, SeenTitles, Users, MissingTitles
+from webapp.db_handler import DB, SeenTitles, Users, MissingTitles
 from webapp.user import User, get_user_by_id
 
 
