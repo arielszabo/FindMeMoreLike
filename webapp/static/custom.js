@@ -36,4 +36,24 @@ $().ready(function() {
         container: 'body',
         trigger: 'click ; hover ; focus'
     });
+
+
+    $('#myModal').on('show.bs.modal	', function () {});
+
+    $(".save-missing").click(function(){
+        $.ajax({
+      type: 'POST',
+      url: "/save_missing_titles",
+      data: {"imdb_link": $("#imdb_link").val()},
+      // todo: add a warning if input is bad
+      success: function(){
+                    $("#success-alert").show();
+                    setTimeout(function() { $("#success-alert").hide(); }, 6000);
+                    },
+      error: function(){
+                    $("#danger-alert").show();
+                    setTimeout(function() { $("#danger-alert").hide(); }, 8000);
+                    }
+    });
+    });
 });

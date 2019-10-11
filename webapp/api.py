@@ -8,7 +8,7 @@ import math
 import requests
 
 # Internal imports todo: change
-from webapp.db import DB, SeenTitles, Users
+from webapp.db import DB, SeenTitles, Users, MissingTitles
 from webapp.user import User, get_user_by_id
 
 
@@ -286,6 +286,17 @@ def not_found(e):
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html', version_number=VERSION_NUMBER)
+
+
+@app.route('/save_missing_titles', methods=["POST"])
+def save_missing_titles():
+    link_to_imdb = request.form.get("imdb_link")
+    with DB() as db:
+        missing_title = MissingTitles(imdb_link=link_to_imdb)
+        db.session.add(missing_title)
+        db.session.commit()
+
+    return jsonify({"missing_link": link_to_imdb}) # todo: return warning if bad input / return success and failure
 
 
 if __name__ == "__main__":

@@ -55,5 +55,10 @@ class SeenTitles(Base):
 
 
 
+class MissingTitles(Base):
+    __tablename__ = 'missing_titles'
 
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    imdb_link = Column(TEXT, nullable=False)
+    # todo: change this
 

@@ -25,10 +25,47 @@
                         Hide already seen titles
                 </label>
             </div>
+            <br>
+            <!-- Button to Open the Modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+              Missing a title ? Let us know !
+            </button>
         </center>
     </form>
 </div>
 
+
+
+<!-- The Modal -->
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Missing Title ?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Can't found a title ?<br>Let us know and we will update it as soon as possible.</p>
+                  <p>Please add a link to the title's IMDb page:</p>
+                 <input type="text" class="form-control" placeholder="link to the title's IMDb page" id="imdb_link">
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary save-missing">Save changes</button>
+            </div>
+
+            <div class="alert alert-success" id="success-alert" style="display:none"> Saved successfully</div>
+            <!-- todo: add a warning if input is bad-->
+            <div class="alert alert-danger" id="danger-alert" style="display:none">Something went wrong. Try again later</div>
+
+    </div>
+  </div>
+</div>
 
 
 {% include 'include/footer.html' %}
