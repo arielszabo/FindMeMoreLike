@@ -6,6 +6,7 @@ import os
 import yaml
 import math
 import requests
+import re
 
 # Internal imports todo: change
 from webapp.db_handler import DB, SeenTitles, Users, MissingTitles
@@ -291,10 +292,14 @@ def privacy():
 @app.route('/save_missing_titles', methods=["POST"])
 def save_missing_titles():
     link_to_imdb = request.form.get("imdb_link")
+    found_imdb_ids = re.findall(r'tt\d+', str(link_to_imdb))
+    if not found_imdb_ids:  # if no IMDb id was found
+        raise ValueError("Bad")
     with DB() as db:
-        missing_title = MissingTitles(imdb_link=link_to_imdb)
-        db.session.add(missing_title)
-        db.session.commit()
+        for imdb_id in found_imdb_ids:
+            missing_title = MissingTitles(imdb_link=link_to_imdb, imdb_id=imdb_id)
+            db.session.add(missing_title)
+            db.session.commit()
 
     return jsonify({"missing_link": link_to_imdb}) # todo: return warning if bad input / return success and failure
 
