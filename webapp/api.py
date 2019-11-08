@@ -18,12 +18,14 @@ def _open_json(full_file_path):
         return json.load(jfile)
 
 
+
 VERSION_NUMBER = "0.0.1"
 ONE_PAGE_SUGGESTIONS_AMOUNT = 10
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config_file_path = os.environ.get("FIND_MORE_LIKE_CONFIG", os.path.join(root, 'project_config.yaml'))
 
-with open(os.path.join(root, 'project_config.yaml'), 'r') as yfile:
+with open(config_file_path, 'r') as yfile:
     project_config = yaml.load(yfile, Loader=yaml.FullLoader)
 
 
