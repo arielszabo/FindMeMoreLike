@@ -1,5 +1,6 @@
 import pandas as pd
 from find_more_like_algorithm import vectorization, utils
+from find_more_like_algorithm.vectorization import text_vectors
 
 def test_tokenizer_comma_separated_strings():
     assert vectorization.tokenizer_comma_separated_strings('this, is good') == ['this', 'is good']
@@ -16,66 +17,69 @@ def test_tokenizer_comma_separated_strings():
 
 
 def test_extract_from_comma_separated_strings():
+    expected_output_dict = {'four': {0: 0, 1: 0, 2: 0, 3: 0, 4: 1},
+                            'not_provided': {0: 0, 1: 0, 2: 0, 3: 1, 4: 0},
+                            'one': {0: 1, 1: 1, 2: 1, 3: 0, 4: 1},
+                            'three': {0: 0, 1: 0, 2: 1, 3: 0, 4: 1},
+                            'two': {0: 0, 1: 1, 2: 1, 3: 0, 4: 1}}
+
     df = pd.DataFrame({'this_column': ['one', 'one, two', 'one, two , three', None, 'one, two , three,four']})
     extracted_df = vectorization.extract_from_comma_separated_strings(df, column_name='this_column')
-    assert extracted_df.to_dict() == {'this_column_four': {0: 0, 1: 0, 2: 0, 3: 0, 4: 1},
-                                      'this_column_not_provided': {0: 0, 1: 0, 2: 0, 3: 1, 4: 0},
-                                      'this_column_one': {0: 1, 1: 1, 2: 1, 3: 0, 4: 1},
-                                      'this_column_three': {0: 0, 1: 0, 2: 1, 3: 0, 4: 1},
-                                      'this_column_two': {0: 0, 1: 1, 2: 1, 3: 0, 4: 1}}
+    extracted_dict = extracted_df.to_dict()
+    assert extracted_dict == expected_output_dict
 
 
 
 def test_token_text():
-    assert vectorization.token_text(full_text='this is a sample',
+    assert text_vectors.token_text(full_text='this is a sample',
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
                                     stem_word=False) == ['sample']
 
-    assert vectorization.token_text(full_text='this is a sample',
+    assert text_vectors.token_text(full_text='this is a sample',
                                     remove_stop_words=False,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
                                     stem_word=False) == ['this', 'is', 'a', 'sample']
 
-    assert vectorization.token_text(full_text='this is a sample with not only stop words',
+    assert text_vectors.token_text(full_text='this is a sample with not only stop words',
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
                                     stem_word=False) == ['sample', 'stop', 'words']
 
-    assert vectorization.token_text(full_text='Hello man',
+    assert text_vectors.token_text(full_text='Hello man',
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
                                     stem_word=False) == ['hello', 'man']
 
-    assert vectorization.token_text(full_text='Hello man, this is cool.',
+    assert text_vectors.token_text(full_text='Hello man, this is cool.',
                                     remove_stop_words=True,
                                     remove_punctuations=False,
                                     remove_if_not_alpha=False,
                                     stem_word=False) == ['hello', 'man', ',', 'cool', '.']
 
-    assert vectorization.token_text(full_text='Hello man, this is c00l.',
+    assert text_vectors.token_text(full_text='Hello man, this is c00l.',
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=False,
                                     stem_word=False) == ['hello', 'man', 'c00l']
 
-    assert vectorization.token_text(full_text='Hello man, this is c00l.',
+    assert text_vectors.token_text(full_text='Hello man, this is c00l.',
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
                                     stem_word=False) == ['hello', 'man']
 
-    assert vectorization.token_text(full_text="let's not use stemming here",
+    assert text_vectors.token_text(full_text="let's not use stemming here",
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
                                     stem_word=False) == ['let', 'use', 'stemming']
 
-    assert vectorization.token_text(full_text="let's not use stemming here",
+    assert text_vectors.token_text(full_text="let's not use stemming here",
                                     remove_stop_words=True,
                                     remove_punctuations=True,
                                     remove_if_not_alpha=True,
