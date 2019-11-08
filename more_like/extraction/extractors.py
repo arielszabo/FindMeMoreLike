@@ -7,6 +7,7 @@ import time
 import logging
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+import yaml
 
 class ExtractorFail(Exception):
     pass
@@ -26,9 +27,10 @@ class DataExtractor(object):
         raise NotImplementedError("This method needs to be implemented here {}".format(type(self).__name__))
 
     def extract_data(self, ids_to_query):
-        for i, movie_id in tqdm(enumerate(ids_to_query), desc='Extracted'):
+        for i, movie_id in enumerate(tqdm(ids_to_query, desc='Extracted')):
             if movie_id in self.existing_ids: # todo: add a better cache invalidation
-                logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
+                # logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
+                continue
             else:
                 single_movie_data = self._extract_a_single_id(movie_id)
                 if single_movie_data is not None:
@@ -42,8 +44,8 @@ class IMDBApiExtractor(DataExtractor):
 
     def __init__(self, *args, **kwargs): # todo: is this the best way?
         self.extractor_type = 'imdb'
-        self.user_api_key = self._get_user_api_key()
         super().__init__(*args, **kwargs)
+        self.user_api_key = self._get_user_api_key()
 
 
     def _get_user_api_key(self):
@@ -51,31 +53,33 @@ class IMDBApiExtractor(DataExtractor):
             assert FileNotFoundError(f"Save you OMDb api key in the file {self.project_config['keys_config_path']}."
                                      f" Please read the README file for more info")
         with open(self.project_config['keys_config_path'], 'r') as f:
-            user_api_key = json.load(f)["omdb_user_key"]
+            user_api_key = yaml.load(f)["omdb_user_key"]
         return user_api_key
 
     def _extract_a_single_id(self, movie_id):
-        url = f'http://www.omdbapi.com/?i={movie_id}&apikey={self.user_api_key}&?plot=full'
+        url = f'https://omdbapi.com/?i={movie_id}&apikey={self.user_api_key}&?plot=full'
         response = requests.get(url)
+        try:
+            if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
+                logging.info("Request limit reached! Lets wait 24 hours")
+                time.sleep(24*60*60+1)
+                response = requests.get(url)
+                # raise TypeError("Request limit reached!")
 
-        if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
-            logging.info("Request limit reached! Lets wait 24 hours")
-            time.sleep(24*60*60+1)
-            response = requests.get(url)
-            # raise TypeError("Request limit reached!")
+            if response.json()['Response'] == 'False':
+                logging.info("Response == False ? at {}".format(movie_id))
+                return None
+                # raise ValueError("Response == False ? at {}".format(movie_id))
 
-        if response.json()['Response'] == 'False':
-            logging.info("Response == False ? at {}".format(movie_id))
-            return None
-            # raise ValueError("Response == False ? at {}".format(movie_id))
-
-        return response.json()
+            return response.json()
+        except json.decoder.JSONDecodeError as e:
+            logging.info("{} at {}".format(e, movie_id))
 
 class WikiApiExtractor(DataExtractor):
     def __init__(self, *args, **kwargs):
         self.extractor_type = 'wiki'
         super().__init__(*args, **kwargs)
-        self.imdb_api_saving_path = self.project_config["api_data_saving_path"]['wiki']
+        self.imdb_api_saving_path = self.project_config["api_data_saving_path"]['imdb']
         self.api_url = r'https://en.wikipedia.org/w/api.php'
         self.rest_api_url = 'https://en.wikipedia.org/api/rest_v1'
 
@@ -88,7 +92,7 @@ class WikiApiExtractor(DataExtractor):
             return query_info
 
         else:
-            logging.warning("There is no IMDb data for this {} IMDb id".format(movie_id))
+            # logging.warning("There is no IMDb data for this {} IMDb id".format(movie_id))
             return None
             # raise ExtractorFail()
 
