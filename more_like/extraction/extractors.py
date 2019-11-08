@@ -8,9 +8,12 @@ import logging
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
+import multiprocessing
+
 
 class ExtractorFail(Exception):
     pass
+
 
 class DataExtractor(object):
     def __init__(self, project_config):
@@ -27,18 +30,25 @@ class DataExtractor(object):
         raise NotImplementedError("This method needs to be implemented here {}".format(type(self).__name__))
 
     def extract_data(self, ids_to_query):
-        for i, movie_id in enumerate(tqdm(ids_to_query, desc='Extracted')):
-            if movie_id in self.existing_ids: # todo: add a better cache invalidation
-                # logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
-                continue
-            else:
-                single_movie_data = self._extract_a_single_id(movie_id)
-                if single_movie_data is not None:
-                    self.save(data=single_movie_data, movie_id=movie_id)
+        not_existing_ids_to_query = [movie_id for movie_id in tqdm(ids_to_query, desc='remove existing ids')
+                                     if movie_id not in self.existing_ids]  # todo: add a better cache invalidation
+        # # logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
+
+        with multiprocessing.Pool() as pool:
+            extraction_iterator = tqdm(iterable=pool.imap(self._extract_and_save, not_existing_ids_to_query),
+                                       total=len(not_existing_ids_to_query),
+                                       desc='Extracted')
+            list(extraction_iterator)
 
     def save(self, data, movie_id):
         with open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:
             json.dump(data, j_file)
+
+    def _extract_and_save(self, movie_id):
+        single_movie_data = self._extract_a_single_id(movie_id)
+        if single_movie_data is not None:
+            self.save(data=single_movie_data, movie_id=movie_id)
+
 
 class IMDBApiExtractor(DataExtractor):
 
@@ -74,6 +84,7 @@ class IMDBApiExtractor(DataExtractor):
             return response.json()
         except json.decoder.JSONDecodeError as e:
             logging.info("{} at {}".format(e, movie_id))
+
 
 class WikiApiExtractor(DataExtractor):
     def __init__(self, *args, **kwargs):
