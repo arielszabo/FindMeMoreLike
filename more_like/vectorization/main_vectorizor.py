@@ -5,8 +5,8 @@ import pandas as pd
 import importlib
 import re
 from sklearn.feature_extraction.text import CountVectorizer
-from .. import utils
-from . import text_vectors
+from more_like import utils
+from more_like.vectorization import text_vectors
 import datetime
 
 
