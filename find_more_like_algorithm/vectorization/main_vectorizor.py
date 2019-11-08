@@ -7,6 +7,7 @@ import re
 from sklearn.feature_extraction.text import CountVectorizer
 from find_more_like_algorithm import utils
 from find_more_like_algorithm.vectorization import text_vectors
+from find_more_like_algorithm.constants import full_text, insertion_time
 import datetime
 
 
@@ -64,38 +65,40 @@ def rated_vectors(df, rated_col_name):
     return pd.get_dummies(df[rated_col_name].apply(_change_rating), dummy_na=True)
 
 
-def load_data(project_config):
+def load_saved_data(project_config):
     all_data = []
 
     imdb_data_path = project_config['api_data_saving_path']['imdb']
     wiki_data_path = project_config['api_data_saving_path']['wiki']
     for file_name in tqdm(os.listdir(imdb_data_path), desc='Loading saved data ...'):
-        imdb_data = utils.open_json(os.path.join(imdb_data_path, file_name))
+        full_file_path = os.path.join(imdb_data_path, file_name)
+        imdb_data = utils.open_json(full_file_path)
+        # imdb_data[insertion_time] = datetime.datetime.fromtimestamp(os.path.getmtime(full_file_path))
         if file_name in os.listdir(wiki_data_path):
             wiki_data = utils.open_json(os.path.join(wiki_data_path, file_name))
 
             imdb_data.update(wiki_data)
 
         else:
-            logging.info('{} has no wiki data'.format(file_name))
+            logging.warning('{} has no wiki data'.format(file_name))
         all_data.append(imdb_data)
 
     df = pd.DataFrame(all_data).set_index('imdbID')  # todo: clean this DataFrame, do a 'total text' column etc
 
     # todo: change this:
     df['text'] = df['text'].fillna('')
-    df['full_text'] = df.apply(lambda row: row['text'] + ' ' + row['Plot'], axis=1)
+    df[full_text] = df.apply(lambda row: row['text'] + ' ' + row['Plot'], axis=1)
 
     return df
 
 
 def create_vectors(project_config):
-    df = load_data(project_config)
+    df = load_saved_data(project_config)
 
     vectorization_config = {
         'text_vectors': {
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'full_text'}
+            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': full_text}
         },
         'title_vectors': {
             'callable': text_vectors.get_text_vectors,
@@ -116,11 +119,14 @@ def create_vectors(project_config):
     for vectorization_method in project_config['vectorization']:
         if vectorization_method in vectorization_config:  # todo: Do I need this if? worst case a Key Error will raise which is a good thing in this case
             cache_file_path = os.path.join(project_config['vectors_cache_path'], '{}.pickle'.format(vectorization_method))
-            # if os.path.exists(cache_file_path) and \
-            #         datetime.datetime.fromtimestamp(os.path.getmtime(cache_file_path)) >= df['insertion_time'].max():
-            #     logging.info("Load cached {}".format(vectorization_method))
-            #     vectors = pd.read_pickle(cache_file_path)
-            # else:
+            # if os.path.exists(cache_file_path):
+            #     cache_file_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(cache_file_path))
+            #     if cache_file_modified_time >= df[insertion_time].max():
+            #         logging.info("Load cached {}".format(vectorization_method))
+            #         vectors = pd.read_pickle(cache_file_path)
+            #         all_vectors.append(vectors)
+            #         continue
+
             logging.info("Starting to create the {}".format(vectorization_method))
             vectorizer = vectorization_config[vectorization_method]
 
