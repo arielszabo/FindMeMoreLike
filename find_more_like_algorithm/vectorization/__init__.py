@@ -1,0 +1,1 @@
+from find_more_like_algorithm.vectorization.main_vectorizor import *
