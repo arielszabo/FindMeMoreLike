@@ -5,8 +5,8 @@ import pandas as pd
 import importlib
 import re
 from sklearn.feature_extraction.text import CountVectorizer
-from more_like import utils
-from more_like.vectorization import text_vectors
+from find_more_like_algorithm import utils
+from find_more_like_algorithm.vectorization import text_vectors
 import datetime
 
 
@@ -132,7 +132,7 @@ def create_vectors(project_config):
 
     # for vectorization_method in project_config['vectorization']:
     #     # vectorization_module = importlib.import_module('.{}'.format(vectorization_method),
-    #     #                                                package='more_like.vectorization')
+    #     #                                                package='find_more_like_algorithm.vectorization')
     #     # vectors = getattr(vectorization_module, 'get_{}'.format(vectorization_method))(df, project_config)
     #     # all_vectors.append(vectors)
     #     # todo: maybe save this as a dict where key is the vectorization method, and the value is the callable and it's special params?

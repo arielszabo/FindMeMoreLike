@@ -3,7 +3,7 @@ import logging
 import os
 import json
 
-from more_like import extraction, vectorization, utils
+from find_more_like_algorithm import extraction, vectorization, utils
 
 
 def load_test_config():

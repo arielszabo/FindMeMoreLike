@@ -1,5 +1,5 @@
 import pandas as pd
-from more_like import vectorization, utils
+from find_more_like_algorithm import vectorization, utils
 
 def test_tokenizer_comma_separated_strings():
     assert vectorization.tokenizer_comma_separated_strings('this, is good') == ['this', 'is good']
