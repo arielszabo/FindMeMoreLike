@@ -151,12 +151,13 @@ class WikiApiExtractor(DataExtractor):
                         raise ValueError(f'"{text_to_search_for}" had an error')
 
                     if response_json['query']['searchinfo']['totalhits'] == 0:
-                        logging.info(f'"{text_to_search_for}" have no results')
                         # reconstruct the query_properties with less info so maybe the query will succeed:
                         query_properties = query_properties[:-1]
                     else:
                         best_match = response_json["query"]["search"][0]  # the first one is the best match
                         return best_match["pageid"], best_match["title"]
+
+        raise ValueError(f'{" ".join(query_properties)} have no results')
 
     @staticmethod
     def limit_query_to_maximum_allowed_length(query_properties, max_length=300):
