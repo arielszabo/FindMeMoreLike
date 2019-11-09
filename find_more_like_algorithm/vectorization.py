@@ -10,59 +10,6 @@ from find_more_like_algorithm.constants import INSERTION_TIME, root_path
 import datetime
 
 
-def tokenizer_comma_separated_strings(full_string):
-    separated_strings = re.split(',', full_string)
-     # strip the seperated strings becase sometimes there's white-space between the word and the comma:
-    return list(map(lambda x: x.strip(), separated_strings))
-
-
-def extract_from_comma_separated_strings(full_df, column_name):
-    full_df.columns = [col.lower() for col in full_df.columns]
-    vec = CountVectorizer(tokenizer=tokenizer_comma_separated_strings)
-
-    df_array = vec.fit_transform(full_df[column_name.lower()].fillna('Not_provided')).toarray()
-    return pd.DataFrame(df_array, columns=vec.get_feature_names(), index=full_df.index)
-    # fields = ['{}_{}'.format(column_name, col).lower() for col in vec.get_feature_names()]
-
-    # return pd.DataFrame(df_array, columns=fields, index=full_df.index)
-
-
-def rated_vectors(df, rated_col_name):
-    def _change_rating(movie_rating):
-        # what todo with UNRATED is it as Not Rated?
-        ratings_convertor = {
-            'R': 'Restricted',
-            'G': 'General Audiences',
-            'TV-Y': 'General Audiences',
-            'TV-Y7': 'General Audiences',  # this is not exactly 'General Audiences' but it's close enough
-            'TV-Y7-FV': 'General Audiences',  # this is not exactly 'General Audiences' but it's close enough
-            'TV-G': 'General Audiences',
-            'PG': 'Parental Guidance Suggested',
-            'TV-PG': 'Parental Guidance Suggested',
-            'GP': 'Parental Guidance Suggested',
-            'M/PG': 'Parental Guidance Suggested',
-            'M': 'Parental Guidance Suggested',
-            'PG-13': 'Parents Strongly Cautioned',
-            'TV-14': 'Parents Strongly Cautioned', # not exactly 'Parents Strongly Cautioned' but it's close enough
-            'NC-17': 'Adults Only',
-            'TV-MA': 'Adults Only',
-            'NR': 'Not Rated',
-            'X': 'Adults Only',
-            'N/A': None,
-            'NOT RATED': 'Not Rated',
-            'Not Rated': 'Not Rated',
-            'APPROVED': 'APPROVED',
-            'PASSED': 'PASSED',
-            'UNRATED': 'UNRATED'
-
-        }
-        if movie_rating not in ratings_convertor:
-            raise ValueError('This movie rating: {} does not exist in the convertor...'.format(movie_rating))
-        else:
-            return ratings_convertor[movie_rating]
-
-    return pd.get_dummies(df[rated_col_name].apply(_change_rating), dummy_na=True)
-
 
 def create_vectors(df, project_config):
     vectorization_config = {
@@ -75,11 +22,11 @@ def create_vectors(df, project_config):
             'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'Title'}
         },
         'genre_vectors': {
-            'callable': extract_from_comma_separated_strings,
+            'callable': _extract_from_comma_separated_strings,
             'params': {'column_name': 'genre'}
         },
         # 'rated_vectors': {
-        #     'callable': rated_vectors,
+        #     'callable': _rated_vectors,
         #     'params': {'rated_col_name': 'Rated'}
         # }
     }
@@ -107,3 +54,61 @@ def create_vectors(df, project_config):
         all_vectors.append(vectors)
 
     return pd.concat(all_vectors, axis=1, sort=False)  # todo: save them
+
+
+def _rated_vectors(df, rated_column_name):
+    return pd.get_dummies(df[rated_column_name].apply(_change_rating), dummy_na=True)
+
+
+def _tokenizer_comma_separated_strings(full_string):
+    separated_strings = re.split(',', full_string)
+     # strip the separated strings because sometimes there's white-space between the word and the comma:
+    stripped_separated_strings = [separated_string.strip() for separated_string in separated_strings]
+    return stripped_separated_strings
+
+
+def _extract_from_comma_separated_strings(df, column_name):
+    count_vectorizer = CountVectorizer(tokenizer=_tokenizer_comma_separated_strings)
+
+    df_sparse_array = count_vectorizer.fit_transform(df[column_name.lower()].fillna('not_provided'))
+    df_dense_array = df_sparse_array.toarray()
+    feature_names = count_vectorizer.get_feature_names()
+    # feature_names = [f"{column_name}_{col}".lower() for col in count_vectorizer.get_feature_names()]  # todo: why comment out?
+
+    vectored_df = pd.DataFrame(df_dense_array, columns=feature_names, index=df.index)
+    return vectored_df
+
+
+def _change_rating(movie_rating):
+    # what todo with UNRATED is it as Not Rated?
+    ratings_convertor = {
+        'R': 'Restricted',
+        'G': 'General Audiences',
+        'TV-Y': 'General Audiences',
+        'TV-Y7': 'General Audiences',  # this is not exactly 'General Audiences' but it's close enough
+        'TV-Y7-FV': 'General Audiences',  # this is not exactly 'General Audiences' but it's close enough
+        'TV-G': 'General Audiences',
+        'PG': 'Parental Guidance Suggested',
+        'TV-PG': 'Parental Guidance Suggested',
+        'GP': 'Parental Guidance Suggested',
+        'M/PG': 'Parental Guidance Suggested',
+        'M': 'Parental Guidance Suggested',
+        'PG-13': 'Parents Strongly Cautioned',
+        'TV-14': 'Parents Strongly Cautioned',  # not exactly 'Parents Strongly Cautioned' but it's close enough
+        'NC-17': 'Adults Only',
+        'TV-MA': 'Adults Only',
+        'NR': 'Not Rated',
+        'X': 'Adults Only',
+        'N/A': None,
+        'NOT RATED': 'Not Rated',
+        'Not Rated': 'Not Rated',
+        'APPROVED': 'APPROVED',
+        'PASSED': 'PASSED',
+        'UNRATED': 'UNRATED'
+
+    }
+
+    if movie_rating not in ratings_convertor:
+        raise ValueError('This movie rating: {} does not exist in the convertor...'.format(movie_rating))
+    else:
+        return ratings_convertor[movie_rating]

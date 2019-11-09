@@ -3,16 +3,16 @@ from find_more_like_algorithm import vectorization, utils
 from find_more_like_algorithm.vectorization import text_vectors
 
 def test_tokenizer_comma_separated_strings():
-    assert vectorization.tokenizer_comma_separated_strings('this, is good') == ['this', 'is good']
-    assert vectorization.tokenizer_comma_separated_strings('with , 2spaces') == ['with', '2spaces']
-    assert vectorization.tokenizer_comma_separated_strings('with, space') == ['with', 'space']
-    assert vectorization.tokenizer_comma_separated_strings('with ,space') == ['with', 'space']
-    assert vectorization.tokenizer_comma_separated_strings('with ,space') == ['with', 'space']
-    assert vectorization.tokenizer_comma_separated_strings('nocomma') == ['nocomma']
-    assert vectorization.tokenizer_comma_separated_strings('nocomma,') == ['nocomma', '']
-    assert vectorization.tokenizer_comma_separated_strings(',nocomma') == ['', 'nocomma']
-    assert vectorization.tokenizer_comma_separated_strings('no,space') == ['no', 'space']
-    assert vectorization.tokenizer_comma_separated_strings('no,space ,1space , 2spaces') == ['no', 'space',
+    assert vectorization._tokenizer_comma_separated_strings('this, is good') == ['this', 'is good']
+    assert vectorization._tokenizer_comma_separated_strings('with , 2spaces') == ['with', '2spaces']
+    assert vectorization._tokenizer_comma_separated_strings('with, space') == ['with', 'space']
+    assert vectorization._tokenizer_comma_separated_strings('with ,space') == ['with', 'space']
+    assert vectorization._tokenizer_comma_separated_strings('with ,space') == ['with', 'space']
+    assert vectorization._tokenizer_comma_separated_strings('nocomma') == ['nocomma']
+    assert vectorization._tokenizer_comma_separated_strings('nocomma,') == ['nocomma', '']
+    assert vectorization._tokenizer_comma_separated_strings(',nocomma') == ['', 'nocomma']
+    assert vectorization._tokenizer_comma_separated_strings('no,space') == ['no', 'space']
+    assert vectorization._tokenizer_comma_separated_strings('no,space ,1space , 2spaces') == ['no', 'space',
                                                                                              '1space', '2spaces']
 
 
@@ -24,7 +24,7 @@ def test_extract_from_comma_separated_strings():
                             'two': {0: 0, 1: 1, 2: 1, 3: 0, 4: 1}}
 
     df = pd.DataFrame({'this_column': ['one', 'one, two', 'one, two , three', None, 'one, two , three,four']})
-    extracted_df = vectorization.extract_from_comma_separated_strings(df, column_name='this_column')
+    extracted_df = vectorization._extract_from_comma_separated_strings(df, column_name='this_column')
     extracted_dict = extracted_df.to_dict()
     assert extracted_dict == expected_output_dict
 
