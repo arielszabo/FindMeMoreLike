@@ -1,5 +1,7 @@
 keys_config_path: 'keys_config.yaml'
 
+error_saving_path: "extracting_errors"
+
 api_data_saving_path:
   imdb: 'raw_imdb_data'
   wiki: 'raw_wiki_data'

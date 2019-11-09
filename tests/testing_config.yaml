@@ -1,5 +1,7 @@
 keys_config_path: 'tests/test_keys_config.yaml'
 
+error_saving_path: "tests/extracting_errors"
+
 api_data_saving_path:
   imdb: 'tests/testing_raw_imdb_data'
   wiki: 'tests/testing_raw_wiki_data'
