@@ -44,3 +44,15 @@ def standardized(df):
 
     df.set_index(IMDB_ID, inplace=True)
     return df
+
+
+
+def standardized_imdb_jsons(imdb_json_content):
+    standardized_imdb_json_content = {}
+    for key, value in imdb_json_content.items():
+        fixed_key = key.lower()
+        fixed_value = value
+        imdb_json_content[fixed_key] = fixed_value
+
+
+    return standardized_imdb_json_content
