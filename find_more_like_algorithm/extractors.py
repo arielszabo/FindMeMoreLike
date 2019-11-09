@@ -15,7 +15,7 @@ import asyncio
 import aiofiles
 import aiohttp
 
-CHUNK_SIZE = 10
+CHUNK_SIZE = 25
 
 class ExceptedExtractorFail(Exception):
     pass
@@ -46,10 +46,18 @@ class DataExtractor(object):
 
             loop.run_until_complete(asyncio.gather(*list_of_requests))
 
-
     async def save(self, data, movie_id):
         async with aiofiles.open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:
             json.dump(data, j_file)
+
+    async def _save_errors(self, error, movie_id):
+        day_string = datetime.now().strftime("%Y-%m-%d")
+        error_saving_folder_path = os.path.join(self.project_config["error_saving_path"], day_string)
+        os.makedirs(error_saving_folder_path, exist_ok=True)
+
+        full_error_saving_path = os.path.join(error_saving_folder_path, f"{movie_id}_{self.__class__.__name__}.txt")
+        async with aiofiles.open(full_error_saving_path, 'w') as text_file:
+            await text_file.write(str(error))
 
     async def _extract_and_save(self, movie_id):
         try:
@@ -60,16 +68,6 @@ class DataExtractor(object):
             pass
         except Exception as error:
             await self._save_errors(error, movie_id)
-
-
-    async def _save_errors(self, error, movie_id):
-        day_string = datetime.now().strftime("%Y-%m-%d")
-        error_saving_folder_path = os.path.join(self.project_config["error_saving_path"], day_string)
-        os.makedirs(error_saving_folder_path, exist_ok=True)
-
-        full_error_saving_path = os.path.join(error_saving_folder_path, f"{movie_id}_{self.__class__.__name__}.txt")
-        async with aiofiles.open(full_error_saving_path, 'w') as text_file:
-            text_file.write(error)
 
 
 class IMDBApiExtractor(DataExtractor):
@@ -157,7 +155,7 @@ class WikiApiExtractor(DataExtractor):
                         best_match = response_json["query"]["search"][0]  # the first one is the best match
                         return best_match["pageid"], best_match["title"]
 
-        raise ValueError(f'{" ".join(query_properties)} have no results')
+        raise ExceptedExtractorFail()
 
     @staticmethod
     def limit_query_to_maximum_allowed_length(query_properties, max_length=300):
