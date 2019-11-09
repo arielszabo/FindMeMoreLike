@@ -3,21 +3,21 @@ import re
 import json
 import glob
 import requests
-import time
+from datetime import datetime
 import logging
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import math
-from find_more_like_algorithm.constants import WIKI_TEXT, root_path
+from find_more_like_algorithm.constants import WIKI_TEXT
 from find_more_like_algorithm import utils
 import asyncio
 import aiofiles
 import aiohttp
 
-CHUNK_SIZE = 1_000
+CHUNK_SIZE = 10
 
-class ExtractorFail(Exception):
+class ExceptedExtractorFail(Exception):
     pass
 
 
@@ -52,9 +52,24 @@ class DataExtractor(object):
             json.dump(data, j_file)
 
     async def _extract_and_save(self, movie_id):
-        single_movie_data = await self._extract_a_single_id(movie_id)
-        if single_movie_data is not None:
-            await self.save(data=single_movie_data, movie_id=movie_id)
+        try:
+            single_movie_data = await self._extract_a_single_id(movie_id)
+            if single_movie_data is not None:
+                await self.save(data=single_movie_data, movie_id=movie_id)
+        except ExceptedExtractorFail:
+            pass
+        except Exception as error:
+            await self._save_errors(error, movie_id)
+
+
+    async def _save_errors(self, error, movie_id):
+        day_string = datetime.now().strftime("%Y-%m-%d")
+        error_saving_folder_path = os.path.join(self.project_config["error_saving_path"], day_string)
+        os.makedirs(error_saving_folder_path, exist_ok=True)
+
+        full_error_saving_path = os.path.join(error_saving_folder_path, f"{movie_id}_{self.__class__.__name__}.txt")
+        async with aiofiles.open(full_error_saving_path, 'w') as text_file:
+            text_file.write(error)
 
 
 class IMDBApiExtractor(DataExtractor):
@@ -77,21 +92,16 @@ class IMDBApiExtractor(DataExtractor):
         url = f'https://omdbapi.com/?i={movie_id}&apikey={self.user_api_key}&?plot=full'
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
-                try:
-                    response_json = await response.json()
-                    # if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
-                    #     logging.info("Request limit reached! Lets wait 24 hours")
-                    #     time.sleep(24*60*60+1)
-                    #     response = requests.get(url)
-                    #     # raise TypeError("Request limit reached!")
-                    if response_json['Response'] == 'False':
-                        # logging.info("Response == False ? at {}".format(movie_id)) todo: do something
-                        return None
-                        # raise ValueError("Response == False ? at {}".format(movie_id))
+                response_json = await response.json()
 
-                    return await response.json()
-                except json.decoder.JSONDecodeError as e:
-                    logging.info("{} at {}".format(e, movie_id))
+                if response_json == {"Error": "Request limit reached!", "Response": "False"}:
+                    logging.info(f"Request limit reached! at {movie_id}")
+                    raise ExceptedExtractorFail("Request limit reached!")
+
+                if response_json['Response'] == 'False':
+                    raise ValueError("Response == False ? at {}".format(movie_id))
+
+                return await response.json()
 
 
 class WikiApiExtractor(DataExtractor):
@@ -112,9 +122,7 @@ class WikiApiExtractor(DataExtractor):
             return query_info
 
         else:
-            # logging.warning("There is no IMDb data for this {} IMDb id".format(movie_id))
-            return None
-            # raise ExtractorFail()
+            raise ExceptedExtractorFail(f"There is no IMDb data for this {movie_id} IMDb id")
 
     async def _get_page_id_and_title_by_text_search(self, query_properties):
         """
@@ -139,14 +147,8 @@ class WikiApiExtractor(DataExtractor):
                     response_json = await response.json()
                     response_status = response.status
 
-                    if int(response_status) != 200:
-                        logging.info(f'The request for "{text_to_search_for}" returned with status_code: {response.status_code}')
-                        # todo: something better
-                        return
-
                     if 'error' in response_json:
-                        logging.info(f'"{text_to_search_for}" had an error')
-                        return
+                        raise ValueError(f'"{text_to_search_for}" had an error')
 
                     if response_json['query']['searchinfo']['totalhits'] == 0:
                         logging.info(f'"{text_to_search_for}" have no results')
@@ -179,28 +181,14 @@ class WikiApiExtractor(DataExtractor):
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{self.rest_api_url}/page/html/{page_title}?redirect=true") as response:
                 response_text = await response.text()
-                response_status_code = response.status
-
-                if int(response_status_code) != 200:
-                    logging.info(f'The request for "{page_title}" returned with status_code: {response_status_code}') #todo: something better
-                    return None
-
                 soup = BeautifulSoup(response_text, 'html.parser')
                 return '\n'.join([p.get_text() for p in soup.find_all('p')])
 
     async def _extract_a_single_id(self, movie_id):
-        text_query_parts = await self._build_text_query(movie_id) # todo: async file ?
-        if text_query_parts is None:
-            return
+        text_query_parts = await self._build_text_query(movie_id)
+        wiki_page_id, wiki_page_title = await self._get_page_id_and_title_by_text_search(text_query_parts)
 
-        page_data = await self._get_page_id_and_title_by_text_search(text_query_parts)
-        if page_data is None:
-            return
-
-        wiki_page_id, wiki_page_title = page_data
         text_content = await self._extract_all_text(page_title=wiki_page_title)
-        if text_content is None:
-            return
 
         wiki_data = {
             WIKI_TEXT: text_content.lower(),
