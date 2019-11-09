@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 from find_more_like_algorithm import extractors, vectorization, utils, load_and_clean
-from find_more_like_algorithm.constants import root_path
+from find_more_like_algorithm.constants import root_path, RUN_SIGNATURE
 
 logfile_base_path = "find_me_more_like_logs"
 run_signature = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
@@ -23,7 +23,7 @@ logging.basicConfig(
 if __name__ == '__main__':
 
     project_config = utils.open_yaml(os.path.join(root_path, "project_config.yaml"))
-
+    project_config[RUN_SIGNATURE] = run_signature
     logging.info(project_config)
 
     # ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')

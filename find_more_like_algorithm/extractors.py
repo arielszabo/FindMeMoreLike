@@ -9,11 +9,12 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import math
-from find_more_like_algorithm.constants import WIKI_TEXT
+from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE
 from find_more_like_algorithm import utils
 import asyncio
 import aiofiles
 import aiohttp
+import traceback
 
 CHUNK_SIZE = 25
 
@@ -26,24 +27,35 @@ class DataExtractor(object):
         self.project_config = project_config
         self.saving_path = self.project_config["api_data_saving_path"][self.extractor_type]
         os.makedirs(self.saving_path, exist_ok=True)
-        self.existing_ids = self._get_existing_ids()
+        self.existing_ids = self._get_existing_ids() + self._get_failed_ids()
 
     def _get_existing_ids(self):
         all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
         return [re.search(r'tt\d+', name).group(0) for name in all_saved_files]
 
+    def _get_failed_ids(self):
+        error_saving_path_folders = os.listdir(self.project_config["error_saving_path"])
+
+        sorted_folders_by_modification_time = sorted(error_saving_path_folders,
+                                                     key=lambda folder: os.path.getmtime(
+                                                         os.path.join(self.project_config["error_saving_path"], folder))
+                                                     )
+        if sorted_folders_by_modification_time:
+
+            all_error_files = glob.glob(os.path.join(sorted_folders_by_modification_time[-1], '*.txt'))
+            return [re.search(r'tt\d+', name).group(0) for name in all_error_files]
+        else:
+            return []
+
     def extract_data(self, ids_to_query):
-        chunks_amount = math.ceil(len(ids_to_query) / CHUNK_SIZE)
-        for ids_to_query_chunk in tqdm(utils.generate_list_chunks(ids_to_query, CHUNK_SIZE),
-                                       desc=f"Extract ({self.extractor_type}) {len(ids_to_query)} items in chunks of {CHUNK_SIZE}",
+        remaining_ids_to_query = list(set(ids_to_query).difference(self.existing_ids))
+        chunks_amount = math.ceil(len(remaining_ids_to_query) / CHUNK_SIZE)
+        for ids_to_query_chunk in tqdm(utils.generate_list_chunks(remaining_ids_to_query, CHUNK_SIZE),
+                                       desc=f"Extract ({self.extractor_type}) {len(remaining_ids_to_query)} items in chunks of {CHUNK_SIZE}",
                                        total=chunks_amount):
+
             loop = asyncio.get_event_loop()
-
-            list_of_requests = []
-            for movie_id in ids_to_query_chunk:
-                if movie_id not in self.existing_ids:
-                    list_of_requests.append(self._extract_and_save(movie_id))
-
+            list_of_requests = [self._extract_and_save(movie_id) for movie_id in ids_to_query_chunk]
             loop.run_until_complete(asyncio.gather(*list_of_requests))
 
     async def save(self, data, movie_id):
@@ -51,7 +63,7 @@ class DataExtractor(object):
             json.dump(data, j_file)
 
     async def _save_errors(self, error, movie_id):
-        day_string = datetime.now().strftime("%Y-%m-%d")
+        day_string = self.project_config[RUN_SIGNATURE]
         error_saving_folder_path = os.path.join(self.project_config["error_saving_path"], day_string)
         os.makedirs(error_saving_folder_path, exist_ok=True)
 
@@ -66,7 +78,8 @@ class DataExtractor(object):
                 await self.save(data=single_movie_data, movie_id=movie_id)
         except ExceptedExtractorFail:
             pass
-        except Exception as error:
+        except Exception as e:
+            error = traceback.format_exc()
             await self._save_errors(error, movie_id)
 
 
