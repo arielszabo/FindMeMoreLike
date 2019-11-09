@@ -6,6 +6,7 @@ enwiki_dbow/
 vectors_data/
 similar_list_data/
 .ipynb_checkpoints/
+error_saving_path/
 *.ipynb
 vectors_cache/
 all_movie_ids_to_query.json
