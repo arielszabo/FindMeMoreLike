@@ -1,1 +1,0 @@
-from find_more_like_algorithm.extraction.extractors import *
