@@ -38,8 +38,9 @@ def standardized(df):
         "imdbID": IMDB_ID
     }, inplace=True, axis=1)
 
+    df.columns = [col.lower() for col in df.columns]
     df[WIKI_TEXT] = df[WIKI_TEXT].fillna('')
-    df[FULL_TEXT] = df.apply(lambda row: row['Plot'] + ' ' + row[WIKI_TEXT], axis=1)
+    df[FULL_TEXT] = df.apply(lambda row: row['plot'] + ' ' + row[WIKI_TEXT], axis=1)
 
     df.set_index(IMDB_ID, inplace=True)
     return df
