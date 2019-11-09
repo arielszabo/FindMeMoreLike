@@ -75,3 +75,15 @@ def save_similarity_measures(similarity_df, project_config):
         file_name = os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(idx))
         # todo: save here the top K (form config) to save time in sorting later?
         row.sort_values(ascending=False).reset_index(name='similarity_value').to_json(file_name, orient='records')
+
+
+def generate_list_chunks(list_, chunk_size):
+    i = 0
+    while True:
+        start_index = i * chunk_size
+        end_index = (i + 1) * chunk_size
+        list_part = list_[start_index : end_index]
+        i += 1
+        yield list_part
+        if end_index >= len(list_):
+            break
