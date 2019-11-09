@@ -8,9 +8,14 @@ import logging
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
-import multiprocessing
-from find_more_like_algorithm.constants import WIKI_TEXT
+import math
+from find_more_like_algorithm.constants import WIKI_TEXT, root_path
+from find_more_like_algorithm import utils
+import asyncio
+import aiofiles
+import aiohttp
 
+CHUNK_SIZE = 1_000
 
 class ExtractorFail(Exception):
     pass
@@ -25,30 +30,31 @@ class DataExtractor(object):
 
     def _get_existing_ids(self):
         all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
-        return list(map(lambda name: re.search(r'tt\d+', name).group(0), all_saved_files))
-
-    def _extract_a_single_id(self, movie_id):
-        raise NotImplementedError("This method needs to be implemented here {}".format(type(self).__name__))
+        return [re.search(r'tt\d+', name).group(0) for name in all_saved_files]
 
     def extract_data(self, ids_to_query):
-        not_existing_ids_to_query = [movie_id for movie_id in tqdm(ids_to_query, desc='remove existing ids')
-                                     if movie_id not in self.existing_ids]  # todo: add a better cache invalidation
-        # # logging.info("{} already exists here - {}".format(movie_id, self.saving_path))
+        chunks_amount = math.ceil(len(ids_to_query) / CHUNK_SIZE)
+        for ids_to_query_chunk in tqdm(utils.generate_list_chunks(ids_to_query, CHUNK_SIZE),
+                                       desc=f"Extract ({self.extractor_type}) {len(ids_to_query)} items in chunks of {CHUNK_SIZE}",
+                                       total=chunks_amount):
+            loop = asyncio.get_event_loop()
 
-        with multiprocessing.Pool() as pool:
-            extraction_iterator = tqdm(iterable=pool.imap(self._extract_and_save, not_existing_ids_to_query),
-                                       total=len(not_existing_ids_to_query),
-                                       desc='Extracted')
-            list(extraction_iterator)
+            list_of_requests = []
+            for movie_id in ids_to_query_chunk:
+                if movie_id not in self.existing_ids:
+                    list_of_requests.append(self._extract_and_save(movie_id))
 
-    def save(self, data, movie_id):
-        with open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:
+            loop.run_until_complete(asyncio.gather(*list_of_requests))
+
+
+    async def save(self, data, movie_id):
+        async with aiofiles.open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:
             json.dump(data, j_file)
 
-    def _extract_and_save(self, movie_id):
-        single_movie_data = self._extract_a_single_id(movie_id)
+    async def _extract_and_save(self, movie_id):
+        single_movie_data = await self._extract_a_single_id(movie_id)
         if single_movie_data is not None:
-            self.save(data=single_movie_data, movie_id=movie_id)
+            await self.save(data=single_movie_data, movie_id=movie_id)
 
 
 class IMDBApiExtractor(DataExtractor):
@@ -67,24 +73,25 @@ class IMDBApiExtractor(DataExtractor):
             user_api_key = yaml.load(f)["omdb_user_key"]
         return user_api_key
 
-    def _extract_a_single_id(self, movie_id):
+    async def _extract_a_single_id(self, movie_id):
         url = f'https://omdbapi.com/?i={movie_id}&apikey={self.user_api_key}&?plot=full'
-        response = requests.get(url)
-        try:
-            if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
-                logging.info("Request limit reached! Lets wait 24 hours")
-                time.sleep(24*60*60+1)
-                response = requests.get(url)
-                # raise TypeError("Request limit reached!")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                try:
+                    response_json = await response.json()
+                    # if response.json() == {"Error": "Request limit reached!", "Response": "False"}:
+                    #     logging.info("Request limit reached! Lets wait 24 hours")
+                    #     time.sleep(24*60*60+1)
+                    #     response = requests.get(url)
+                    #     # raise TypeError("Request limit reached!")
+                    if response_json['Response'] == 'False':
+                        # logging.info("Response == False ? at {}".format(movie_id)) todo: do something
+                        return None
+                        # raise ValueError("Response == False ? at {}".format(movie_id))
 
-            if response.json()['Response'] == 'False':
-                logging.info("Response == False ? at {}".format(movie_id))
-                return None
-                # raise ValueError("Response == False ? at {}".format(movie_id))
-
-            return response.json()
-        except json.decoder.JSONDecodeError as e:
-            logging.info("{} at {}".format(e, movie_id))
+                    return await response.json()
+                except json.decoder.JSONDecodeError as e:
+                    logging.info("{} at {}".format(e, movie_id))
 
 
 class WikiApiExtractor(DataExtractor):
@@ -95,11 +102,12 @@ class WikiApiExtractor(DataExtractor):
         self.api_url = r'https://en.wikipedia.org/w/api.php'
         self.rest_api_url = 'https://en.wikipedia.org/api/rest_v1'
 
-    def _build_text_query(self, movie_id):
+    async def _build_text_query(self, movie_id):
         file_name = os.path.join(self.imdb_api_saving_path, '{}.json'.format(movie_id))
         if os.path.exists(file_name):
-            with open(file_name, 'r') as jfile:
-                movie_json = json.load(jfile)
+            async with aiofiles.open(file_name, 'r') as jfile:
+                    json_file_string = await jfile.read()
+            movie_json = json.loads(json_file_string)
             query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type']] # , movie_json['Director']
             return query_info
 
@@ -108,7 +116,7 @@ class WikiApiExtractor(DataExtractor):
             return None
             # raise ExtractorFail()
 
-    def _get_page_id_and_title_by_text_search(self, query_properties):
+    async def _get_page_id_and_title_by_text_search(self, query_properties):
         """
 
         :param query_properties: [list] a list of the movie properties to use to build the text query.
@@ -126,24 +134,27 @@ class WikiApiExtractor(DataExtractor):
                 'list': 'search',
                 'srsearch': text_to_search_for
             }
-            response = requests.get(url=self.api_url, params=get_params)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url=self.api_url, params=get_params) as response:
+                    response_json = await response.json()
+                    response_status = response.status
 
-            if int(response.status_code) != 200:
-                logging.info(f'The request for "{text_to_search_for}" returned with status_code: {response.status_code}')
-                # todo: something better
-                return
+                    if int(response_status) != 200:
+                        logging.info(f'The request for "{text_to_search_for}" returned with status_code: {response.status_code}')
+                        # todo: something better
+                        return
 
-            if 'error' in response.json():
-                logging.info(f'"{text_to_search_for}" had an error')
-                return
+                    if 'error' in response_json:
+                        logging.info(f'"{text_to_search_for}" had an error')
+                        return
 
-            if response.json()['query']['searchinfo']['totalhits'] == 0:
-                logging.info(f'"{text_to_search_for}" have no results')
-                # reconstruct the query_properties with less info so maybe the query will succeed:
-                query_properties = query_properties[:-1]
-            else:
-                best_match = response.json()["query"]["search"][0]  # the first one is the best match
-                return best_match["pageid"], best_match["title"]
+                    if response_json['query']['searchinfo']['totalhits'] == 0:
+                        logging.info(f'"{text_to_search_for}" have no results')
+                        # reconstruct the query_properties with less info so maybe the query will succeed:
+                        query_properties = query_properties[:-1]
+                    else:
+                        best_match = response_json["query"]["search"][0]  # the first one is the best match
+                        return best_match["pageid"], best_match["title"]
 
     @staticmethod
     def limit_query_to_maximum_allowed_length(query_properties, max_length=300):
@@ -163,54 +174,31 @@ class WikiApiExtractor(DataExtractor):
 
         return allowed_size_query_properties
 
-    def _extract_text_first_section(self, page_id):
-        params = {
-            'action': 'query',
-            'format': 'json',
-            'prop': 'extracts',
-            'exintro': 'True',
-            'pageids': page_id
-        }
-        response = requests.get(url=self.api_url, params=params)
+    async def _extract_all_text(self, page_title):
+        page_title = page_title.replace(' ', '_')
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{self.rest_api_url}/page/html/{page_title}?redirect=true") as response:
+                response_text = await response.text()
+                response_status_code = response.status
 
-        if int(response.status_code) != 200:
-            logging.info(f'The request for "{page_id}" returned with status_code: {response.status_code}') #todo: something better
-            return None
+                if int(response_status_code) != 200:
+                    logging.info(f'The request for "{page_title}" returned with status_code: {response_status_code}') #todo: something better
+                    return None
 
-        html_content = response.json()['query']['pages'][str(page_id)]['extract']
-        soup = BeautifulSoup(html_content, 'html.parser').get_text()
+                soup = BeautifulSoup(response_text, 'html.parser')
+                return '\n'.join([p.get_text() for p in soup.find_all('p')])
 
-        return '\n'.join([p.get_text() for p in soup.find_all('p')])
-
-    def _extract_all_text(self, page_title):
-        res = requests.get('{rest_api_path}/page/html/{title}?redirect=true'.format(rest_api_path=self.rest_api_url,
-                                                                                    title=page_title.replace(' ', '_')
-                                                                                    ))
-        if int(res.status_code) != 200:
-            logging.info(f'The request for "{page_title}" returned with status_code: {res.status_code}') #todo: something better
-            return None
-
-        soup = BeautifulSoup(res.text, 'html.parser')
-        return '\n'.join([p.get_text() for p in soup.find_all('p')])
-
-    # @staticmethod
-    # def _movie_related_page_found(text):
-    #     for word in ['movie', 'film', 'show', 'television']:
-    #         if re.findall(r'[\s\b]?{}[\s\b]?'.format(word), text.lower()):  # if it not empty
-    #             return True
-    #     return False
-
-    def _extract_a_single_id(self, movie_id):
-        text_query_parts = self._build_text_query(movie_id)
+    async def _extract_a_single_id(self, movie_id):
+        text_query_parts = await self._build_text_query(movie_id) # todo: async file ?
         if text_query_parts is None:
             return
 
-        page_data = self._get_page_id_and_title_by_text_search(text_query_parts)
+        page_data = await self._get_page_id_and_title_by_text_search(text_query_parts)
         if page_data is None:
             return
 
         wiki_page_id, wiki_page_title = page_data
-        text_content = self._extract_all_text(page_title=wiki_page_title)
+        text_content = await self._extract_all_text(page_title=wiki_page_title)
         if text_content is None:
             return
 
