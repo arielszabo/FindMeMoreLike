@@ -16,7 +16,7 @@ tests/testing_raw_wiki_data/tt9352780.json
 
 db/
 .idea/
-
+find_me_more_like_logs/
 all_movie_ids_to_query-Copy1.json
 last_page_visited.json
 tests/testing_similar_list_data/
