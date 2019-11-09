@@ -3,7 +3,7 @@ import logging
 import os
 from datetime import datetime
 
-from find_more_like_algorithm import extraction, vectorization, utils
+from find_more_like_algorithm import extraction, vectorization, utils, load_and_clean
 from find_more_like_algorithm.constants import root_path
 
 logfile_base_path = "find_me_more_like_logs"
@@ -33,9 +33,11 @@ if __name__ == '__main__':
     extraction.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query)
     extraction.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query)
 
+    # Load saved data
+    df = load_and_clean.load_saved_data(project_config)
 
     # CREATE The Vectors
-    vectors_df = vectorization.create_vectors(project_config)
+    vectors_df = vectorization.create_vectors(df, project_config)
 
     # CALCULATE similarity
     similarity_df = utils.calculate_similarity(vectors_df, project_config)
