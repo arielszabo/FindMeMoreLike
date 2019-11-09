@@ -7,8 +7,23 @@ import string
 import re
 import numpy as np
 from gensim.models import Doc2Vec
+from find_more_like_algorithm.constants import RANDOM_SEED
 from tqdm import tqdm
-tqdm.pandas()
+np.random.seed(RANDOM_SEED)
+
+
+def get_text_vectors(df, text_column_name, doc2vec_model_path):
+    doc2vec = Doc2Vec.load(doc2vec_model_path)
+
+    tqdm.pandas(desc=f"extract doc2vec features for {text_column_name}")
+    vectors_df = df.progress_apply(infer_doc2vec_vector,
+                                   axis=1,
+                                   text_column_name=text_column_name,
+                                   doc2vec_model=doc2vec,
+                                   result_type='expand')  # progress_apply is apply with tqdm progress bar
+    vectors_df.columns = ['doc2vec__{}'.format(col) for col in vectors_df.columns]
+    return vectors_df
+
 
 def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remove_if_not_alpha=True, stem_word=False):
     porter = PorterStemmer()
@@ -42,14 +57,3 @@ def infer_doc2vec_vector(row, text_column_name, doc2vec_model):
     return doc2vec_model.infer_vector(clean_token_text).tolist() # todo: , epochs=1000 ?
 
 
-def get_text_vectors(df, text_column_name, doc2vec_model_path):
-    np.random.seed(123)
-    doc2vec = Doc2Vec.load(doc2vec_model_path)
-
-    vectors_df = df.progress_apply(infer_doc2vec_vector,
-                                   axis=1,
-                                   text_column_name=text_column_name,
-                                   doc2vec_model=doc2vec,
-                                   result_type='expand')  # progress_apply is apply with tqdm progress bar
-    vectors_df.columns = ['doc2vec_{}'.format(col) for col in vectors_df.columns]
-    return vectors_df
