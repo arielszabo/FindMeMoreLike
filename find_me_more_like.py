@@ -1,50 +1,41 @@
 import yaml
 import logging
 import os
-import json
-import datetime
-from gensim.models import Doc2Vec
-from tqdm import tqdm
+from datetime import datetime
 
-from more_like import extraction, vectorization, utils
+from find_more_like_algorithm import extraction, vectorization, utils
+from find_more_like_algorithm.constants import root_path
 
+logfile_base_path = "find_me_more_like_logs"
+run_signature = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
 
-def get_the_data(project_config):  # todo: put this in a seperate file and import like this 'more_like.get_the_data'
-    imdb_extractor = extraction.IMDBApiExtractor(project_config=project_config,
-                                                 saving_path=project_config['api_data_saving_path']['imdb'])
+os.makedirs(logfile_base_path, exist_ok=True)
 
-    wiki_extractor = extraction.WikiApiExtractor(imdb_api_saving_path=project_config['api_data_saving_path']['imdb'],
-                                                 project_config=project_config,
-                                                 saving_path=project_config['api_data_saving_path']['wiki'])
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(os.path.join(logfile_base_path, f"{run_signature}.log")),
+        logging.StreamHandler()
+    ])
 
-    ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
-
-
-
-    imdb_extractor.extract_data(ids_to_query=ids_to_query)
-    wiki_extractor.extract_data(ids_to_query=ids_to_query)
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            # logging.FileHandler("{0}/{1}.log".format(logPath, fileName)),
-            logging.StreamHandler()
-        ])
 
-
-    with open('project_config.yaml', 'r') as yfile:
-        project_config = yaml.load(yfile, Loader=yaml.FullLoader)
+    project_config = utils.open_yaml(os.path.join(root_path, "project_config.yaml"))
 
     logging.info(project_config)
 
+    # ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
+    all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
+
     # GET The data:
-    get_the_data(project_config)
+    extraction.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query)
+    extraction.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query)
+
 
     # CREATE The Vectors
     vectors_df = vectorization.create_vectors(project_config)
-    # vectors_df.to_pickle('vectors_df_{}.pickle'.format(datetime.datetime.now().strftime('%d_%m_%Y')))
 
     # CALCULATE similarity
     similarity_df = utils.calculate_similarity(vectors_df, project_config)
