@@ -1,10 +1,11 @@
 import yaml
 import logging
 import os
-import json
+import asyncio
 import pytest
 
-from find_more_like_algorithm import extraction, vectorization, utils
+
+from find_more_like_algorithm import extractors, vectorization, utils
 
 
 def create_folders(testing_config):
@@ -18,9 +19,9 @@ def construct_extractors():
     testing_config = _load_test_config()
     create_folders(testing_config)
 
-    imdb_extractor = extraction.IMDBApiExtractor(project_config=testing_config)
+    imdb_extractor = extractors.IMDBApiExtractor(project_config=testing_config)
 
-    wiki_extractor = extraction.WikiApiExtractor(project_config=testing_config)
+    wiki_extractor = extractors.WikiApiExtractor(project_config=testing_config)
 
     return imdb_extractor, wiki_extractor
 
@@ -37,29 +38,33 @@ def test_build_text_query(construct_extractors):
 
     # modify this to the saved_data_for_testing folder path:
     wiki_extractor.imdb_api_saving_path = os.path.join('tests', 'saved_data_for_testing', 'imdb')
-    assert wiki_extractor._build_text_query('tt0019254') == ['The Passion of Joan of Arc', '1928', 'movie']
+
+    loop = asyncio.get_event_loop()
+    async_task = wiki_extractor._build_text_query('tt0019254')
+    completed_async_task = loop.run_until_complete(async_task)
+    assert completed_async_task == ['The Passion of Joan of Arc', '1928', 'movie']
 
 
 def test_wiki_adjust_to_maximum_allowed_query_length():
     # This is an static method:
 
-    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+    x = extractors.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
                                                                           max_length=10)
     assert x == ['1234', '5678']
 
-    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+    x = extractors.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
                                                                           max_length=100)
     assert x == ['1234', '5678', '90']
 
-    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+    x = extractors.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
                                                                           max_length=1)
     assert x == []
 
-    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+    x = extractors.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
                                                                           max_length=6)
     assert x == ['1234']
 
-    x = extraction.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
+    x = extractors.WikiApiExtractor.limit_query_to_maximum_allowed_length(query_properties=['1234', '5678', '90'],
                                                                           max_length=4)
     assert x == ['1234']
 
