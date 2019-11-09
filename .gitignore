@@ -13,7 +13,7 @@ all_movie_ids_to_query.json
 tests/testing_raw_wiki_data/tt0019254.json
 tests/testing_raw_wiki_data/tt10550884.json
 tests/testing_raw_wiki_data/tt9352780.json
-
+extracting_errors/
 db/
 .idea/
 find_me_more_like_logs/
