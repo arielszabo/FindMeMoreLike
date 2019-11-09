@@ -4,9 +4,8 @@ import logging
 import pandas as pd
 import re
 from sklearn.feature_extraction.text import CountVectorizer
-from find_more_like_algorithm import utils
 from find_more_like_algorithm import text_vectors
-from find_more_like_algorithm.constants import INSERTION_TIME, root_path
+from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT
 import datetime
 
 
@@ -15,11 +14,11 @@ def create_vectors(df, project_config):
     vectorization_config = {
         'text_vectors': {
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': full_text}
+            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': FULL_TEXT}
         },
         'title_vectors': {
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'Title'}
+            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'title'}
         },
         'genre_vectors': {
             'callable': _extract_from_comma_separated_strings,
@@ -27,7 +26,7 @@ def create_vectors(df, project_config):
         },
         # 'rated_vectors': {
         #     'callable': _rated_vectors,
-        #     'params': {'rated_col_name': 'Rated'}
+        #     'params': {'rated_col_name': 'rated'}
         # }
     }
 

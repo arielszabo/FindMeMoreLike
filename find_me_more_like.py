@@ -3,7 +3,7 @@ import logging
 import os
 from datetime import datetime
 
-from find_more_like_algorithm import extraction, vectorization, utils, load_and_clean
+from find_more_like_algorithm import extractors, vectorization, utils, load_and_clean
 from find_more_like_algorithm.constants import root_path
 
 logfile_base_path = "find_me_more_like_logs"
@@ -30,8 +30,8 @@ if __name__ == '__main__':
     all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
 
     # GET The data:
-    extraction.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query)
-    extraction.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query)
+    extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query)
+    extractors.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query)
 
     # Load saved data
     df = load_and_clean.load_saved_data(project_config)
