@@ -6,11 +6,18 @@ import json
 import pandas as pd
 from sklearn import metrics
 from tqdm import tqdm
-import logging
+import yaml
+
 
 def open_json(full_file_path):
-    with open(full_file_path, 'r') as jfile:
-        return json.load(jfile)
+    with open(full_file_path, 'r') as json_file:
+        return json.load(json_file)
+
+
+def open_yaml(full_file_path):
+    with open(full_file_path, 'r') as yaml_file:
+        return yaml.load(yaml_file, Loader=yaml.FullLoader)
+
 
 def get_ids_from_web_page(html_url):
     """
