@@ -34,25 +34,9 @@ def load_saved_data(project_config):
 
 
 def standardized(df):
-    df.rename({
-        "imdbID": IMDB_ID
-    }, inplace=True, axis=1)
-
+    df.set_index(IMDB_ID, inplace=True)
     df.columns = [col.lower() for col in df.columns]
     df[WIKI_TEXT] = df[WIKI_TEXT].fillna('')
     df[FULL_TEXT] = df.apply(lambda row: row['plot'] + ' ' + row[WIKI_TEXT], axis=1)
 
-    df.set_index(IMDB_ID, inplace=True)
     return df
-
-
-
-def standardized_imdb_jsons(imdb_json_content):
-    standardized_imdb_json_content = {}
-    for key, value in imdb_json_content.items():
-        fixed_key = key.lower()
-        fixed_value = value
-        imdb_json_content[fixed_key] = fixed_value
-
-
-    return standardized_imdb_json_content

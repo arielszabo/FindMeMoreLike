@@ -1,6 +1,6 @@
 import os
 
-IMDB_ID = "imdb_id"
+IMDB_ID = "imdbID"
 INSERTION_TIME = "insertion_time"
 FULL_TEXT = "full_text"
 WIKI_TEXT = "wiki_text"
