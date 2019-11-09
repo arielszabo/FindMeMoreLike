@@ -73,7 +73,6 @@ def save_similarity_measures(similarity_df, project_config):
                          desc='Saving similarity measures',
                          leave=False):
         file_name = os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(idx))
-        # todo: save here the top K (form config) to save time in sorting later?
         row.sort_values(ascending=False).reset_index(name='similarity_value').to_json(file_name, orient='records')
 
 

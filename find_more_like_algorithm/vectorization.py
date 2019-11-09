@@ -52,7 +52,7 @@ def create_vectors(df, project_config):
 
         all_vectors.append(vectors)
 
-    return pd.concat(all_vectors, axis=1, sort=False)  # todo: save them
+    return pd.concat(all_vectors, axis=1, sort=False)
 
 
 def _rated_vectors(df, rated_column_name):

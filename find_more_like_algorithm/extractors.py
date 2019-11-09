@@ -34,6 +34,7 @@ class DataExtractor(object):
         return [re.search(r'tt\d+', name).group(0) for name in all_saved_files]
 
     def _get_failed_ids(self):
+        os.makedirs(self.project_config["error_saving_path"], exist_ok=True)
         error_saving_path_folders = os.listdir(self.project_config["error_saving_path"])
 
         sorted_folders_by_modification_time = sorted(error_saving_path_folders,
@@ -85,7 +86,7 @@ class DataExtractor(object):
 
 class IMDBApiExtractor(DataExtractor):
 
-    def __init__(self, *args, **kwargs): # todo: is this the best way?
+    def __init__(self, *args, **kwargs):
         self.extractor_type = 'imdb'
         super().__init__(*args, **kwargs)
         self.user_api_key = self._get_user_api_key()
