@@ -6,8 +6,8 @@ import importlib
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from find_more_like_algorithm import utils
-from find_more_like_algorithm.vectorization import text_vectors
-from find_more_like_algorithm.constants import full_text, insertion_time
+from find_more_like_algorithm import text_vectors
+from find_more_like_algorithm.constants import FULL_TEXT, insertion_time, WIKI_TEXT
 import datetime
 
 
@@ -86,8 +86,8 @@ def load_saved_data(project_config):
     df = pd.DataFrame(all_data).set_index('imdbID')  # todo: clean this DataFrame, do a 'total text' column etc
 
     # todo: change this:
-    df['text'] = df['text'].fillna('')
-    df[full_text] = df.apply(lambda row: row['text'] + ' ' + row['Plot'], axis=1)
+    df[WIKI_TEXT] = df[WIKI_TEXT].fillna('')
+    df[full_text] = df.apply(lambda row: row[WIKI_TEXT] + ' ' + row['Plot'], axis=1)
 
     return df
 

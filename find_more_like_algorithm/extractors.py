@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import multiprocessing
+from find_more_like_algorithm.constants import WIKI_TEXT
 
 
 class ExtractorFail(Exception):
@@ -214,8 +215,7 @@ class WikiApiExtractor(DataExtractor):
             return
 
         wiki_data = {
-            'text': text_content.lower(),
-            'wiki_page_id': wiki_page_id,
-            'imdb_id': movie_id,
+            WIKI_TEXT: text_content.lower(),
+            'wiki_page_id': wiki_page_id
         }
         return wiki_data

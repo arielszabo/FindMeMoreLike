@@ -1,2 +1,6 @@
+import os
+
 insertion_time = "insertion_time"
-full_text = "full_text"
+FULL_TEXT = "full_text"
+WIKI_TEXT = "wiki_text"
+root_path = os.path.dirname(os.path.dirname(__file__))
