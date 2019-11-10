@@ -60,8 +60,9 @@ class DataExtractor(object):
             loop.run_until_complete(asyncio.gather(*list_of_requests))
 
     async def save(self, data, movie_id):
-        async with aiofiles.open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as j_file:
-            json.dump(data, j_file)
+        json_dumped_data = json.dumps(data)
+        async with aiofiles.open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as json_file:
+            await json_file.write(json_dumped_data)
 
     async def _save_errors(self, error, movie_id):
         day_string = self.project_config[RUN_SIGNATURE]
