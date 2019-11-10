@@ -27,7 +27,7 @@ class DataExtractor(object):
         self.project_config = project_config
         self.saving_path = self.project_config["api_data_saving_path"][self.extractor_type]
         os.makedirs(self.saving_path, exist_ok=True)
-        self.existing_ids = self._get_existing_ids() + self._get_failed_ids()
+        self.existing_ids = self._get_existing_ids()
 
     def _get_existing_ids(self):
         all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
@@ -43,12 +43,18 @@ class DataExtractor(object):
                                                      )
         if sorted_folders_by_modification_time:
 
-            all_error_files = glob.glob(os.path.join(sorted_folders_by_modification_time[-1], '*.txt'))
+            all_error_files = glob.glob(os.path.join(self.project_config["error_saving_path"],
+                                                                         sorted_folders_by_modification_time[-1],
+                                                                         '*.txt')
+                                        )
             return [re.search(r'tt\d+', name).group(0) for name in all_error_files]
         else:
             return []
 
-    def extract_data(self, ids_to_query):
+    def extract_data(self, ids_to_query, skip_previously_failed=False):
+        if skip_previously_failed:
+            self.existing_ids += self._get_failed_ids()
+
         remaining_ids_to_query = list(set(ids_to_query).difference(self.existing_ids))
         chunks_amount = math.ceil(len(remaining_ids_to_query) / CHUNK_SIZE)
         for ids_to_query_chunk in tqdm(utils.generate_list_chunks(remaining_ids_to_query, CHUNK_SIZE),
