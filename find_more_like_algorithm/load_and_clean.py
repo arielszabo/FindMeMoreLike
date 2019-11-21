@@ -11,20 +11,23 @@ def load_saved_data(project_config):
     all_data = []
 
     imdb_data_path = project_config['api_data_saving_path']['imdb']
+    imdb_data_dir_list = os.listdir(imdb_data_path)
+
     wiki_data_path = project_config['api_data_saving_path']['wiki']
 
-    for file_name in tqdm(os.listdir(imdb_data_path), desc='Loading saved data ...'):
-        full_file_path = os.path.join(imdb_data_path, file_name)
-        imdb_data = utils.open_json(full_file_path)
-        imdb_data[INSERTION_TIME] = datetime.fromtimestamp(os.path.getmtime(full_file_path))
+    for file_name in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
+        full_imdb_file_path = os.path.join(imdb_data_path, file_name)
+        imdb_data = utils.open_json(full_imdb_file_path)
+        imdb_data[INSERTION_TIME] = datetime.fromtimestamp(os.path.getmtime(full_imdb_file_path))
 
-        if file_name in os.listdir(wiki_data_path):
-            wiki_data = utils.open_json(os.path.join(wiki_data_path, file_name))
+        full_wiki_file_path = os.path.join(wiki_data_path, file_name)
+        if os.path.exists(full_wiki_file_path):
+            wiki_data = utils.open_json(full_wiki_file_path)
 
             imdb_data.update(wiki_data)
 
-        else:
-            logging.warning('{} has no wiki data'.format(file_name))
+        # else:
+        #     logging.warning('{} has no wiki data'.format(file_name))
         all_data.append(imdb_data)
 
     df = pd.DataFrame(all_data)
