@@ -10,8 +10,12 @@ import yaml
 
 
 def open_json(full_file_path):
-    with open(full_file_path, 'r') as json_file:
-        return json.load(json_file)
+    try:
+        with open(full_file_path, 'r') as json_file:
+            return json.load(json_file)
+    except Exception as e:
+        print(str(e), full_file_path)
+        raise e
 
 
 def open_yaml(full_file_path):
