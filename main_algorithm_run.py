@@ -30,8 +30,8 @@ if __name__ == '__main__':
     all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
 
     # GET The data:
-    extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=True)
-    extractors.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=True)
+    extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
+    extractors.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
 
     # Load saved data
     df = load_and_clean.load_saved_data(project_config)
