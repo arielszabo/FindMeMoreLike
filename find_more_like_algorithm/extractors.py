@@ -35,25 +35,19 @@ class DataExtractor(object):
 
     def _get_failed_ids(self):
         os.makedirs(self.project_config["error_saving_path"], exist_ok=True)
-        error_saving_path_folders = os.listdir(self.project_config["error_saving_path"])
+        all_error_files = glob.glob(os.path.join(self.project_config["error_saving_path"], "*",
+                                                 f"*_{self.__class__.__name__}.txt"))
+        failed_ids = [re.search(r'tt\d+', name).group(0) for name in all_error_files]
+        print(f"failed_ids amount - {len(failed_ids)}")
+        return failed_ids
 
-        sorted_folders_by_modification_time = sorted(error_saving_path_folders,
-                                                     key=lambda folder: os.path.getmtime(
-                                                         os.path.join(self.project_config["error_saving_path"], folder))
-                                                     )
-        if sorted_folders_by_modification_time:
-
-            all_error_files = glob.glob(os.path.join(self.project_config["error_saving_path"],
-                                                                         sorted_folders_by_modification_time[-1],
-                                                                         '*.txt')
-                                        )
-            return [re.search(r'tt\d+', name).group(0) for name in all_error_files]
-        else:
-            return []
 
     def extract_data(self, ids_to_query, skip_previously_failed=False):
         if skip_previously_failed:
             self.existing_ids += self._get_failed_ids()
+        # else:
+            # if os.path.exists(self.project_config["error_saving_path"]):
+            #     os.removedirs(self.project_config["error_saving_path"])
 
         remaining_ids_to_query = list(set(ids_to_query).difference(self.existing_ids))
         chunks_amount = math.ceil(len(remaining_ids_to_query) / CHUNK_SIZE)
@@ -85,6 +79,8 @@ class DataExtractor(object):
             if single_movie_data is not None:
                 await self.save(data=single_movie_data, movie_id=movie_id)
         except ExceptedExtractorFail:
+            pass
+        except KeyboardInterrupt:
             pass
         except Exception as e:
             error = traceback.format_exc()
@@ -118,7 +114,8 @@ class IMDBApiExtractor(DataExtractor):
                     raise ExceptedExtractorFail("Request limit reached!")
 
                 if response_json['Response'] == 'False':
-                    raise ValueError("Response == False ? at {}".format(movie_id))
+                    raise ExceptedExtractorFail("Response == False ? at {}".format(movie_id))  #todo: change this
+                    # raise ValueError("Response == False ? at {}".format(movie_id))
 
                 return await response.json()
 
