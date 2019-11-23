@@ -6,7 +6,6 @@ api_data_saving_path:
   imdb: 'tests/testing_raw_imdb_data'
   wiki: 'tests/testing_raw_wiki_data'
 
-vectors_saving_path: 'tests/testing_vectors_data'
 
 similar_list_saving_path: 'tests/testing_similar_list_data'
 

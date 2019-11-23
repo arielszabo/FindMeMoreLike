@@ -61,7 +61,9 @@ class DataExtractor(object):
 
     async def save(self, data, movie_id):
         json_dumped_data = json.dumps(data)
-        async with aiofiles.open(os.path.join(self.saving_path, '{}.json'.format(movie_id)), 'w') as json_file:
+        imdb_id_folder_prefix = utils.get_imdb_id_prefix_folder_name(movie_id)
+        saving_path = os.path.join(self.saving_path, imdb_id_folder_prefix, f'{movie_id}.json')
+        async with aiofiles.open(saving_path, 'w') as json_file:
             await json_file.write(json_dumped_data)
 
     async def _save_errors(self, error, movie_id):

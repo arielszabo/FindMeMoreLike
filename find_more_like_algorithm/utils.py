@@ -76,7 +76,8 @@ def save_similarity_measures(similarity_df, project_config):
     for idx, row in tqdm(similarity_df.iterrows(),
                          desc='Saving similarity measures',
                          leave=False):
-        file_name = os.path.join(project_config['similar_list_saving_path'], '{}.json'.format(idx))
+        prefix = get_imdb_id_prefix_folder_name(idx)
+        file_name = os.path.join(project_config['similar_list_saving_path'], prefix, f'{idx}.json')
         row.sort_values(ascending=False).reset_index(name='similarity_value').to_json(file_name, orient='records')
 
 
@@ -90,3 +91,7 @@ def generate_list_chunks(list_, chunk_size):
         yield list_part
         if end_index >= len(list_):
             break
+
+
+def get_imdb_id_prefix_folder_name(imdb_id):
+    return imdb_id[:4]

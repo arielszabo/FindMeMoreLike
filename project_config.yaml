@@ -7,7 +7,6 @@ api_data_saving_path:
   wiki: 'raw_wiki_data'
 
 vectors_cache_path: 'vectors_cache'
-vectors_saving_path: 'vectors_data'
 
 similar_list_saving_path: 'similar_list_data'
 

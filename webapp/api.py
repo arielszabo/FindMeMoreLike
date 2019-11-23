@@ -3,19 +3,15 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from oauthlib.oauth2 import WebApplicationClient
 import json
 import os
-import yaml
 import math
 import requests
 import re
 
+from find_more_like_algorithm import utils
 # Internal imports todo: change
 from webapp.db_handler import DB, SeenTitles, Users, MissingTitles
 from webapp.user import User, get_user_by_id
 
-
-def _open_json(full_file_path):
-    with open(full_file_path, 'r') as jfile:
-        return json.load(jfile)
 
 
 
@@ -25,13 +21,8 @@ ONE_PAGE_SUGGESTIONS_AMOUNT = 10
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 config_file_path = os.environ.get("FIND_MORE_LIKE_CONFIG", os.path.join(root, 'project_config.yaml'))
 
-with open(config_file_path, 'r') as yfile:
-    project_config = yaml.load(yfile, Loader=yaml.FullLoader)
-
-
-with open(os.path.join(root, project_config["keys_config_path"]), 'r') as yfile:
-    keys_config = yaml.load(yfile, Loader=yaml.FullLoader)
-
+project_config = utils.open_yaml(config_file_path)
+keys_config = utils.open_yaml(os.path.join(root, project_config["keys_config_path"]))
 
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", keys_config["google_client_id"])
@@ -165,8 +156,9 @@ def search_redirect():
 
 @app.route('/search/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
 def search(imdb_id, hide_seen_titles, page_index):
-    file_path = os.path.join(root, project_config["similar_list_saving_path"], '{}.json'.format(imdb_id))
-    similarity_list = _open_json(file_path)
+    prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
+    file_path = os.path.join(root, project_config["similar_list_saving_path"], prefix, f'{imdb_id}.json')
+    similarity_list = utils.open_json(file_path)
     title = load_presentation_data(imdb_id)["Title"]
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
     if page_index > max_page_number:
@@ -213,10 +205,12 @@ def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_lis
             return results
     return results
 
+
 def load_presentation_data(imdb_id):
-    file_path = os.path.join(root, project_config["api_data_saving_path"]["imdb"], '{}.json'.format(imdb_id))
+    imdb_id_folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
+    file_path = os.path.join(root, project_config["api_data_saving_path"]["imdb"], imdb_id_folder_prefix, f'{imdb_id}.json')
     if os.path.exists(file_path):
-        imdb_data = _open_json(file_path)
+        imdb_data = utils.open_json(file_path)
         return {
             'Title': imdb_data['Title'],
             'Director': imdb_data['Director'],

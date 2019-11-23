@@ -1,8 +1,9 @@
 from tqdm import tqdm
 import pandas as pd
 from datetime import datetime
-import os
 import logging
+import pathlib
+import glob
 from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME
 
@@ -10,18 +11,20 @@ from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, IN
 def load_saved_data(project_config):
     all_data = []
 
-    imdb_data_path = project_config['api_data_saving_path']['imdb']
-    imdb_data_dir_list = os.listdir(imdb_data_path)
+    imdb_data_path = pathlib.Path(project_config['api_data_saving_path']['imdb'])
+    imdb_data_dir_list = imdb_data_path.glob(f"*/tt*.json")
 
     wiki_data_path = project_config['api_data_saving_path']['wiki']
 
-    for file_name in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
-        full_imdb_file_path = os.path.join(imdb_data_path, file_name)
+    for full_imdb_file_path in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
         imdb_data = utils.open_json(full_imdb_file_path)
-        imdb_data[INSERTION_TIME] = datetime.fromtimestamp(os.path.getmtime(full_imdb_file_path))
+        imdb_data[INSERTION_TIME] = datetime.fromtimestamp(full_imdb_file_path.stat().st_mtime)
 
-        full_wiki_file_path = os.path.join(wiki_data_path, file_name)
-        if os.path.exists(full_wiki_file_path):
+
+        imdb_id = full_imdb_file_path.stem
+        folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
+        full_wiki_file_path = pathlib.Path(wiki_data_path, folder_prefix, imdb_id)
+        if full_wiki_file_path.exists():
             wiki_data = utils.open_json(full_wiki_file_path)
 
             imdb_data.update(wiki_data)
