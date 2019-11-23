@@ -30,8 +30,14 @@ class DataExtractor(object):
         self.existing_ids = self._get_existing_ids()
 
     def _get_existing_ids(self):
-        all_saved_files = glob.glob(os.path.join(self.saving_path, '*.json'))
-        return [re.search(r'tt\d+', name).group(0) for name in all_saved_files]
+        all_saved_files = glob.glob(os.path.join(self.saving_path, '*', '*.json'))
+
+        existing_ids = []
+        for name in all_saved_files:
+            search_result = re.search(r'(tt\d+).json', name)
+            if search_result:
+                existing_ids.append(search_result.group(1))
+        return existing_ids
 
     def _get_failed_ids(self):
         os.makedirs(self.project_config["error_saving_path"], exist_ok=True)
