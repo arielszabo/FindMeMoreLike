@@ -137,7 +137,8 @@ class WikiApiExtractor(DataExtractor):
         self.rest_api_url = 'https://en.wikipedia.org/api/rest_v1'
 
     async def _build_text_query(self, movie_id):
-        file_name = os.path.join(self.imdb_api_saving_path, '{}.json'.format(movie_id))
+        prefix = utils.get_imdb_id_prefix_folder_name(movie_id)
+        file_name = os.path.join(self.imdb_api_saving_path, prefix, f'{movie_id}.json')
         if os.path.exists(file_name):
             async with aiofiles.open(file_name, 'r') as jfile:
                     json_file_string = await jfile.read()
