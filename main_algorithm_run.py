@@ -25,8 +25,8 @@ if __name__ == '__main__':
     project_config[RUN_SIGNATURE] = run_signature
     logging.info(project_config)
 
-    # ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
-    all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
+    # # ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
+    # all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
 
     # GET The data:
     # extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
