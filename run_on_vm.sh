@@ -31,20 +31,20 @@ python main_algorithm_run.py
 
 
 
-zip_folder=similar_list_data_zip
+#zip_folder=similar_list_data_zip
 
-mkdir $zip_folder
+#mkdir $zip_folder
 
-cd similar_list_data2/
-for i in */; do tar -zcvf "../$zip_folder/${i%/}.tar.gz" "$i"; done
-cd ..
-
-# save results in bucket
-gsutil -m cp -r $zip_folder gs://ariel-szabo/find-me-more-like/
-
-# save logs in bucket
-gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
-
-# stop instance
-VM_NAME=main-algo-instance
-gcloud compute instances stop $VM_NAME
+#cd similar_list_data/
+#for i in */; do tar -zcvf "../$zip_folder/${i%/}.tar.gz" "$i"; done
+#cd ..
+#
+## save results in bucket
+#gsutil -m cp -r $zip_folder gs://ariel-szabo/find-me-more-like/
+#
+## save logs in bucket
+#gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
+#
+## stop instance
+#VM_NAME=main-algo-instance
+#gcloud compute instances stop $VM_NAME
