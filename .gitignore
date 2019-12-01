@@ -10,7 +10,6 @@ similar_list_data/
 error_saving_path/
 *.ipynb
 vectors_cache/
-all_movie_ids_to_query.json
 tests/testing_raw_wiki_data/*
 tests/testing_raw_wiki_data/*
 tests/testing_raw_wiki_data/*
@@ -18,7 +17,6 @@ extracting_errors/
 db/
 .idea/
 find_me_more_like_logs/
-all_movie_ids_to_query-Copy1.json
 last_page_visited.json
 tests/testing_similar_list_data/
 tests/end_to_end/
