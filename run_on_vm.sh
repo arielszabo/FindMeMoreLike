@@ -44,3 +44,7 @@ gsutil -m cp -r $zip_folder gs://ariel-szabo/find-me-more-like/
 
 # save logs in bucket
 gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
+
+# stop instance
+VM_NAME=instance-2
+gcloud compute instances stop $VM_NAME
