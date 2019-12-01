@@ -32,13 +32,13 @@ if __name__ == '__main__':
     # extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
     extractors.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
 
-    # Load saved data
-    df = load_and_clean.load_saved_data(project_config)
-
-    # CREATE The Vectors
-    vectors_df = vectorization.create_vectors(df, project_config)
-
-    # CALCULATE similarity
-    similarity_df = utils.calculate_similarity(vectors_df, project_config)
-
-    utils.save_similarity_measures(similarity_df, project_config=project_config)
+    # # Load saved data
+    # df = load_and_clean.load_saved_data(project_config)
+    #
+    # # CREATE The Vectors
+    # vectors_df = vectorization.create_vectors(df, project_config)
+    #
+    # # CALCULATE similarity
+    # similarity_df = utils.calculate_similarity(vectors_df, project_config)
+    #
+    # utils.save_similarity_measures(similarity_df, project_config=project_config)
