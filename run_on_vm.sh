@@ -30,21 +30,23 @@ pip install -r requirements.txt
 python main_algorithm_run.py
 
 
+# save logs in bucket
+gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
 
-#zip_folder=similar_list_data_zip
 
-#mkdir $zip_folder
 
-#cd similar_list_data/
-#for i in */; do tar -zcvf "../$zip_folder/${i%/}.tar.gz" "$i"; done
-#cd ..
-#
-## save results in bucket
-#gsutil -m cp -r $zip_folder gs://ariel-szabo/find-me-more-like/
-#
-## save logs in bucket
-#gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
-#
-## stop instance
-#VM_NAME=main-algo-instance
-#gcloud compute instances stop $VM_NAME
+for folder_name in raw_imdb_data raw_wiki_data similar_list_data
+do
+    cd "{$folder_name}_zip"
+    for i in */; do tar -zcvf "../{$folder_name}_zip/${i%/}.tar.gz" "$i"; done
+    cd ..
+
+    # save results in bucket
+    gsutil -m cp -r "{$folder_name}_zip" gs://ariel-szabo/find-me-more-like/
+done
+
+
+
+# stop instance
+VM_NAME=main-algo-instance
+gcloud compute instances stop $VM_NAME
