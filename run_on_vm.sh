@@ -46,5 +46,5 @@ gsutil -m cp -r $zip_folder gs://ariel-szabo/find-me-more-like/
 gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
 
 # stop instance
-VM_NAME=instance-2
+VM_NAME=main-algo-instance
 gcloud compute instances stop $VM_NAME
