@@ -77,6 +77,7 @@ def save_similarity_measures(similarity_df, project_config):
                          desc='Saving similarity measures',
                          leave=False):
         prefix = get_imdb_id_prefix_folder_name(idx)
+        os.makedirs(os.path.join(project_config['similar_list_saving_path'], prefix), exist_ok=True)
         file_name = os.path.join(project_config['similar_list_saving_path'], prefix, f'{idx}.json')
         row_data = row.sort_values(ascending=False).reset_index(name='similarity_value') # .to_json(file_name, orient='records')
         with open(file_name, "w") as json_file:
