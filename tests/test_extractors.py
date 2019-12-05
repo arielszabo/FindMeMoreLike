@@ -108,7 +108,7 @@ def test_wiki_adjust_to_maximum_allowed_query_length():
 
 def _load_test_config():
     with open(os.path.join('tests', 'testing_config.yaml'), 'r') as yfile:
-        testing_config = yaml.load(yfile, Loader=yaml.FullLoader)
+        testing_config = yaml.load(yfile)
     return testing_config
 
 #

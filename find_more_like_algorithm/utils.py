@@ -20,7 +20,7 @@ def open_json(full_file_path):
 
 def open_yaml(full_file_path):
     with open(full_file_path, 'r') as yaml_file:
-        return yaml.load(yaml_file, Loader=yaml.FullLoader)
+        return yaml.load(yaml_file)
 
 
 def get_ids_from_web_page(html_url):
