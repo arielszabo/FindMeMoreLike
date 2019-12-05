@@ -13,7 +13,7 @@ def load_saved_data(project_config):
 
     imdb_data_path = pathlib.Path(project_config['api_data_saving_path']['imdb'])
     imdb_data_dir_list = imdb_data_path.glob(f"*/tt*.json")
-    imdb_data_dir_list = list(imdb_data_dir_list)[:100_000]
+    imdb_data_dir_list = list(imdb_data_dir_list)
 
     wiki_data_path = project_config['api_data_saving_path']['wiki']
 
@@ -24,7 +24,7 @@ def load_saved_data(project_config):
 
         imdb_id = full_imdb_file_path.stem
         folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
-        full_wiki_file_path = pathlib.Path(wiki_data_path, folder_prefix, imdb_id)
+        full_wiki_file_path = pathlib.Path(wiki_data_path, folder_prefix, f"{imdb_id}.json")
         if full_wiki_file_path.exists():
             wiki_data = utils.open_json(full_wiki_file_path)
 
