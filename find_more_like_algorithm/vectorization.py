@@ -32,13 +32,17 @@ def create_vectors(df, project_config):
     }
 
     os.makedirs(project_config['vectors_cache_path'], exist_ok=True)
-    df_vectorization_config_and_method_tuples = []
+    all_vectors = []
+    # df_vectorization_config_and_method_tuples = []
     for vectorization_method in project_config['vectorization']:
-        df_vectorization_config_and_method_tuple = (df, vectorization_config, vectorization_method)
-        df_vectorization_config_and_method_tuples.append(df_vectorization_config_and_method_tuple)
+        result = apply_vectorization(df, vectorization_config, vectorization_method)
+        all_vectors.append(result)
+        # df_vectorization_config_and_method_tuple = (df, vectorization_config, vectorization_method)
+        # df_vectorization_config_and_method_tuples.append(df_vectorization_config_and_method_tuple)
 
-    with multiprocessing.Pool() as pool:
-        all_vectors = pool.starmap(apply_vectorization, df_vectorization_config_and_method_tuples)
+
+    # with multiprocessing.Pool() as pool:
+    #     all_vectors = pool.starmap(apply_vectorization, df_vectorization_config_and_method_tuples)
 
 
     return pd.concat(all_vectors, axis=1, sort=False)
