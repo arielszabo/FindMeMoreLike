@@ -25,8 +25,8 @@ if __name__ == '__main__':
     project_config[RUN_SIGNATURE] = run_signature
     logging.info(project_config)
 
-    # ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
-    all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
+    # # ids_to_query = utils.get_ids_from_web_page('https://www.imdb.com/scary-good/?ref_=nv_sf_sca')
+    # all_movies_ids_to_query = utils.open_json("all_movie_ids_to_query.json")
 
     # GET The data:
     # extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
@@ -34,11 +34,15 @@ if __name__ == '__main__':
 
     # Load saved data
     df = load_and_clean.load_saved_data(project_config)
+    logging.info("data loaded")
 
     # CREATE The Vectors
     vectors_df = vectorization.create_vectors(df, project_config)
+    logging.info("vectors created")
 
     # CALCULATE similarity
     similarity_df = utils.calculate_similarity(vectors_df, project_config)
+    logging.info("similarity_df created")
 
     utils.save_similarity_measures(similarity_df, project_config=project_config)
+    logging.info("Done saving")
