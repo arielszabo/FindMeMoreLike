@@ -1,5 +1,10 @@
 #!/bin/bash
 
+embedding_file=enwiki_dbow
+
+gsutil -m cp "gs://ariel-szabo/find-me-more-like/${embedding_file}.tar.gz" .
+gunzip "${embedding_file}.tar.gz"
+tar -xf "${embedding_file}.tar" -C $embedding_file
 
 zip_folder=raw_data_zip_files
 
