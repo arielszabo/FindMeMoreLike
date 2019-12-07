@@ -32,7 +32,7 @@ source ~/venv3/bin/activate
 pip install -r requirements.txt
 
 # run python code
-python main_algorithm_run.py > stdout.txt 2> stderror.txt
+python main_algorithm_run.py > find_me_more_like_logs/stdout.txt 2> find_me_more_like_logs/stderror.txt
 
 
 # save logs in bucket
