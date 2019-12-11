@@ -53,6 +53,6 @@ done
 
 
 
-## stop instance
-#VM_NAME=main-algo-instance
-#gcloud compute instances stop $VM_NAME --zone us-central1-a -q
+# stop instance
+VM_NAME=main-algo-instance
+gcloud compute instances stop $VM_NAME --zone us-central1-a -q
