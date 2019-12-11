@@ -41,7 +41,7 @@ if __name__ == '__main__':
     logging.info("vectors created")
 
     # CALCULATE similarity
-    similarity_df = utils.calculate_similarity(vectors_df, project_config)
+    similarity_df = utils.calculate_similarity(vectors_df, project_config, batch=True)
     logging.info("similarity_df created")
 
     utils.save_similarity_measures(similarity_df, project_config=project_config)

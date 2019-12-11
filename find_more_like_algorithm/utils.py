@@ -7,6 +7,7 @@ import pandas as pd
 from sklearn import metrics
 from tqdm import tqdm
 import yaml
+import numpy as np
 
 
 def open_json(full_file_path):
@@ -40,7 +41,7 @@ def get_ids_from_web_page(html_url):
     return ids
 
 
-def calculate_similarity(vectors_df, project_config):
+def calculate_similarity(vectors_df, project_config, batch=False):
     """
     calculate the similarity for the vectors.
     Save for each movie id a dict with the other movie id's as the keys and their similarity as values.
@@ -50,7 +51,10 @@ def calculate_similarity(vectors_df, project_config):
     :param project_config: [dict] the project configuration
     """
     if project_config['similarity_method'] == 'cosine':
-        similarity = metrics.pairwise.cosine_similarity(vectors_df)
+        if batch:
+            similarity = batch_cosine_similarity(vectors_df)
+        else:
+            similarity = metrics.pairwise.cosine_similarity(vectors_df)
 
     else:
         raise NotImplementedError("There is only an implementation for the cosine similarity for now")
@@ -98,3 +102,15 @@ def generate_list_chunks(list_, chunk_size):
 
 def get_imdb_id_prefix_folder_name(imdb_id):
     return imdb_id[:4]
+
+
+
+def batch_cosine_similarity(vectors_df):
+    all_batch_similarity_arrays = []
+    for vectors_df_batch_idxs in generate_list_chunks(vectors_df.index.tolist(), chunk_size=1_000):
+        vectors_df_batch = vectors_df.loc[vectors_df_batch_idxs]
+        batch_similarity = metrics.pairwise.cosine_similarity(vectors_df_batch, vectors_df)
+        all_batch_similarity_arrays.append(batch_similarity)
+
+    similarity_array = np.concatenate(all_batch_similarity_arrays)
+    return similarity_array
