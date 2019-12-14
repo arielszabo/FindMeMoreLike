@@ -3,7 +3,7 @@ profile_me.py
 keys_config.yaml
 raw_wiki_data/
 raw_imdb_data/
-enwiki_dbow/
+enwiki_dbow*
 vectors_data/
 similar_list_data/
 .ipynb_checkpoints/
