@@ -109,7 +109,7 @@ def get_imdb_id_prefix_folder_name(imdb_id):
 
 def batch_cosine_similarity(vectors_df, save=False):
     all_batch_similarity_arrays = []
-    for vectors_df_batch_idxs in tqdm(generate_list_chunks(vectors_df.index.tolist(), chunk_size=10)):
+    for vectors_df_batch_idxs in tqdm(generate_list_chunks(vectors_df.index.tolist(), chunk_size=1_000)):
         vectors_df_batch = vectors_df.loc[vectors_df_batch_idxs]
         batch_similarity = metrics.pairwise.cosine_similarity(vectors_df_batch, vectors_df)
         if save:
