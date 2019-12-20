@@ -5,21 +5,21 @@ import pandas as pd
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from find_more_like_algorithm import text_vectors
-from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT
+from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG
 from datetime import datetime
 import multiprocessing
 
 
 
-def create_vectors(df, project_config):
+def create_vectors(df):
     vectorization_config = {
         'text_vectors': {
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': FULL_TEXT}
+            'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': FULL_TEXT}
         },
         'title_vectors': {
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': project_config['doc2vec_model_path'], 'text_column_name': 'title'}
+            'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': 'title'}
         },
         'genre_vectors': {
             'callable': _extract_from_comma_separated_strings,
@@ -31,12 +31,12 @@ def create_vectors(df, project_config):
         # }
     }
 
-    vectors_cache_path = os.path.join(root_path, project_config['vectors_cache_path'])
+    vectors_cache_path = os.path.join(root_path, PROJECT_CONFIG['vectors_cache_path'])
     os.makedirs(vectors_cache_path, exist_ok=True)
 
     all_vectors = []
     # df_vectorization_config_and_method_tuples = []
-    for vectorization_method in project_config['vectorization']:
+    for vectorization_method in PROJECT_CONFIG['vectorization']:
         result = apply_vectorization(df, vectorization_config, vectorization_method, vectors_cache_path)
         all_vectors.append(result)
         # df_vectorization_config_and_method_tuple = (df, vectorization_config, vectorization_method)

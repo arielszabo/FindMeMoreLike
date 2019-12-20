@@ -8,6 +8,7 @@ from sklearn import metrics
 from tqdm import tqdm
 import yaml
 import numpy as np
+from find_more_like_algorithm.constants import PROJECT_CONFIG
 
 
 def open_json(full_file_path):
@@ -41,30 +42,32 @@ def get_ids_from_web_page(html_url):
     return ids
 
 
-def calculate_similarity(vectors_df, project_config, batch=False):
+def calculate_similarity(vectors_df, batch=False, save=False):
     """
     calculate the similarity for the vectors.
     Save for each movie id a dict with the other movie id's as the keys and their similarity as values.
 
 
     :param vectors_df: [pandas' DataFrame] index must be the movies' id
-    :param project_config: [dict] the project configuration
     """
-    if project_config['similarity_method'] == 'cosine':
+    if PROJECT_CONFIG['similarity_method'] == 'cosine':
         if batch:
-            similarity = batch_cosine_similarity(vectors_df)
+            similarity = batch_cosine_similarity(vectors_df, save=save)
+            if similarity is None: return  # TODO: rewrite this
         else:
             similarity = metrics.pairwise.cosine_similarity(vectors_df)
 
     else:
         raise NotImplementedError("There is only an implementation for the cosine similarity for now")
 
-    similarity_df = pd.DataFrame(similarity, index=vectors_df.index, columns=vectors_df.index)
+    similarity_df = build_similarity_df(similarity, index_list=vectors_df.index.tolist())
+    if save:
+        save_similarity_measures(similarity_df)
+    else:
+        return similarity_df
 
-    return similarity_df
 
-
-def save_similarity_measures(similarity_df, project_config):
+def save_similarity_measures(similarity_df):
     """
     iterate over each line in the similarity DataFrame and save it to a json.
     Which looks like this:
@@ -74,15 +77,14 @@ def save_similarity_measures(similarity_df, project_config):
 
 
     :param similarity_df: [pandas' DataFrame]
-    :param project_config: [dict] the project configuration
     """
-    os.makedirs(project_config['similar_list_saving_path'], exist_ok=True)
+    os.makedirs(PROJECT_CONFIG['similar_list_saving_path'], exist_ok=True)
     for idx, row in tqdm(similarity_df.iterrows(),
                          desc='Saving similarity measures',
                          leave=False):
         prefix = get_imdb_id_prefix_folder_name(idx)
-        os.makedirs(os.path.join(project_config['similar_list_saving_path'], prefix), exist_ok=True)
-        file_name = os.path.join(project_config['similar_list_saving_path'], prefix, f'{idx}.json')
+        os.makedirs(os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix), exist_ok=True)
+        file_name = os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
         row_data = row.sort_values(ascending=False).reset_index(name='similarity_value') # .to_json(file_name, orient='records')
         with open(file_name, "w") as json_file:
             json.dump(list(row_data.itertuples(index=False, name=None)), json_file)
@@ -105,12 +107,26 @@ def get_imdb_id_prefix_folder_name(imdb_id):
 
 
 
-def batch_cosine_similarity(vectors_df):
+def batch_cosine_similarity(vectors_df, save=False):
     all_batch_similarity_arrays = []
     for vectors_df_batch_idxs in tqdm(generate_list_chunks(vectors_df.index.tolist(), chunk_size=10)):
         vectors_df_batch = vectors_df.loc[vectors_df_batch_idxs]
         batch_similarity = metrics.pairwise.cosine_similarity(vectors_df_batch, vectors_df)
-        all_batch_similarity_arrays.append(batch_similarity)
+        if save:
+            batch_similarity_df = build_similarity_df(batch_similarity,
+                                                      index_list=vectors_df_batch_idxs,
+                                                      columns_list=vectors_df.index.tolist())
+            save_similarity_measures(batch_similarity_df)
+        else:
+            all_batch_similarity_arrays.append(batch_similarity)
 
-    similarity_array = np.concatenate(all_batch_similarity_arrays)
-    return similarity_array
+    if all_batch_similarity_arrays:
+        similarity_array = np.concatenate(all_batch_similarity_arrays)
+        return similarity_array
+
+
+def build_similarity_df(similarity_array, index_list, columns_list=None):
+    if columns_list is None:
+        columns_list = index_list
+    similarity_df = pd.DataFrame(similarity_array, index=index_list, columns=columns_list)
+    return similarity_df

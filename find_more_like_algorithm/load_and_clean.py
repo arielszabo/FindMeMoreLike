@@ -5,17 +5,17 @@ import logging
 import pathlib
 import glob
 from find_more_like_algorithm import utils
-from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME
+from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME, PROJECT_CONFIG
 
 
-def load_saved_data(project_config):
+def load_saved_data():
     all_data = []
 
-    imdb_data_path = pathlib.Path(project_config['api_data_saving_path']['imdb'])
+    imdb_data_path = pathlib.Path(PROJECT_CONFIG['api_data_saving_path']['imdb'])
     imdb_data_dir_list = imdb_data_path.glob(f"*/tt*.json")
     imdb_data_dir_list = list(imdb_data_dir_list)
 
-    wiki_data_path = project_config['api_data_saving_path']['wiki']
+    wiki_data_path = PROJECT_CONFIG['api_data_saving_path']['wiki']
 
     for full_imdb_file_path in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
         imdb_data = utils.open_json(full_imdb_file_path)
