@@ -53,18 +53,22 @@ def create_vectors(df, project_config):
 def apply_vectorization(df, vectorization_config, vectorization_method, vectors_cache_path):
     cache_file_path = os.path.join(vectors_cache_path, f"{vectorization_method}.pickle")
     if os.path.exists(cache_file_path):
-        cache_file_modified_time = datetime.fromtimestamp(os.path.getmtime(cache_file_path))
-        if cache_file_modified_time >= df[INSERTION_TIME].max():
-            logging.info(f"Load cached '{vectorization_method}'")
-            vectors = pd.read_pickle(cache_file_path)
-            return vectors
-
-    logging.info(f"Starting to create '{vectorization_method}'")
-    vectorization = vectorization_config[vectorization_method]
-    vectors = vectorization['callable'](df, **vectorization['params'])
-    vectors.columns = [f"{vectorization_method}__{col}" for col in vectors.columns]
-    vectors.to_pickle(cache_file_path)
-    return vectors
+        logging.info(f"Load cached '{vectorization_method}'")
+        vectors = pd.read_pickle(cache_file_path)
+        return vectors
+    #
+    #     cache_file_modified_time = datetime.fromtimestamp(os.path.getmtime(cache_file_path))
+    #     if cache_file_modified_time >= df[INSERTION_TIME].max():
+    #         logging.info(f"Load cached '{vectorization_method}'")
+    #         vectors = pd.read_pickle(cache_file_path)
+    #         return vectors
+    #
+    # logging.info(f"Starting to create '{vectorization_method}'")
+    # vectorization = vectorization_config[vectorization_method]
+    # vectors = vectorization['callable'](df, **vectorization['params'])
+    # vectors.columns = [f"{vectorization_method}__{col}" for col in vectors.columns]
+    # vectors.to_pickle(cache_file_path)
+    # return vectors
 
 
 def _rated_vectors(df, rated_column_name):

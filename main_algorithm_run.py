@@ -32,11 +32,12 @@ if __name__ == '__main__':
     # extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
     # extractors.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
 
-    # Load saved data
-    df = load_and_clean.load_saved_data(project_config)
-    logging.info("data loaded")
+    # # Load saved data
+    # df = load_and_clean.load_saved_data(project_config)
+    # logging.info("data loaded")
 
     # CREATE The Vectors
+    df = None
     vectors_df = vectorization.create_vectors(df, project_config)
     logging.info("vectors created")
 
