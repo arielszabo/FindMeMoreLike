@@ -1,3 +1,6 @@
+import asyncio
+import gc
+import aiofiles
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -78,16 +81,33 @@ def save_similarity_measures(similarity_df):
 
     :param similarity_df: [pandas' DataFrame]
     """
-    os.makedirs(PROJECT_CONFIG['similar_list_saving_path'], exist_ok=True)
-    for idx, row in tqdm(similarity_df.iterrows(),
-                         desc='Saving similarity measures',
-                         leave=False):
+
+    async def save_async(idx, row):
         prefix = get_imdb_id_prefix_folder_name(idx)
         os.makedirs(os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix), exist_ok=True)
         file_name = os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
-        row_data = row.sort_values(ascending=False).reset_index(name='similarity_value') # .to_json(file_name, orient='records')
-        with open(file_name, "w") as json_file:
-            json.dump(list(row_data.itertuples(index=False, name=None)), json_file)
+        row_data = row.sort_values(ascending=False).reset_index(name='similarity_value')
+
+        json_dumped_data = json.dumps(row_data)
+
+        async with aiofiles.open(file_name, 'w') as json_file:
+            await json_file.write(json_dumped_data)
+
+
+    os.makedirs(PROJECT_CONFIG['similar_list_saving_path'], exist_ok=True)
+    # for idx, row in tqdm(similarity_df.iterrows(),
+    #                      desc='Saving similarity measures',
+    #                      leave=False):
+    #     prefix = get_imdb_id_prefix_folder_name(idx)
+    #     os.makedirs(os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix), exist_ok=True)
+    #     file_name = os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
+    #     row_data = row.sort_values(ascending=False).reset_index(name='similarity_value') # .to_json(file_name, orient='records')
+    #     with open(file_name, "w") as json_file:
+    #         json.dump(list(row_data.itertuples(index=False, name=None)), json_file)
+
+    loop = asyncio.get_event_loop()
+    list_of_requests = [save_async(idx, row) for idx, row in tqdm(similarity_df.iterrows())]
+    loop.run_until_complete(asyncio.gather(*list_of_requests))
 
 
 def generate_list_chunks(list_, chunk_size):
@@ -117,6 +137,7 @@ def batch_cosine_similarity(vectors_df, save=False):
                                                       index_list=vectors_df_batch_idxs,
                                                       columns_list=vectors_df.index.tolist())
             save_similarity_measures(batch_similarity_df)
+            gc.collect()
         else:
             all_batch_similarity_arrays.append(batch_similarity)
 
