@@ -16,3 +16,6 @@ RUN_SIGNATURE = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
 with open(os.path.join(root_path, "project_config.yaml"), 'r') as yaml_file:
     PROJECT_CONFIG = yaml.load(yaml_file)
 PROJECT_CONFIG[RUN_SIGNATURE_STRING] = RUN_SIGNATURE
+
+
+SAVING_MOVIES_LIMIT = 1_000  # TODO change this

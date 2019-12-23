@@ -11,7 +11,7 @@ from sklearn import metrics
 from tqdm import tqdm
 import yaml
 import numpy as np
-from find_more_like_algorithm.constants import PROJECT_CONFIG
+from find_more_like_algorithm.constants import PROJECT_CONFIG, SAVING_MOVIES_LIMIT
 
 
 def open_json(full_file_path):
@@ -87,6 +87,7 @@ def save_similarity_measures(similarity_df):
         os.makedirs(os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix), exist_ok=True)
         file_name = os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
         row_data = row.sort_values(ascending=False).reset_index(name='similarity_value')
+        top_row_data = row_data[:SAVING_MOVIES_LIMIT]
 
         json_dumped_data = json.dumps(row_data)
 
