@@ -87,9 +87,9 @@ def save_similarity_measures(similarity_df):
         os.makedirs(os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix), exist_ok=True)
         file_name = os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
         row_data = row.sort_values(ascending=False).reset_index(name='similarity_value')
-        top_row_data = row_data[:SAVING_MOVIES_LIMIT]
+        top_row_data = list(row_data.itertuples(index=False, name=None))[:SAVING_MOVIES_LIMIT]
 
-        json_dumped_data = json.dumps(row_data)
+        json_dumped_data = json.dumps(top_row_data)
 
         async with aiofiles.open(file_name, 'w') as json_file:
             await json_file.write(json_dumped_data)
