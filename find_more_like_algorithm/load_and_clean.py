@@ -13,7 +13,7 @@ def load_saved_data():
 
     imdb_data_path = pathlib.Path(PROJECT_CONFIG['api_data_saving_path']['imdb'])
     imdb_data_dir_list = imdb_data_path.glob(f"*/tt*.json")
-    imdb_data_dir_list = list(imdb_data_dir_list)
+    imdb_data_dir_list = list(imdb_data_dir_list)[:1_000]
 
     wiki_data_path = PROJECT_CONFIG['api_data_saving_path']['wiki']
 
@@ -44,6 +44,6 @@ def standardized(df):
     df.set_index(IMDB_ID, inplace=True)
     df.columns = [col.lower() for col in df.columns]
     df[WIKI_TEXT] = df[WIKI_TEXT].fillna('')
-    df[FULL_TEXT] = df.apply(lambda row: row['plot'] + ' ' + row[WIKI_TEXT], axis=1)
+    df[FULL_TEXT] = df[['plot', WIKI_TEXT]].apply(lambda plot_and_wiki_text: ' '.join(plot_and_wiki_text), axis=1)
 
     return df

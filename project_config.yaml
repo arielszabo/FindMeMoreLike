@@ -16,6 +16,3 @@ vectorization:
   - text_vectors
   - title_vectors
   - genre_vectors
-
-
-similarity_method: 'cosine'

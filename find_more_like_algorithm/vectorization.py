@@ -1,4 +1,6 @@
 import os
+import pathlib
+
 from tqdm import tqdm
 import logging
 import pandas as pd
@@ -12,16 +14,19 @@ import multiprocessing
 
 
 def create_vectors(df):
-    vectorization_config = {
-        'text_vectors': {
+    vectorizations_config = [
+        {
+            'name': 'text_vectors',
             'callable': text_vectors.get_text_vectors,
             'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': FULL_TEXT}
         },
-        'title_vectors': {
+        {
+            'name': 'title_vectors',
             'callable': text_vectors.get_text_vectors,
             'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': 'title'}
         },
-        'genre_vectors': {
+        {
+            'name': 'genre_vectors',
             'callable': _extract_from_comma_separated_strings,
             'params': {'column_name': 'genre'}
         },
@@ -29,46 +34,40 @@ def create_vectors(df):
         #     'callable': _rated_vectors,
         #     'params': {'rated_col_name': 'rated'}
         # }
-    }
+    ]
 
-    vectors_cache_path = os.path.join(root_path, PROJECT_CONFIG['vectors_cache_path'])
-    os.makedirs(vectors_cache_path, exist_ok=True)
+    vectors_cache_path = pathlib.Path(root_path, PROJECT_CONFIG['vectors_cache_path'])
+    vectors_cache_path.mkdir(parents=True, exist_ok=True)
 
     all_vectors = []
-    # df_vectorization_config_and_method_tuples = []
-    for vectorization_method in PROJECT_CONFIG['vectorization']:
-        result = apply_vectorization(df, vectorization_config, vectorization_method, vectors_cache_path)
-        all_vectors.append(result)
-        # df_vectorization_config_and_method_tuple = (df, vectorization_config, vectorization_method)
-        # df_vectorization_config_and_method_tuples.append(df_vectorization_config_and_method_tuple)
-
-
-    # with multiprocessing.Pool() as pool:
-    #     all_vectors = pool.starmap(apply_vectorization, df_vectorization_config_and_method_tuples)
+    for vectorization in vectorizations_config:
+        if vectorization["name"] in PROJECT_CONFIG['vectorization']:
+            result = apply_vectorization(df, vectorization)
+            all_vectors.append(result)
 
 
     return pd.concat(all_vectors, axis=1, sort=False)
 
 
-def apply_vectorization(df, vectorization_config, vectorization_method, vectors_cache_path):
-    cache_file_path = os.path.join(vectors_cache_path, f"{vectorization_method}.pickle")
-    if os.path.exists(cache_file_path):
-        logging.info(f"Load cached '{vectorization_method}'")
-        vectors = pd.read_pickle(cache_file_path)
-        return vectors
-    #
-    #     cache_file_modified_time = datetime.fromtimestamp(os.path.getmtime(cache_file_path))
-    #     if cache_file_modified_time >= df[INSERTION_TIME].max():
-    #         logging.info(f"Load cached '{vectorization_method}'")
-    #         vectors = pd.read_pickle(cache_file_path)
-    #         return vectors
-    #
-    # logging.info(f"Starting to create '{vectorization_method}'")
-    # vectorization = vectorization_config[vectorization_method]
-    # vectors = vectorization['callable'](df, **vectorization['params'])
-    # vectors.columns = [f"{vectorization_method}__{col}" for col in vectors.columns]
-    # vectors.to_pickle(cache_file_path)
-    # return vectors
+def apply_vectorization(df, vectorization):
+    cache_file_path = pathlib.Path(root_path, PROJECT_CONFIG['vectors_cache_path'], f"{vectorization['name']}.pickle")
+    if cache_file_path.exists():
+    # TODO use this on server ->
+    #     logging.info(f"Load cached '{vectorization_method}'")
+    #     vectors = pd.read_pickle(cache_file_path)
+    #     return vectors
+    # TODO use this on server <-
+        cache_file_modified_time = datetime.fromtimestamp(cache_file_path.stat().st_mtime)
+        if cache_file_modified_time >= df[INSERTION_TIME].max():
+            logging.info(f"Load cached {vectorization['name']} vectors")
+            vectors = pd.read_pickle(str(cache_file_path))
+            return vectors
+
+    logging.info(f"Starting to create {vectorization['name']} vectors")
+    vectors = vectorization['callable'](df, **vectorization['params'])
+    vectors.columns = [f"{vectorization['name']}__{col}" for col in vectors.columns]
+    vectors.to_pickle(cache_file_path)
+    return vectors
 
 
 def _rated_vectors(df, rated_column_name):
