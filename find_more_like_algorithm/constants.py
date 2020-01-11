@@ -18,4 +18,4 @@ with open(os.path.join(root_path, "project_config.yaml"), 'r') as yaml_file:
 PROJECT_CONFIG[RUN_SIGNATURE_STRING] = RUN_SIGNATURE
 
 
-SAVING_MOVIES_LIMIT = 500  # TODO change this
+SAVING_MOVIES_LIMIT = 150  # TODO change this
