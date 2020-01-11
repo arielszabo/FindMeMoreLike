@@ -1,15 +1,15 @@
 #!/bin/bash
 
-embedding_file=enwiki_dbow
-
-gsutil -m cp "gs://ariel-szabo/find-me-more-like/${embedding_file}.tar.gz" .
-gunzip "${embedding_file}.tar.gz"
-tar -xf "${embedding_file}.tar"
+#embedding_file=enwiki_dbow
+#
+#gsutil -m cp "gs://ariel-szabo/find-me-more-like/${embedding_file}.tar.gz" .
+#gunzip "${embedding_file}.tar.gz"
+#tar -xf "${embedding_file}.tar"
 
 zip_folder=raw_data_zip_files
 
-# get raw data from bucket
-gsutil -m cp -r gs://ariel-szabo/find-me-more-like/$zip_folder .
+## get raw data from bucket
+#gsutil -m cp -r gs://ariel-szabo/find-me-more-like/$zip_folder .
 
 
 # unzip
@@ -26,7 +26,7 @@ done
 
 
 # activate venv
-source ~/venv3/bin/activate
+source ~/venv3/bin/activate --user
 
 
 pip install -r requirements.txt
@@ -55,5 +55,5 @@ pip install -r requirements.txt
 
 
 # stop instance
-VM_NAME=main-algo-instance
+VM_NAME=instance-2
 gcloud compute instances stop $VM_NAME --zone us-central1-a -q
