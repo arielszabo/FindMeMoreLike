@@ -26,32 +26,32 @@ done
 
 
 # activate venv
-source ~/venv3/bin/activate --user
+source ~/venv3/bin/activate
 
 
 pip install -r requirements.txt
 
-## run python code
-#python main_algorithm_run.py
-## > find_me_more_like_logs/stdout.txt 2> find_me_more_like_logs/stderror.txt
-#
-#
-## save logs in bucket
-#gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
-#
-#
-#
-#for folder_name in raw_imdb_data raw_wiki_data similar_list_data
-#do
-#    mkdir ${folder_name}_zip
-#    cd $folder_name
-#    for i in */; do tar -zcvf "../${folder_name}_zip/${i%/}.tar.gz" "$i"; done
-#    cd ..
-#
-#    # save results in bucket
-#    gsutil -m cp -r "${folder_name}_zip" gs://ariel-szabo/find-me-more-like/$zip_folder/
-#done
-#
+# run python code
+python main_algorithm_run.py
+# > find_me_more_like_logs/stdout.txt 2> find_me_more_like_logs/stderror.txt
+
+
+# save logs in bucket
+gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
+
+
+
+for folder_name in raw_imdb_data raw_wiki_data similar_list_data
+do
+    mkdir ${folder_name}_zip
+    cd $folder_name
+    for i in */; do tar -zcvf "../${folder_name}_zip/${i%/}.tar.gz" "$i"; done
+    cd ..
+
+    # save results in bucket
+    gsutil -m cp -r "${folder_name}_zip" gs://ariel-szabo/find-me-more-like/$zip_folder/
+done
+
 
 
 # stop instance
