@@ -16,7 +16,7 @@ zip_folder=raw_data_zip_files
 for folder_name in raw_imdb_data raw_wiki_data
 do
     mkdir $folder_name
-    for zipped_file in "$zip_folder/$folder_name/"*
+    for zipped_file in "$zip_folder/$folder_name"_zip/*
     do
         zipped_file_with_tar_suffix="${zipped_file%.*}"
         gunzip "$zipped_file_with_tar_suffix.gz"
