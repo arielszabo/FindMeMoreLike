@@ -1,5 +1,7 @@
 import asyncio
 import gc
+import pathlib
+
 import aiofiles
 import requests
 from bs4 import BeautifulSoup
@@ -59,18 +61,19 @@ def generate_list_chunks(list_, chunk_size):
             break
 
 
-def get_imdb_id_prefix_folder_name(imdb_id):
-    return imdb_id[:4]
+def get_imdb_id_prefix_folder_name(imdb_id, prefix_length=4):
+    return imdb_id[:prefix_length]
 
 
 
 
 def _get_all_existing_imdb_ids():
-    all_saved_files = glob.glob(os.path.join(root_path, PROJECT_CONFIG["api_data_saving_path"]["imdb"], '*', '*.json'))
+    all_saved_files = pathlib.Path(root_path, PROJECT_CONFIG["api_data_saving_path"]["imdb"]).rglob('*/*.json')
 
     existing_ids = []
-    for name in all_saved_files:
-        search_result = re.search(r'(tt\d+).json', name)
+    for saved_file_path in all_saved_files:
+        saved_file_name = saved_file_path.name
+        search_result = re.search(r'(tt\d+).json', saved_file_name)
         if search_result:
             existing_ids.append(search_result.group(1))
     return existing_ids

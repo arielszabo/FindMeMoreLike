@@ -1,10 +1,8 @@
 import asyncio
 import json
 import pathlib
-
 import aiofiles
 import gc
-import numpy as np
 import pandas as pd
 from sklearn import metrics
 from tqdm import tqdm
@@ -25,16 +23,16 @@ def calculate(vectors_df, batch=False, save=False):
     :param save:
 
     """
-    if batch:
-        all_batch_similarity_dfs = []
+    if batch and save:
         for batch_similarity_df in batch_cosine_similarity(vectors_df):
-            if save:
-                save_similarity_measures(batch_similarity_df)
-            else:
-                all_batch_similarity_dfs.append(batch_similarity_df)
+            save_similarity_measures(batch_similarity_df)
             gc.collect()
+        return
 
+    if batch:
+        all_batch_similarity_dfs = list(batch_cosine_similarity(vectors_df))
         similarity_df = pd.concat(all_batch_similarity_dfs)
+        gc.collect()
     else:
         similarity_array = metrics.pairwise.cosine_similarity(vectors_df)
         similarity_df = build_similarity_df(similarity_array, index_list=vectors_df.index.tolist())
@@ -58,9 +56,9 @@ def save_similarity_measures(similarity_df):
     :param similarity_df: [pandas' DataFrame]
     """
     async def save_async(idx, row):
-        prefix = utils.get_imdb_id_prefix_folder_name(idx)  # TODO chang this
-        pathlib.Path(PROJECT_CONFIG['similar_list_saving_path'], prefix).mkdir(parents=True, exist_ok=True)
-        file_name = pathlib.Path(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
+        prefix = utils.get_imdb_id_prefix_folder_name(idx)
+        file_path = pathlib.Path(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
+        file_path.parent.mkdir(parents=True, exist_ok=True)
         row_data = row.sort_values(ascending=False).reset_index(name='similarity_value')
         top_row_data = list(row_data.itertuples(index=False, name=None))
         if SAVING_MOVIES_LIMIT is not None:
@@ -68,19 +66,8 @@ def save_similarity_measures(similarity_df):
 
         json_dumped_data = json.dumps(top_row_data)
 
-        async with aiofiles.open(file_name, 'w') as json_file:
+        async with aiofiles.open(file_path, 'w') as json_file:
             await json_file.write(json_dumped_data)
-
-    pathlib.Path(root_path, PROJECT_CONFIG['similar_list_saving_path']).mkdir(parents=True, exist_ok=True)
-    # for idx, row in tqdm(similarity_df.iterrows(),
-    #                      desc='Saving similarity measures',
-    #                      leave=False):
-    #     prefix = get_imdb_id_prefix_folder_name(idx)
-    #     os.makedirs(os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix), exist_ok=True)
-    #     file_name = os.path.join(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
-    #     row_data = row.sort_values(ascending=False).reset_index(name='similarity_value') # .to_json(file_name, orient='records')
-    #     with open(file_name, "w") as json_file:
-    #         json.dump(list(row_data.itertuples(index=False, name=None)), json_file)
 
     loop = asyncio.get_event_loop()
     list_of_saving_requests = [save_async(idx, row) for idx, row in tqdm(similarity_df.iterrows())]
