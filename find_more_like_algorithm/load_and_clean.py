@@ -13,7 +13,7 @@ def load_saved_data():
 
     imdb_data_path = pathlib.Path(PROJECT_CONFIG['api_data_saving_path']['imdb'])
     imdb_data_dir_list = imdb_data_path.glob(f"*/tt*.json")
-    imdb_data_dir_list = list(imdb_data_dir_list)[:1_000]
+    imdb_data_dir_list = list(imdb_data_dir_list)
 
     wiki_data_path = PROJECT_CONFIG['api_data_saving_path']['wiki']
 
