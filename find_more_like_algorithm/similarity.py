@@ -1,7 +1,5 @@
-import asyncio
 import json
 import pathlib
-import aiofiles
 import gc
 import pandas as pd
 from sklearn import metrics
@@ -55,7 +53,7 @@ def save_similarity_measures(similarity_df):
 
     :param similarity_df: [pandas' DataFrame]
     """
-    async def save_async(idx, row):
+    def save(idx, row):
         prefix = utils.get_imdb_id_prefix_folder_name(idx)
         file_path = pathlib.Path(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -66,12 +64,11 @@ def save_similarity_measures(similarity_df):
 
         json_dumped_data = json.dumps(top_row_data)
 
-        async with aiofiles.open(file_path, 'w') as json_file:
-            await json_file.write(json_dumped_data)
+        with file_path.open('w') as json_file:
+            json_file.write(json_dumped_data)
 
-    loop = asyncio.get_event_loop()
-    list_of_saving_requests = [save_async(idx, row) for idx, row in tqdm(similarity_df.iterrows())]
-    loop.run_until_complete(asyncio.gather(*list_of_saving_requests))
+    for idx, row in tqdm(similarity_df.iterrows()):
+        save(idx, row)
 
 
 def batch_cosine_similarity(vectors_df):
