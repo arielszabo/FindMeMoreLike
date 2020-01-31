@@ -12,7 +12,6 @@ from datetime import datetime
 import multiprocessing
 
 
-
 def create_vectors(df):
     vectorizations_config = [
         {
@@ -28,7 +27,7 @@ def create_vectors(df):
         {
             'name': 'genre_vectors',
             'callable': _extract_from_comma_separated_strings,
-            'params': {'column_name': 'genre'}
+            'params': {'column_name': 'Genre'}
         },
         # 'rated_vectors': {
         #     'callable': _rated_vectors,
@@ -44,7 +43,6 @@ def create_vectors(df):
         if vectorization["name"] in PROJECT_CONFIG['vectorization']:
             result = apply_vectorization(df, vectorization)
             all_vectors.append(result)
-
 
     return pd.concat(all_vectors, axis=1, sort=False)
 
@@ -84,7 +82,7 @@ def _tokenizer_comma_separated_strings(full_string):
 def _extract_from_comma_separated_strings(df, column_name):
     count_vectorizer = CountVectorizer(tokenizer=_tokenizer_comma_separated_strings)
 
-    df_sparse_array = count_vectorizer.fit_transform(df[column_name.lower()].fillna('not_provided'))
+    df_sparse_array = count_vectorizer.fit_transform(df[column_name].fillna('not_provided'))
     df_dense_array = df_sparse_array.toarray()
     feature_names = count_vectorizer.get_feature_names()
     # feature_names = [f"{column_name}_{col}".lower() for col in count_vectorizer.get_feature_names()]  # todo: why comment out?
