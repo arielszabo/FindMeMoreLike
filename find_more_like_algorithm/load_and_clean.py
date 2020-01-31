@@ -5,17 +5,15 @@ import logging
 import pathlib
 import glob
 from find_more_like_algorithm import utils
-from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME, PROJECT_CONFIG
+from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME, PROJECT_CONFIG, \
+    RAW_IMDB_DATA_PATH, RAW_WIKI_DATA_PATH
 
 
 def load_saved_data():
     all_data = []
 
-    imdb_data_path = pathlib.Path(PROJECT_CONFIG['api_data_saving_path']['imdb'])
-    imdb_data_dir_list = imdb_data_path.glob(f"*/tt*.json")
+    imdb_data_dir_list = RAW_IMDB_DATA_PATH.glob(f"*/tt*.json")
     imdb_data_dir_list = list(imdb_data_dir_list)[:1_000]
-
-    wiki_data_path = PROJECT_CONFIG['api_data_saving_path']['wiki']
 
     for full_imdb_file_path in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
         imdb_data = utils.open_json(full_imdb_file_path)
@@ -24,7 +22,7 @@ def load_saved_data():
 
         imdb_id = full_imdb_file_path.stem
         folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
-        full_wiki_file_path = pathlib.Path(wiki_data_path, folder_prefix, f"{imdb_id}.json")
+        full_wiki_file_path = pathlib.Path(RAW_WIKI_DATA_PATH, folder_prefix, f"{imdb_id}.json")
         if full_wiki_file_path.exists():
             wiki_data = utils.open_json(full_wiki_file_path)
 

@@ -14,7 +14,8 @@ from tqdm import tqdm
 import yaml
 import numpy as np
 import glob
-from find_more_like_algorithm.constants import PROJECT_CONFIG, SAVING_MOVIES_LIMIT, root_path
+from find_more_like_algorithm.constants import PROJECT_CONFIG, SAVING_MOVIES_LIMIT, root_path, IMDB_ID, TITLE, \
+    SIMILAR_LIST_SAVING_PATH, RAW_IMDB_DATA_PATH
 
 
 def open_json(full_file_path):
@@ -48,7 +49,6 @@ def get_ids_from_web_page(html_url):
     return ids
 
 
-
 def generate_list_chunks(list_, chunk_size):
     i = 0
     while True:
@@ -66,9 +66,8 @@ def get_imdb_id_prefix_folder_name(imdb_id, prefix_length=4):
 
 
 
-
 def _get_all_existing_imdb_ids():
-    all_saved_files = pathlib.Path(root_path, PROJECT_CONFIG["api_data_saving_path"]["imdb"]).rglob('*/*.json')
+    all_saved_files = RAW_IMDB_DATA_PATH.rglob('*/*.json')
 
     existing_ids = []
     for saved_file_path in all_saved_files:
