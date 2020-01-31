@@ -6,32 +6,22 @@ import os
 import math
 import requests
 import re
-
 from find_more_like_algorithm import utils
-# Internal imports todo: change
-from find_more_like_algorithm.constants import IMDB_ID, TITLE, RAW_IMDB_DATA_PATH, PLOT, root_path
-from webapp.db_handler import DB, SeenTitles, Users, MissingTitles
+from find_more_like_algorithm.constants import IMDB_ID, TITLE, RAW_IMDB_DATA_PATH, PLOT, root_path, KEYS_CONFIG
+from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
 VERSION_NUMBER = "0.0.1"
 ONE_PAGE_SUGGESTIONS_AMOUNT = 10
 
-config_file_path = os.environ.get("FIND_MORE_LIKE_CONFIG", os.path.join(root_path, 'project_config.yaml'))
-
-project_config = utils.open_yaml(config_file_path)
-keys_config = utils.open_yaml(os.path.join(root_path, project_config["keys_config_path"]))
-
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", keys_config["google_client_id"])
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", keys_config["google_client_secret"])
-GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google.com/.well-known/openid-configuration"
-)
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", KEYS_CONFIG["google_client_id"])
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", KEYS_CONFIG["google_client_secret"])
+GOOGLE_DISCOVERY_URL = ("https://accounts.google.com/.well-known/openid-configuration")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
-# User session management setup
-# https://flask-login.readthedocs.io/en/latest
+# User session management setup - https://flask-login.readthedocs.io/en/latest
 login_manager = LoginManager()
 login_manager.init_app(app)
 
