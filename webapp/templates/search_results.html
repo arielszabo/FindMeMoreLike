@@ -37,51 +37,49 @@
                     {% for imdb_data in similarity_results %}
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="row">
-                                <div class="col-xs-2 col-md-1">
-                                    <a href={{imdb_data.IMDb_path}} target="_blank">
-                                        <img src="{{imdb_data.Poster}}" class="poster_img" alt="" />
-                                    </a>
-                                </div>
-                                <div class="col-xs-8 col-md-10">
-                                    <div class="title">
+                                    <div class="col-xs-2 col-md-1">
                                         <a href={{imdb_data.IMDb_path}} target="_blank">
-                                            {{imdb_data.Title}} ({{imdb_data.Year}})</a>
-                                        <div class="mic-info">
-                                            Directed by: {{imdb_data.Director}}
+                                            <img src="{{imdb_data.Poster}}" class="poster_img" alt="" />
+                                        </a>
+                                    </div>
+                                    <div class="col-xs-8 col-md-10">
+                                        <div class="title">
+                                            <a href={{imdb_data.IMDb_path}} target="_blank">
+                                                {{imdb_data.Title}} ({{imdb_data.Year}})</a>
+                                            <div class="mic-info">
+                                                Directed by: {{imdb_data.Director}}
+                                            </div>
+                                        </div>
+                                        <div class="comment-text">
+                                           {{imdb_data.Plot}}
                                         </div>
                                     </div>
-                                    <div class="comment-text">
-                                       {{imdb_data.Plot}}
-                                    </div>
-                                </div>
-                                <div class="col-xs-2 col-md-1">
-                                    {% if current_user.is_authenticated %}
-                                        <div class="checkbox comment-text">
-                                            <label>
-                                            {% if imdb_data.user_seen %}
-                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
-                                                           id="{{imdb_data.imdbID}}_checkbox" checked="checked">
-                                            {% else %}
-                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
-                                                       id="{{imdb_data.imdbID}}_checkbox"/>
-                                            {% endif %}
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-eye-open"></i></span>
-                                            Mark as seen
-                                            </label>
-                                        </div>
-                                    {% else %}
-                                        <div class="checkbox comment-text">
-                                            <label data-toggle="tooltip" data-placement="bottom" title="Login to use this">
-                                                <input type="checkbox" class="seen-checkbox" name="SeenThis"
-                                                       id="{{imdb_data.imdbID}}_checkbox"  disabled/>
+                                    <div class="col-xs-2 col-md-1">
+                                        {% if current_user.is_authenticated %}
+                                            <div class="checkbox comment-text">
+                                                <label>
+                                                {% if imdb_data.user_seen %}
+                                                    <input type="checkbox" class="seen-checkbox" name="SeenThis"
+                                                               id="{{imdb_data.imdbID}}_checkbox" checked="checked">
+                                                {% else %}
+                                                    <input type="checkbox" class="seen-checkbox" name="SeenThis"
+                                                           id="{{imdb_data.imdbID}}_checkbox"/>
+                                                {% endif %}
                                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-eye-open"></i></span>
                                                 Mark as seen
-                                            </label>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
+                                                </label>
+                                            </div>
+                                        {% else %}
+                                            <div class="checkbox comment-text">
+                                                <label data-toggle="tooltip" data-placement="bottom" title="Login to use this">
+                                                    <input type="checkbox" class="seen-checkbox" name="SeenThis"
+                                                           id="{{imdb_data.imdbID}}_checkbox"  disabled/>
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-eye-open"></i></span>
+                                                    Mark as seen
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    </div>
                         </li>
                     {% endfor %}
 
