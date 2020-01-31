@@ -3,9 +3,9 @@ from sqlalchemy.dialects.sqlite import TIMESTAMP, TEXT, BOOLEAN, INTEGER
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+from find_more_like_algorithm.constants import root_path
 
-root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_NAME = os.path.join(root, "db", "webapp_db.db")
+DB_NAME = os.path.join(root_path, "db", "webapp_db.db")
 os.makedirs(os.path.dirname(DB_NAME), exist_ok=True)
 Base = declarative_base()
 
