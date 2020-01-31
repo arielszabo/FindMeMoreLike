@@ -2,6 +2,7 @@ from flask_login import UserMixin
 
 from webapp.db_handler import DB, Users
 
+
 class User(UserMixin):
     def __init__(self, google_id, name, email, profile_pic):
         self.google_id = google_id
@@ -21,7 +22,6 @@ class User(UserMixin):
         else:
             create_id = self.create_me()
             return create_id
-
 
     def create_me(self):
         with DB() as db:

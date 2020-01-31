@@ -1,12 +1,11 @@
 from sqlalchemy import Column, create_engine
-from sqlalchemy.dialects.sqlite import TIMESTAMP, TEXT, BOOLEAN, INTEGER
+from sqlalchemy.dialects.sqlite import TEXT, INTEGER
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
 from find_more_like_algorithm.constants import root_path
 
-DB_NAME = os.path.join(root_path, "db", "webapp_db.db")
-os.makedirs(os.path.dirname(DB_NAME), exist_ok=True)
+DB_NAME = root_path.joinpath("db", "webapp_db.db")
+DB_NAME.parent.mkdir(exist_ok=True)
 Base = declarative_base()
 
 
@@ -16,20 +15,17 @@ class DB(object):
         self.engine = create_engine(self.connection_string)
         self.session = None
 
-
     def __enter__(self):
         session = sessionmaker(expire_on_commit=False)
         self.session = session(bind=self.engine)
 
         return self
 
-
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not exc_type:
             self.session.commit()
 
         self.session.close()
-
 
     def create_tables(self):
         Base.metadata.create_all(self.engine)
@@ -52,7 +48,6 @@ class SeenTitles(Base):
     user_id = Column(INTEGER, nullable=False)
     imdb_id = Column(TEXT, nullable=False)
     # todo: make this uniuqe and fk to Users table
-
 
 
 class MissingTitles(Base):
