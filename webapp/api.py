@@ -9,10 +9,9 @@ import re
 
 from find_more_like_algorithm import utils
 # Internal imports todo: change
+from find_more_like_algorithm.constants import IMDB_ID, TITLE, RAW_IMDB_DATA_PATH, PLOT
 from webapp.db_handler import DB, SeenTitles, Users, MissingTitles
 from webapp.user import User, get_user_by_id
-
-
 
 
 VERSION_NUMBER = "0.0.1"
@@ -170,7 +169,7 @@ def search(imdb_id, hide_seen_titles, page_index):
     user_seen_imdb_ids = get_user_seen_imdb_ids()
 
     results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_ids)
-    results_imdb_ids = [result["imdbID"] for result in results]
+    results_imdb_ids = [result[IMDB_ID] for result in results]
     page_user_seen_titles_amount = len(user_seen_imdb_ids.intersection(results_imdb_ids))
 
 
@@ -188,12 +187,13 @@ def search(imdb_id, hide_seen_titles, page_index):
 def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_list, user_seen_imdb_id):
     results = []
     for similar_movie in sliced_similarity_list:
-        if similar_movie['imdbID'] == requested_imdbid:
+        imdb_id, _ = similar_movie
+        if imdb_id == requested_imdbid:
             continue
 
-        imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
+        imdb_id_presentation_data = load_presentation_data(imdb_id)
 
-        if imdb_id_presentation_data["imdbID"] in user_seen_imdb_id:
+        if imdb_id_presentation_data[IMDB_ID] in user_seen_imdb_id:
             imdb_id_presentation_data["user_seen"] = True
             if hide_seen_titles.lower() == 'on':
                 continue
@@ -208,13 +208,13 @@ def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_lis
 
 def load_presentation_data(imdb_id):
     imdb_id_folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
-    file_path = os.path.join(root, project_config["api_data_saving_path"]["imdb"], imdb_id_folder_prefix, f'{imdb_id}.json')
+    file_path = os.path.join(RAW_IMDB_DATA_PATH, imdb_id_folder_prefix, f'{imdb_id}.json')
     if os.path.exists(file_path):
         imdb_data = utils.open_json(file_path)
         return {
-            'Title': imdb_data['Title'],
+            TITLE: imdb_data[TITLE],
             'Director': imdb_data['Director'],
-            'Plot': imdb_data['Plot'],
+            PLOT: imdb_data[PLOT],
             'Year': imdb_data['Year'],
             'Poster': imdb_data['Poster'],
             'imdbID': imdb_data['imdbID'],
