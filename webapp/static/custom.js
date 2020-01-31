@@ -2,7 +2,7 @@ $().ready(function() {
     var options = {
         url: "static/title_and_id_mapping.json",
 
-        getValue: "title",
+        getValue: "Title",
 
         list: {
             match: {
