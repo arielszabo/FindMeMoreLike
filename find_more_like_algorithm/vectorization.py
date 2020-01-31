@@ -7,7 +7,7 @@ import pandas as pd
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from find_more_like_algorithm import text_vectors
-from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG
+from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG, TITLE
 from datetime import datetime
 import multiprocessing
 
@@ -23,7 +23,7 @@ def create_vectors(df):
         {
             'name': 'title_vectors',
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': 'title'}
+            'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': TITLE}
         },
         {
             'name': 'genre_vectors',

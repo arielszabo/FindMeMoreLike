@@ -9,6 +9,7 @@ WIKI_TEXT = "wiki_text"
 root_path = os.path.dirname(os.path.dirname(__file__))
 RANDOM_SEED = 123
 RUN_SIGNATURE_STRING = "run_signature"
+TITLE = "Title"
 
 LOGFILE_BASE_PATH = "find_me_more_like_logs"
 RUN_SIGNATURE = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"

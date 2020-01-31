@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import math
-from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE
+from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE, TITLE
 from find_more_like_algorithm import utils
 import asyncio
 import aiofiles
@@ -144,7 +144,7 @@ class WikiApiExtractor(DataExtractor):
             async with aiofiles.open(file_name, 'r') as jfile:
                     json_file_string = await jfile.read()
             movie_json = json.loads(json_file_string)
-            query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type']] # , movie_json['Director']
+            query_info = [movie_json[TITLE], movie_json['Year'], movie_json['Type']] # , movie_json['Director']
             return query_info
 
         else:
@@ -181,7 +181,7 @@ class WikiApiExtractor(DataExtractor):
                         query_properties = query_properties[:-1]
                     else:
                         best_match = response_json["query"]["search"][0]  # the first one is the best match
-                        return best_match["pageid"], best_match["title"]
+                        return best_match["pageid"], best_match[TITLE]
 
         raise ExceptedExtractorFail()
 
