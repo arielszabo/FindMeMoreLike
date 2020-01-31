@@ -17,6 +17,9 @@ def load_saved_data():
 
     for full_imdb_file_path in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
         imdb_data = utils.open_json(full_imdb_file_path)
+        if imdb_data["Plot"].lower().strip() == "n/a":  # filter out movies with empty plots
+            continue
+
         imdb_data[INSERTION_TIME] = datetime.fromtimestamp(full_imdb_file_path.stat().st_mtime)
 
 

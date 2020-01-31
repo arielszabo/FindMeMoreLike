@@ -96,14 +96,3 @@ def create_title_and_id_mapping():
     # create_title_and_id_mapping_path = pathlib.Path(root_path, "webapp", "static", "title_and_id_mapping__old.json")
     with title_and_id_mapping_path.open("w") as title_and_id_mapping_file:
         json.dump(title_and_id, title_and_id_mapping_file)
-
-
-def get_file_paths_with_empty_plot_data():
-    empty_plot_file_paths = []
-    for raw_imdb_file_path in RAW_IMDB_DATA_PATH.glob("*/*.json"):
-        with raw_imdb_file_path.open() as raw_imdb_file:
-            raw_imdb_file_content = json.load(raw_imdb_file)
-            if raw_imdb_file_content["Plot"].lower().strip() == "n/a":
-                empty_plot_file_paths.append(raw_imdb_file_path)
-
-    return empty_plot_file_paths
