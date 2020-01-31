@@ -78,16 +78,32 @@ def _get_all_existing_imdb_ids():
     return existing_ids
 
 
+def create_title_and_id_mapping():
+    title_and_id = []
+    for similar_list_file_path in SIMILAR_LIST_SAVING_PATH.rglob("*/*.json"):
+        imdb_id = similar_list_file_path.stem
+        imdb_id_prefix = get_imdb_id_prefix_folder_name(imdb_id)
+        raw_imdb_file_path = RAW_IMDB_DATA_PATH.joinpath(imdb_id_prefix, similar_list_file_path.name)
+        with raw_imdb_file_path.open() as raw_imdb_file:
+            raw_imdb_file_content = json.load(raw_imdb_file)
 
-if __name__ == "__main__":
-    all_imdb_ids = _get_all_existing_imdb_ids()
-    sorted_all_imdb_ids = sorted(all_imdb_ids)
-    print(len(sorted_all_imdb_ids))
-    prefix_indexes = []
-    for chunk in generate_list_chunks(sorted_all_imdb_ids, chunk_size=1_000):
-        start_idx = chunk[0]
-        end_idx = chunk[-1]
-        prefix_indexes.append((start_idx, end_idx))
+        title_and_id.append({
+            TITLE: raw_imdb_file_content[TITLE],
+            IMDB_ID: imdb_id
+        })
 
-    print(prefix_indexes)
-    print(len(prefix_indexes))
+    title_and_id_mapping_path = pathlib.Path(root_path, "webapp", "static", "title_and_id_mapping.json")
+    # create_title_and_id_mapping_path = pathlib.Path(root_path, "webapp", "static", "title_and_id_mapping__old.json")
+    with title_and_id_mapping_path.open("w") as title_and_id_mapping_file:
+        json.dump(title_and_id, title_and_id_mapping_file)
+
+
+def get_file_paths_with_empty_plot_data():
+    empty_plot_file_paths = []
+    for raw_imdb_file_path in RAW_IMDB_DATA_PATH.glob("*/*.json"):
+        with raw_imdb_file_path.open() as raw_imdb_file:
+            raw_imdb_file_content = json.load(raw_imdb_file)
+            if raw_imdb_file_content["Plot"].lower().strip() == "n/a":
+                empty_plot_file_paths.append(raw_imdb_file_path)
+
+    return empty_plot_file_paths
