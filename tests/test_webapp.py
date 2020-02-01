@@ -19,13 +19,13 @@ class TestWeb(object):
         #print(rv.data)
         assert b'<title>FindMeMoreLike_HomePage</title>' in rv.data
 
-    def test_login(self):
-        rv = self.app.get('/login')
-        assert rv.status == '302 FOUND'
-        print(rv.data)
-        print(rv.headers)
-        assert rv.headers['Location'] == 'https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=blabla&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Fcallback&scope=openid+email+profile'
-        #assert b'<title>FindMeMoreLike_HomePage</title>' in rv.data
+    # def test_login(self):
+    #     rv = self.app.get('/login')
+    #     assert rv.status == '302 FOUND'
+    #     print(rv.data)
+    #     print(rv.headers)
+    #     assert rv.headers['Location'] == 'https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=blabla&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Fcallback&scope=openid+email+profile'
+    #     #assert b'<title>FindMeMoreLike_HomePage</title>' in rv.data
 
     def test_search(self):
         rv = self.app.get('/search')
