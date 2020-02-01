@@ -1,5 +1,15 @@
 #!/bin/bash
 
+zip_folder_containing_folders_and_save () {
+    mkdir ${1}_zip
+    cd $1
+    for i in */; do tar -zcvf "../${1}_zip/${i%/}.tar.gz" "$i"; done
+    cd ..
+
+    # save results in bucket
+    gsutil -m cp -r "${1}_zip" gs://ariel-szabo/find-me-more-like/$zip_folder/
+}
+
 #embedding_file=enwiki_dbow
 #
 #gsutil -m cp "gs://ariel-szabo/find-me-more-like/${embedding_file}.tar.gz" .
@@ -24,6 +34,9 @@ zip_folder=raw_data_zip_files
 #    done
 #done
 
+#raw_imdb_data_folder_size=$(du -s raw_imdb_data)
+#raw_wiki_data_folder_size=$(du -s raw_wiki_data)
+
 
 # activate venv
 source ~/venv3/bin/activate
@@ -41,19 +54,12 @@ gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
 
 
 
-for folder_name in raw_imdb_data raw_wiki_data similar_list_data
-do
-    mkdir ${folder_name}_zip
-    cd $folder_name
-    for i in */; do tar -zcvf "../${folder_name}_zip/${i%/}.tar.gz" "$i"; done
-    cd ..
-
-    # save results in bucket
-    gsutil -m cp -r "${folder_name}_zip" gs://ariel-szabo/find-me-more-like/$zip_folder/
-done
+zip_folder_containing_folders_and_save similar_list_data
+#zip_folder_containing_folders_and_save raw_imdb_data
+#zip_folder_containing_folders_and_save raw_wiki_data
 
 
 
 # stop instance
 VM_NAME=instance-2
-gcloud compute instances stop $VM_NAME --zone us-central1-a -q
+gcloud compute instances stop $VM_NAME -q
