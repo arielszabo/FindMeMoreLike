@@ -12,17 +12,17 @@ zip_folder=raw_data_zip_files
 #gsutil -m cp -r gs://ariel-szabo/find-me-more-like/$zip_folder .
 
 
-# unzip
-for folder_name in raw_imdb_data raw_wiki_data
-do
-    mkdir $folder_name
-    for zipped_file in "$zip_folder/$folder_name"_zip/*
-    do
-        zipped_file_with_tar_suffix="${zipped_file%.*}"
-        gunzip "$zipped_file_with_tar_suffix.gz"
-        tar -xf "$zipped_file_with_tar_suffix" -C "$folder_name/"
-    done
-done
+## unzip
+#for folder_name in raw_imdb_data raw_wiki_data
+#do
+#    mkdir $folder_name
+#    for zipped_file in "$zip_folder/$folder_name"_zip/*
+#    do
+#        zipped_file_with_tar_suffix="${zipped_file%.*}"
+#        gunzip "$zipped_file_with_tar_suffix.gz"
+#        tar -xf "$zipped_file_with_tar_suffix" -C "$folder_name/"
+#    done
+#done
 
 
 # activate venv
