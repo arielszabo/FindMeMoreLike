@@ -45,8 +45,7 @@ source ~/venv3/bin/activate
 pip install -r requirements.txt
 
 # run python code
-python main_algorithm_run.py
-# > find_me_more_like_logs/stdout.txt 2> find_me_more_like_logs/stderror.txt
+python main_algorithm_run.py > find_me_more_like_logs/stdout.txt 2> find_me_more_like_logs/stderror.txt
 
 
 # save logs in bucket
@@ -62,4 +61,4 @@ zip_folder_containing_folders_and_save similar_list_data
 
 # stop instance
 VM_NAME=instance-2
-gcloud compute instances stop $VM_NAME -q
+gcloud compute instances stop $VM_NAME --zone us-east1-b -q
