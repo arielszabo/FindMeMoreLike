@@ -78,48 +78,54 @@ body {
 /* todo: do we need this ? and why */
 .main_search form {
   width: 100%;
-  max-width: 800px;
+  max-width: 50%;
   margin-bottom: 0;
 
 }
 
 .main_search form .inner-form {
-  background: #fff;
-  display: -ms-flexbox;
-  display: flex;
-  width: 100%;
-  -ms-flex-pack: justify;
-      justify-content: space-between;
-  -ms-flex-align: center;
-      align-items: center;
-  box-shadow: 0px 0px 10px -3px black;
+    background: #fff;
+    /*display: -ms-flexbox;*/
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /*-ms-flex-pack: justify;*/
+    /*    justify-content: space-between;*/
+    /*-ms-flex-align: center;*/
+    /*    align-items: center;*/
+    box-shadow: 0px 0px 10px -3px black;
 
 }
 
 .main_search form .inner-form .input-field {
-  height: 50px;
-  border: 1px solid #2b2b2b
+    height: 50%;
+    width: 100%;
+    border: 1px solid #2b2b2b
 }
 
 .main_search form .inner-form .input-field input {
-  height: 100%;
-  background: transparent;
-  border: 0;
-  display: block;
-  width: 100%;
-  font-size: 16px;
-  color: #555555;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    display: inline-block;
+      /*display: inline-flex;*/
+    font-size: 16px;
+    color: #555555;
 }
-
+.main_search form .inner-form .input-field input:focus {outline: none;}
 .main_search form .inner-form .input-field.search_text_section {
-  -ms-flex-positive: 1;
+/*  !*-ms-flex-positive: 1;*!*/
       flex-grow: 1;
 }
 
 
-.main_search form .inner-form .input-field.search_btn_section {
-  width: 100px;
-}
+/*.main_search form .inner-form .input-field.search_btn_section {*/
+/*  width: 100px;*/
+/*}*/
 
 
 .main_search form .inner-form .input-field.search_btn_section .btn-search {
