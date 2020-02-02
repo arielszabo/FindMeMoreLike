@@ -11,6 +11,7 @@ from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_T
 from datetime import datetime
 import multiprocessing
 
+from find_more_like_algorithm.utils import get_imdb_id_prefix_folder_name, open_json
 
 
 def create_vectors(df):
@@ -18,17 +19,27 @@ def create_vectors(df):
         {
             'name': 'text_vectors',
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': FULL_TEXT}
+            'params': {
+                'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'],
+                'text_column_name': FULL_TEXT
+            },
+            'cache': True
         },
         {
             'name': 'title_vectors',
             'callable': text_vectors.get_text_vectors,
-            'params': {'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'], 'text_column_name': 'title'}
+            'params': {
+                'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'],
+                'text_column_name': 'title'
+            },
+            'cache': True
         },
         {
             'name': 'genre_vectors',
             'callable': _extract_from_comma_separated_strings,
-            'params': {'column_name': 'genre'}
+            'params': {
+                'column_name': 'genre'
+            }
         },
         # 'rated_vectors': {
         #     'callable': _rated_vectors,
@@ -50,24 +61,59 @@ def create_vectors(df):
 
 
 def apply_vectorization(df, vectorization):
-    cache_file_path = pathlib.Path(root_path, PROJECT_CONFIG['vectors_cache_path'], f"{vectorization['name']}.pickle")
-    if cache_file_path.exists():
-    # TODO use this on server ->
-    #     logging.info(f"Load cached '{vectorization_method}'")
-    #     vectors = pd.read_pickle(cache_file_path)
-    #     return vectors
-    # TODO use this on server <-
-        cache_file_modified_time = datetime.fromtimestamp(cache_file_path.stat().st_mtime)
-        if cache_file_modified_time >= df[INSERTION_TIME].max():
-            logging.info(f"Load cached {vectorization['name']} vectors")
-            vectors = pd.read_pickle(str(cache_file_path))
-            return vectors
+    if vectorization['cache']:
+        df_to_vectorize, cached_vectors = _load_cached_data(df, vectorization)
 
-    logging.info(f"Starting to create {vectorization['name']} vectors")
+        if df_to_vectorize.empty:
+            return cached_vectors
+        else:
+            vectors = _apply_vectorization(df_to_vectorize, vectorization)
+
+            vectors_with_cache = pd.concat([cached_vectors, vectors])
+            return vectors_with_cache.loc[df.index]
+    else:
+        vectors = _apply_vectorization(df, vectorization)
+        return vectors
+
+
+def _apply_vectorization(df, vectorization):
+    logging.info(f"Starting to create {vectorization['name']} vectors on {df.shape} rows")
     vectors = vectorization['callable'](df, **vectorization['params'])
     vectors.columns = [f"{vectorization['name']}__{col}" for col in vectors.columns]
-    vectors.to_pickle(cache_file_path)
+    if vectorization['cache']:
+        _save_cached_data(vectors, vectorization)
     return vectors
+
+
+def _get_cache_file_path(imdb_id, vectorization_name):
+    prefix = get_imdb_id_prefix_folder_name(imdb_id)
+    # TODO use VECTORS_CACHE_PATH
+    cache_file_path = pathlib.Path(root_path, PROJECT_CONFIG['vectors_cache_path'], prefix, f"{imdb_id}__{vectorization_name}.json")
+    return cache_file_path
+
+
+def _load_cached_data(df, vectorization):
+    cached_results = []
+    existing_cached_imdb_ids = []
+    for imdb_id in df.index.tolist():
+        cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
+        if cache_file_path.exists():  # TODO use time
+            imdb_id_cached_results = open_json(cache_file_path)
+            cached_results.append(imdb_id_cached_results)
+            existing_cached_imdb_ids.append(imdb_id)
+
+    cached_vectors = pd.DataFrame(cached_results, index=existing_cached_imdb_ids)
+
+    df_to_vectorize = df[~df.index.isin(existing_cached_imdb_ids)]
+
+    return df_to_vectorize, cached_vectors
+
+
+def _save_cached_data(df, vectorization):
+    for imdb_id in df.index.tolist():
+        cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
+        cache_file_path.parent.mkdir(exist_ok=True, parents=True)
+        df.loc[imdb_id].to_json(cache_file_path)
 
 
 def _rated_vectors(df, rated_column_name):
