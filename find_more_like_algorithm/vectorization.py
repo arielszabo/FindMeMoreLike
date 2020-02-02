@@ -20,7 +20,6 @@ def create_vectors(df):
             'name': 'text_vectors',
             'callable': text_vectors.get_text_vectors,
             'params': {
-                'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'],
                 'text_column_name': FULL_TEXT
             },
             'cache': True
@@ -29,7 +28,6 @@ def create_vectors(df):
             'name': 'title_vectors',
             'callable': text_vectors.get_text_vectors,
             'params': {
-                'doc2vec_model_path': PROJECT_CONFIG['doc2vec_model_path'],
                 'text_column_name': 'title'
             },
             'cache': True

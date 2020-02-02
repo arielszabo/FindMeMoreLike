@@ -1,4 +1,8 @@
 import nltk
+import pandas as pd
+
+from find_more_like_algorithm.utils import generate_list_chunks
+
 nltk.download('stopwords')
 nltk.download('punkt')
 from nltk.stem.porter import PorterStemmer
@@ -7,21 +11,35 @@ import string
 import re
 import numpy as np
 from gensim.models import Doc2Vec
-from find_more_like_algorithm.constants import RANDOM_SEED
+from find_more_like_algorithm.constants import RANDOM_SEED, DOC2VEC_MODEL_PATH
 from tqdm import tqdm
 np.random.seed(RANDOM_SEED)
+import multiprocessing
 
 
-def get_text_vectors(df, text_column_name, doc2vec_model_path):
-    doc2vec = Doc2Vec.load(doc2vec_model_path)
+def get_text_vectors(df, text_column_name):
+    batch_df_index_lists = list(generate_list_chunks(df.index.tolist(), chunk_size=1_000))
+    text_series_batches = (df.loc[batch_index_list, text_column_name] for batch_index_list in batch_df_index_lists)
 
-    tqdm.pandas(desc=f"extract doc2vec features for {text_column_name}")
-    vectors_df = df.progress_apply(infer_doc2vec_vector,
-                                   axis=1,
-                                   text_column_name=text_column_name,
-                                   doc2vec_model=doc2vec,
-                                   result_type='expand')  # progress_apply is apply with tqdm progress bar
+    with multiprocessing.Pool() as pool:
+        results = tqdm(pool.imap(get_text_vectors_on_batch_text_series, iterable=text_series_batches),
+                       total=len(batch_df_index_lists))
+        vectors_df_list = list(results)
+
+    vectors_df = pd.concat(vectors_df_list)
+    assert sorted(vectors_df.index) != sorted(df.index)
+    vectors_df = vectors_df.loc[df.index]
+    return vectors_df
+
+
+def get_text_vectors_on_batch_text_series(batch_text_series):
+    doc2vec = Doc2Vec.load(DOC2VEC_MODEL_PATH)
+    vectors_df = batch_text_series.apply(infer_doc2vec_vector,
+                                         axis=1,
+                                         doc2vec_model=doc2vec,
+                                         result_type='expand')
     vectors_df.columns = ['doc2vec__{}'.format(col) for col in vectors_df.columns]
+
     return vectors_df
 
 
@@ -48,8 +66,7 @@ def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remo
     return tokenize_words
 
 
-def infer_doc2vec_vector(row, text_column_name, doc2vec_model):
-    text = row[text_column_name]
+def infer_doc2vec_vector(text, doc2vec_model):
     clean_token_text = token_text(full_text=text,
                                   remove_stop_words=False, # todo: maybe it's better if this would be False
                                   remove_punctuations=True,

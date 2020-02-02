@@ -25,6 +25,7 @@ RAW_IMDB_DATA_PATH = root_path.joinpath(PROJECT_CONFIG["api_data_saving_path"]["
 RAW_WIKI_DATA_PATH = root_path.joinpath(PROJECT_CONFIG["api_data_saving_path"]["wiki"])
 SIMILAR_LIST_SAVING_PATH = root_path.joinpath(PROJECT_CONFIG['similar_list_saving_path'])
 VECTORS_CACHE_PATH = root_path.joinpath(PROJECT_CONFIG['vectors_cache_path'])
+DOC2VEC_MODEL_PATH = root_path.joinpath(PROJECT_CONFIG['doc2vec_model_path'])
 
 SAVING_MOVIES_LIMIT = 150  # TODO change this
 
