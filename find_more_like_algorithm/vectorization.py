@@ -7,7 +7,7 @@ import pandas as pd
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from find_more_like_algorithm import text_vectors
-from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG
+from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG, VECTORS_CACHE_PATH
 from datetime import datetime
 import multiprocessing
 
@@ -87,7 +87,7 @@ def _apply_vectorization(df, vectorization):
 def _get_cache_file_path(imdb_id, vectorization_name):
     prefix = get_imdb_id_prefix_folder_name(imdb_id)
     # TODO use VECTORS_CACHE_PATH
-    cache_file_path = pathlib.Path(root_path, PROJECT_CONFIG['vectors_cache_path'], prefix, f"{imdb_id}__{vectorization_name}.json")
+    cache_file_path = pathlib.Path(VECTORS_CACHE_PATH, prefix, f"{imdb_id}__{vectorization_name}.json")
     return cache_file_path
 
 
