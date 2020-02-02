@@ -45,7 +45,6 @@ body {
 .bg_image {
     position: absolute;
     background: url("/static/imgs/film-background-13340679666UC.jpg") top center;
-    opacity: 0.25;
     z-index:-1;
     opacity: 0.1;
     width: 100%;
@@ -78,48 +77,54 @@ body {
 /* todo: do we need this ? and why */
 .main_search form {
   width: 100%;
-  max-width: 800px;
+  max-width: 50%;
   margin-bottom: 0;
 
 }
 
 .main_search form .inner-form {
-  background: #fff;
-  display: -ms-flexbox;
-  display: flex;
-  width: 100%;
-  -ms-flex-pack: justify;
-      justify-content: space-between;
-  -ms-flex-align: center;
-      align-items: center;
-  box-shadow: 0px 0px 10px -3px black;
+    background: #fff;
+    /*display: -ms-flexbox;*/
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /*-ms-flex-pack: justify;*/
+    /*    justify-content: space-between;*/
+    /*-ms-flex-align: center;*/
+    /*    align-items: center;*/
+    box-shadow: 0px 0px 10px -3px black;
 
 }
 
 .main_search form .inner-form .input-field {
-  height: 50px;
-  border: 1px solid #2b2b2b
+    height: 50%;
+    width: 100%;
+    border: 1px solid #2b2b2b
 }
 
 .main_search form .inner-form .input-field input {
-  height: 100%;
-  background: transparent;
-  border: 0;
-  display: block;
-  width: 100%;
-  font-size: 16px;
-  color: #555555;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    border: 0;
+    display: inline-block;
+      /*display: inline-flex;*/
+    font-size: 16px;
+    color: #555555;
 }
-
+.main_search form .inner-form .input-field input:focus {outline: none;}
 .main_search form .inner-form .input-field.search_text_section {
-  -ms-flex-positive: 1;
+/*  !*-ms-flex-positive: 1;*!*/
       flex-grow: 1;
 }
 
 
-.main_search form .inner-form .input-field.search_btn_section {
-  width: 100px;
-}
+/*.main_search form .inner-form .input-field.search_btn_section {*/
+/*  width: 100px;*/
+/*}*/
 
 
 .main_search form .inner-form .input-field.search_btn_section .btn-search {
@@ -150,7 +155,7 @@ body {
     height: auto;
 }
 
-.widget .panel-body { padding:0px; }
+.widget .panel-body { padding: 0;}
 .widget li.list-group-item:hover { background-color: #F7F6E5; }
 .widget .mic-info { color: #666666; font-size: 12px; } /*todo: change this size*/
 .widget .comment-text { font-size: 14px; } /*todo: change this size*/
@@ -158,7 +163,7 @@ body {
 
 .prev_next_btns { background-color: #D69A19; }
 
-.btn-custom { background-color: #F5C518;   border: 1px solid #2b2b2b; }
+.btn-custom { background-color: #F5C518;   border: 1px solid #2b2b2b; white-space: normal; word-wrap: break-word; }
 
 footer {
   position: fixed;

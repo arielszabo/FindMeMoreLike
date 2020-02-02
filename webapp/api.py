@@ -6,48 +6,32 @@ import os
 import math
 import requests
 import re
-
 from find_more_like_algorithm import utils
-# Internal imports todo: change
-from webapp.db_handler import DB, SeenTitles, Users, MissingTitles
+from find_more_like_algorithm.constants import IMDB_ID, TITLE, RAW_IMDB_DATA_PATH, PLOT, root_path, KEYS_CONFIG, \
+    PROJECT_CONFIG
+from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
-
-
-
 
 VERSION_NUMBER = "0.0.1"
 ONE_PAGE_SUGGESTIONS_AMOUNT = 10
 
-root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-config_file_path = os.environ.get("FIND_MORE_LIKE_CONFIG", os.path.join(root, 'project_config.yaml'))
-
-project_config = utils.open_yaml(config_file_path)
-keys_config = utils.open_yaml(os.path.join(root, project_config["keys_config_path"]))
-
-
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", keys_config["google_client_id"])
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", keys_config["google_client_secret"])
-GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google.com/.well-known/openid-configuration"
-)
-
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", KEYS_CONFIG["google_client_id"])
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", KEYS_CONFIG["google_client_secret"])
+GOOGLE_DISCOVERY_URL = ("https://accounts.google.com/.well-known/openid-configuration")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
-
-# User session management setup
-# https://flask-login.readthedocs.io/en/latest
+# User session management setup - https://flask-login.readthedocs.io/en/latest
 login_manager = LoginManager()
 login_manager.init_app(app)
-
 
 # create db and tables
 DB().create_tables()
 
-
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
 
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
@@ -120,7 +104,6 @@ def callback():
     else:
         return "User email not available or not verified by Google.", 400
 
-
     # Create a user in your db with the information provided by Google
     user = User(
         google_id=unique_id, name=users_name, email=users_email, profile_pic=picture
@@ -154,46 +137,55 @@ def search_redirect():
     return redirect(f'/search/{query}/{hide_seen_titles}/{page_index}')
 
 
-@app.route('/search/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
-def search(imdb_id, hide_seen_titles, page_index):
+@app.route('/get_search_results/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
+def get_search_results(imdb_id, hide_seen_titles, page_index):
     prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
-    file_path = os.path.join(root, project_config["similar_list_saving_path"], prefix, f'{imdb_id}.json')
+    file_path = os.path.join(root_path, PROJECT_CONFIG["similar_list_saving_path"], prefix, f'{imdb_id}.json')
     similarity_list = utils.open_json(file_path)
     title = load_presentation_data(imdb_id)["Title"]
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
     if page_index > max_page_number:
         abort(404, description="Resource not found")
 
-    start_index = ONE_PAGE_SUGGESTIONS_AMOUNT*page_index
+    start_index = ONE_PAGE_SUGGESTIONS_AMOUNT * page_index
     sliced_similarity_list = similarity_list[start_index:]
 
     user_seen_imdb_ids = get_user_seen_imdb_ids()
 
     results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_ids)
-    results_imdb_ids = [result["imdbID"] for result in results]
+    results_imdb_ids = [result[IMDB_ID] for result in results]
     page_user_seen_titles_amount = len(user_seen_imdb_ids.intersection(results_imdb_ids))
+    data = {
+        "similarity_results": results,
+        "request_title": title,
+        "search_request": imdb_id,  # todo: rename
+        "current_page_index": page_index,
+        "max_page_number": max_page_number,
+        "hide_seen_titles": hide_seen_titles,
+        "page_user_seen_titles_amount": page_user_seen_titles_amount
+    }
+    return jsonify(data)
 
 
+@app.route('/search/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
+def search(imdb_id, hide_seen_titles, page_index):
+    search_results_response = get_search_results(imdb_id, hide_seen_titles, page_index)
+    search_results = json.loads(search_results_response.data)
     return render_template('search_results.html',
-                           similarity_results=results,
-                           request_title=title,
-                           search_request=imdb_id,  #todo: rename
-                           current_page_index=page_index,
-                           max_page_number=max_page_number,
-                           hide_seen_titles=hide_seen_titles,
-                           page_user_seen_titles_amount=page_user_seen_titles_amount,
+                           **search_results,
                            version_number=VERSION_NUMBER)
 
 
 def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_list, user_seen_imdb_id):
     results = []
     for similar_movie in sliced_similarity_list:
-        if similar_movie['imdbID'] == requested_imdbid:
+        imdb_id, _ = similar_movie
+        if imdb_id == requested_imdbid:
             continue
 
-        imdb_id_presentation_data = load_presentation_data(similar_movie['imdbID'])
+        imdb_id_presentation_data = load_presentation_data(imdb_id)
 
-        if imdb_id_presentation_data["imdbID"] in user_seen_imdb_id:
+        if imdb_id_presentation_data[IMDB_ID] in user_seen_imdb_id:
             imdb_id_presentation_data["user_seen"] = True
             if hide_seen_titles.lower() == 'on':
                 continue
@@ -208,13 +200,13 @@ def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_lis
 
 def load_presentation_data(imdb_id):
     imdb_id_folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
-    file_path = os.path.join(root, project_config["api_data_saving_path"]["imdb"], imdb_id_folder_prefix, f'{imdb_id}.json')
+    file_path = os.path.join(RAW_IMDB_DATA_PATH, imdb_id_folder_prefix, f'{imdb_id}.json')
     if os.path.exists(file_path):
         imdb_data = utils.open_json(file_path)
         return {
-            'Title': imdb_data['Title'],
+            TITLE: imdb_data[TITLE],
             'Director': imdb_data['Director'],
-            'Plot': imdb_data['Plot'],
+            PLOT: imdb_data[PLOT],
             'Year': imdb_data['Year'],
             'Poster': imdb_data['Poster'],
             'imdbID': imdb_data['imdbID'],
@@ -222,7 +214,7 @@ def load_presentation_data(imdb_id):
         }
 
     else:
-        raise FileNotFoundError(f'.... {file_path} ... ') #todo: is this how you should do it ?
+        raise FileNotFoundError(f'.... {file_path} ... ')  # todo: is this how you should do it ?
 
 
 def get_user_seen_imdb_ids():
@@ -248,7 +240,6 @@ def save_seen_checkbox():
     checkbox_status = request.form.get("status")
     checkbox_status = checkbox_status.lower() == 'true'  # todo: this value return stings
 
-
     if current_user.is_authenticated:
         user_id = current_user.get_id()
         with DB() as db:
@@ -268,16 +259,15 @@ def save_seen_checkbox():
 
             db.session.commit()
 
-
     return jsonify({"ok": 1})
 
 
 @app.errorhandler(404)
 def not_found(e):
     return render_template('404.html',
-                       h1='404',
-                       title='Four Oh Four',
-                       ), 404
+                           h1='404',
+                           title='Four Oh Four',
+                           ), 404
 
 
 @app.route('/privacy')
@@ -297,7 +287,7 @@ def save_missing_titles():
             db.session.add(missing_title)
             db.session.commit()
 
-    return jsonify({"missing_link": link_to_imdb}) # todo: return warning if bad input / return success and failure
+    return jsonify({"missing_link": link_to_imdb})  # todo: return warning if bad input / return success and failure
 
 
 if __name__ == "__main__":

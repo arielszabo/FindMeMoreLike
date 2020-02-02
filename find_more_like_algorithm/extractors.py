@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import math
-from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE
+from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE, TITLE, KEYS_CONFIG
 from find_more_like_algorithm import utils
 import asyncio
 import aiofiles
@@ -101,16 +101,7 @@ class IMDBApiExtractor(DataExtractor):
     def __init__(self, *args, **kwargs):
         self.extractor_type = 'imdb'
         super().__init__(*args, **kwargs)
-        self.user_api_key = self._get_user_api_key()
-
-
-    def _get_user_api_key(self):
-        if not os.path.exists(self.project_config['keys_config_path']):
-            assert FileNotFoundError(f"Save you OMDb api key in the file {self.project_config['keys_config_path']}."
-                                     f" Please read the README file for more info")
-        with open(self.project_config['keys_config_path'], 'r') as f:
-            user_api_key = yaml.load(f)["omdb_user_key"]
-        return user_api_key
+        self.user_api_key = KEYS_CONFIG["omdb_user_key"]
 
     async def _extract_a_single_id(self, movie_id):
         url = f'https://omdbapi.com/?i={movie_id}&apikey={self.user_api_key}&?plot=full'
@@ -144,7 +135,7 @@ class WikiApiExtractor(DataExtractor):
             async with aiofiles.open(file_name, 'r') as jfile:
                     json_file_string = await jfile.read()
             movie_json = json.loads(json_file_string)
-            query_info = [movie_json['Title'], movie_json['Year'], movie_json['Type']] # , movie_json['Director']
+            query_info = [movie_json[TITLE], movie_json['Year'], movie_json['Type']] # , movie_json['Director']
             return query_info
 
         else:
@@ -181,7 +172,7 @@ class WikiApiExtractor(DataExtractor):
                         query_properties = query_properties[:-1]
                     else:
                         best_match = response_json["query"]["search"][0]  # the first one is the best match
-                        return best_match["pageid"], best_match["title"]
+                        return best_match["pageid"], best_match[TITLE]
 
         raise ExceptedExtractorFail()
 

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from find_more_like_algorithm import extractors, vectorization, utils, load_and_clean, similarity
 from find_more_like_algorithm.constants import LOGFILE_BASE_PATH, PROJECT_CONFIG, RUN_SIGNATURE
-
+from find_more_like_algorithm.utils import create_title_and_id_mapping
 
 os.makedirs(LOGFILE_BASE_PATH, exist_ok=True)
 
@@ -40,3 +40,6 @@ if __name__ == '__main__':
     similarity_df = similarity.calculate(vectors_df, batch=True, save=True)
     logging.info("similarity_df created")
     logging.info("Done saving")
+
+    # For the webapp
+    create_title_and_id_mapping()

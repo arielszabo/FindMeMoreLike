@@ -2,7 +2,7 @@ $().ready(function() {
     var options = {
         url: "static/title_and_id_mapping.json",
 
-        getValue: "title",
+        getValue: "Title",
 
         list: {
             match: {
@@ -10,7 +10,7 @@ $().ready(function() {
             },
             maxNumberOfElements: 10,
             onSelectItemEvent: function() {
-                var value = $("#provider-json").getSelectedItemData().imdbid;
+                var value = $("#provider-json").getSelectedItemData().imdbID;
 
                 $("#data-holder").val(value).trigger("change");
             },
