@@ -17,7 +17,12 @@ PLOT = "Plot"
 LOGFILE_BASE_PATH = "find_me_more_like_logs"
 RUN_SIGNATURE = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
 
-with root_path.joinpath("project_config.yaml").open() as project_config_yaml_file:
+if "PYTEST_CURRENT_TEST" in os.environ or 'TRAVIS' in os.environ:
+    PROJECT_CONFIG_FILE_PATH = root_path.joinpath("tests", "testing_config.yaml")
+else:
+    PROJECT_CONFIG_FILE_PATH = root_path.joinpath("project_config.yaml")
+
+with PROJECT_CONFIG_FILE_PATH.open() as project_config_yaml_file:
     PROJECT_CONFIG = yaml.load(project_config_yaml_file)
 PROJECT_CONFIG[RUN_SIGNATURE_STRING] = RUN_SIGNATURE
 
