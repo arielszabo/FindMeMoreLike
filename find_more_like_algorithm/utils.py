@@ -1,5 +1,6 @@
 import asyncio
 import gc
+import math
 import pathlib
 
 import aiofiles
@@ -49,12 +50,20 @@ def get_ids_from_web_page(html_url):
     return ids
 
 
-def generate_list_chunks(list_, chunk_size):
+def generate_list_chunks(list_, chunk_size=None, chunks_amount=None):
+    if chunk_size is None and chunks_amount is None:
+        raise ValueError("both chunk_size and chunks_amount can't be None at the same time, please pass one of them")
+    if chunk_size is not None and chunks_amount is not None:
+        raise ValueError("both chunk_size and chunks_amount were passed at the same time, please pass only one of them")
+
+    if chunks_amount is not None:
+        chunk_size = math.ceil(len(list_) / chunks_amount)
+
     i = 0
     while True:
         start_index = i * chunk_size
         end_index = (i + 1) * chunk_size
-        list_part = list_[start_index : end_index]
+        list_part = list_[start_index: end_index]
         i += 1
         yield list_part
         if end_index >= len(list_):
