@@ -11,8 +11,3 @@ vectors_cache_path: 'vectors_cache'
 similar_list_saving_path: 'similar_list_data'
 
 doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
-
-vectorization:
-  - text_vectors
-  - title_vectors
-  - genre_vectors

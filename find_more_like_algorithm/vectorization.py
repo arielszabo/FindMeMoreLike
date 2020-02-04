@@ -46,14 +46,12 @@ def create_vectors(df):
         # }
     ]
 
-    vectors_cache_path = pathlib.Path(root_path, PROJECT_CONFIG['vectors_cache_path'])
-    vectors_cache_path.mkdir(parents=True, exist_ok=True)
+    VECTORS_CACHE_PATH.mkdir(parents=True, exist_ok=True)
 
     all_vectors = []
     for vectorization in vectorizations_config:
-        if vectorization["name"] in PROJECT_CONFIG['vectorization']:
-            result = apply_vectorization(df, vectorization)
-            all_vectors.append(result)
+        result = apply_vectorization(df, vectorization)
+        all_vectors.append(result)
 
     return pd.concat(all_vectors, axis=1, sort=False)
 
