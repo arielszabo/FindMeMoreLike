@@ -7,11 +7,11 @@ import pandas as pd
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from find_more_like_algorithm import text_vectors
-from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG, VECTORS_CACHE_PATH
-from datetime import datetime
-import multiprocessing
+from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG, VECTORS_CACHE_PATH, \
+    TITLE
 
-from find_more_like_algorithm.utils import get_imdb_id_prefix_folder_name, open_json
+from find_more_like_algorithm.utils import get_imdb_id_prefix_folder_name, open_json, \
+    get_method_file_last_modified_time, get_file_path_last_modified_time
 
 
 def create_vectors(df):
@@ -28,7 +28,7 @@ def create_vectors(df):
             'name': 'title_vectors',
             'callable': text_vectors.get_text_vectors,
             'params': {
-                'text_column_name': 'title'
+                'text_column_name': TITLE
             },
             'cache': True
         },
@@ -36,12 +36,13 @@ def create_vectors(df):
             'name': 'genre_vectors',
             'callable': _extract_from_comma_separated_strings,
             'params': {
-                'column_name': 'genre'
-            }
+                'column_name': 'Genre'
+            },
+            'cache': False
         },
         # 'rated_vectors': {
         #     'callable': _rated_vectors,
-        #     'params': {'rated_col_name': 'rated'}
+        #     'params': {'rated_col_name': 'Rated'}
         # }
     ]
 
@@ -62,8 +63,10 @@ def apply_vectorization(df, vectorization):
         df_to_vectorize, cached_vectors = _load_cached_data(df, vectorization)
 
         if df_to_vectorize.empty:
+            logging.info(f"All {cached_vectors.shape[0]} {vectorization['name']} vectors were found in cache")
             return cached_vectors
         else:
+            logging.info(f"only {cached_vectors.shape[0]} {vectorization['name']} vectors were found in cache")
             vectors = _apply_vectorization(df_to_vectorize, vectorization)
 
             vectors_with_cache = pd.concat([cached_vectors, vectors])
@@ -74,7 +77,7 @@ def apply_vectorization(df, vectorization):
 
 
 def _apply_vectorization(df, vectorization):
-    logging.info(f"Starting to create {vectorization['name']} vectors on {df.shape} rows")
+    logging.info(f"Starting to create {vectorization['name']} vectors on {df.shape[0]} rows")
     vectors = vectorization['callable'](df, **vectorization['params'])
     vectors.columns = [f"{vectorization['name']}__{col}" for col in vectors.columns]
     if vectorization['cache']:
@@ -94,7 +97,9 @@ def _load_cached_data(df, vectorization):
     existing_cached_imdb_ids = []
     for imdb_id in df.index.tolist():
         cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
-        if cache_file_path.exists():  # TODO use time
+        method_file_last_modified_time = get_method_file_last_modified_time(vectorization["callable"])
+        cache_file_file_last_modified_time = get_file_path_last_modified_time(cache_file_path)
+        if cache_file_path.exists() and cache_file_file_last_modified_time >= method_file_last_modified_time:  # TODO cache function
             imdb_id_cached_results = open_json(cache_file_path)
             cached_results.append(imdb_id_cached_results)
             existing_cached_imdb_ids.append(imdb_id)

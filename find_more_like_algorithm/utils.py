@@ -2,6 +2,8 @@ import asyncio
 import gc
 import math
 import pathlib
+from datetime import datetime
+from importlib import import_module
 
 import aiofiles
 import requests
@@ -105,3 +107,21 @@ def create_title_and_id_mapping():
     # create_title_and_id_mapping_path = pathlib.Path(root_path, "webapp", "static", "title_and_id_mapping__old.json")
     with title_and_id_mapping_path.open("w") as title_and_id_mapping_file:
         json.dump(title_and_id, title_and_id_mapping_file)
+
+
+def get_method_file_last_modified_time(method_object):
+    # TODO maybe find the latest time of all import files ?
+    module_name = method_object.__module__
+    module_object = import_module(module_name)
+    module_file_name = module_object.__file__
+    file_last_modified_timestamp = pathlib.Path(module_file_name).lstat().st_mtime
+    file_last_modified_datetime = datetime.fromtimestamp(file_last_modified_timestamp)
+    return file_last_modified_datetime
+
+
+def get_file_path_last_modified_time(file_path):
+    if not isinstance(file_path, pathlib.Path):
+        file_path = pathlib.Path(file_path)
+    file_last_modified_timestamp = file_path.lstat().st_mtime
+    file_last_modified_datetime = datetime.fromtimestamp(file_last_modified_timestamp)
+    return file_last_modified_datetime
