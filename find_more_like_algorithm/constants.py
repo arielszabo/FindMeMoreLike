@@ -4,6 +4,8 @@ import pathlib
 import yaml
 from datetime import datetime
 
+IMDB_ID_REGEX_PATTERN = r"tt\d+"
+
 IMDB_ID = "imdbID"
 INSERTION_TIME = "insertion_time"
 FULL_TEXT = "full_text"

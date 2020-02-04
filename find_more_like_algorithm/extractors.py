@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import math
-from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE, TITLE, KEYS_CONFIG
+from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE, TITLE, KEYS_CONFIG, IMDB_ID_REGEX_PATTERN
 from find_more_like_algorithm import utils
 import asyncio
 import aiofiles
@@ -34,7 +34,7 @@ class DataExtractor(object):
 
         existing_ids = []
         for name in all_saved_files:
-            search_result = re.search(r'(tt\d+).json', name)
+            search_result = re.search(f'({IMDB_ID_REGEX_PATTERN}).json', name)
             if search_result:
                 existing_ids.append(search_result.group(1))
         return existing_ids
@@ -43,7 +43,7 @@ class DataExtractor(object):
         os.makedirs(self.project_config["error_saving_path"], exist_ok=True)
         all_error_files = glob.glob(os.path.join(self.project_config["error_saving_path"], "*",
                                                  f"*_{self.__class__.__name__}.txt"))
-        failed_ids = [re.search(r'tt\d+', name).group(0) for name in all_error_files]
+        failed_ids = [re.search(IMDB_ID_REGEX_PATTERN, name).group(0) for name in all_error_files]
         print(f"failed_ids amount - {len(failed_ids)}")
         return failed_ids
 

@@ -8,7 +8,7 @@ import requests
 import re
 from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, RAW_IMDB_DATA_PATH, PLOT, root_path, KEYS_CONFIG, \
-    PROJECT_CONFIG
+    PROJECT_CONFIG, IMDB_ID_REGEX_PATTERN
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -278,7 +278,7 @@ def privacy():
 @app.route('/save_missing_titles', methods=["POST"])
 def save_missing_titles():
     link_to_imdb = request.form.get("imdb_link")
-    found_imdb_ids = re.findall(r'tt\d+', str(link_to_imdb))
+    found_imdb_ids = re.findall(IMDB_ID_REGEX_PATTERN, str(link_to_imdb))
     if not found_imdb_ids:  # if no IMDb id was found
         raise ValueError("Bad")
     with DB() as db:

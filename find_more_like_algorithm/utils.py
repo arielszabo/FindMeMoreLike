@@ -18,7 +18,7 @@ import yaml
 import numpy as np
 import glob
 from find_more_like_algorithm.constants import PROJECT_CONFIG, SAVING_MOVIES_LIMIT, root_path, IMDB_ID, TITLE, \
-    SIMILAR_LIST_SAVING_PATH, RAW_IMDB_DATA_PATH
+    SIMILAR_LIST_SAVING_PATH, RAW_IMDB_DATA_PATH, IMDB_ID_REGEX_PATTERN
 
 
 def open_json(full_file_path):
@@ -46,7 +46,7 @@ def get_ids_from_web_page(html_url):
 
     ids = set()
     for link in soup.find_all('a'):
-        for idx in re.findall(r'tt\d+', str(link)):
+        for idx in re.findall(IMDB_ID_REGEX_PATTERN, str(link)):
             ids.add(idx)
 
     return ids
@@ -76,14 +76,13 @@ def get_imdb_id_prefix_folder_name(imdb_id, prefix_length=4):
     return imdb_id[:prefix_length]
 
 
-
 def _get_all_existing_imdb_ids():
     all_saved_files = RAW_IMDB_DATA_PATH.rglob('*/*.json')
 
     existing_ids = []
     for saved_file_path in all_saved_files:
         saved_file_name = saved_file_path.name
-        search_result = re.search(r'(tt\d+).json', saved_file_name)
+        search_result = re.search(f'({IMDB_ID_REGEX_PATTERN}).json', saved_file_name)
         if search_result:
             existing_ids.append(search_result.group(1))
     return existing_ids
