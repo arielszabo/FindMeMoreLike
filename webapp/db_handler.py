@@ -2,9 +2,9 @@ from sqlalchemy import Column, create_engine
 from sqlalchemy.dialects.sqlite import TEXT, INTEGER
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from find_more_like_algorithm.constants import root_path
+from find_more_like_algorithm.utils import ROOT_PATH
 
-DB_NAME = root_path.joinpath("db", "webapp_db.db")
+DB_NAME = ROOT_PATH.joinpath("db", "webapp_db.db")
 DB_NAME.parent.mkdir(exist_ok=True)
 Base = declarative_base()
 

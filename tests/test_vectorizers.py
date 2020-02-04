@@ -1,6 +1,7 @@
 import pandas as pd
-from find_more_like_algorithm import vectorization, utils
+from find_more_like_algorithm import vectorization
 from find_more_like_algorithm.vectorization import text_vectors
+
 
 def test_tokenizer_comma_separated_strings():
     assert vectorization._tokenizer_comma_separated_strings('this, is good') == ['this', 'is good']
@@ -27,7 +28,6 @@ def test_extract_from_comma_separated_strings():
     extracted_df = vectorization._extract_from_comma_separated_strings(df, column_name='this_column')
     extracted_dict = extracted_df.to_dict()
     assert extracted_dict == expected_output_dict
-
 
 
 def test_token_text():

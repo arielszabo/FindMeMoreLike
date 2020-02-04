@@ -1,4 +1,4 @@
-from find_more_like_algorithm.utils import generate_list_chunks, _get_all_existing_imdb_ids
+from find_more_like_algorithm.utils import generate_list_chunks
 
 
 def test_generate_list_chunks():

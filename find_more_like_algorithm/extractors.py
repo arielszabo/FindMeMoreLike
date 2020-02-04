@@ -9,14 +9,17 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
 import math
-from find_more_like_algorithm.constants import WIKI_TEXT, RUN_SIGNATURE, TITLE, KEYS_CONFIG, IMDB_ID_REGEX_PATTERN
+from find_more_like_algorithm.constants import WIKI_TEXT, TITLE, IMDB_ID_REGEX_PATTERN
 from find_more_like_algorithm import utils
 import asyncio
 import aiofiles
 import aiohttp
 import traceback
 
-CHUNK_SIZE = 25
+from find_more_like_algorithm.utils import KEYS_CONFIG, RUN_SIGNATURE
+
+IDS_TO_QUERY_CHUNK_SIZE = 25
+
 
 class ExceptedExtractorFail(Exception):
     pass
@@ -47,7 +50,6 @@ class DataExtractor(object):
         print(f"failed_ids amount - {len(failed_ids)}")
         return failed_ids
 
-
     def extract_data(self, ids_to_query, skip_previously_failed=False):
         if skip_previously_failed:
             self.existing_ids += self._get_failed_ids()
@@ -56,9 +58,9 @@ class DataExtractor(object):
             #     os.removedirs(self.project_config["error_saving_path"])
 
         remaining_ids_to_query = list(set(ids_to_query).difference(self.existing_ids))
-        chunks_amount = math.ceil(len(remaining_ids_to_query) / CHUNK_SIZE)
-        for ids_to_query_chunk in tqdm(utils.generate_list_chunks(remaining_ids_to_query, CHUNK_SIZE),
-                                       desc=f"Extract ({self.extractor_type}) {len(remaining_ids_to_query)} items in chunks of {CHUNK_SIZE}",
+        chunks_amount = math.ceil(len(remaining_ids_to_query) / IDS_TO_QUERY_CHUNK_SIZE)
+        for ids_to_query_chunk in tqdm(utils.generate_list_chunks(remaining_ids_to_query, chunks_amount=chunks_amount),
+                                       desc=f"Extract ({self.extractor_type}) {len(remaining_ids_to_query)} items in chunks of {IDS_TO_QUERY_CHUNK_SIZE}",
                                        total=chunks_amount):
 
             loop = asyncio.get_event_loop()

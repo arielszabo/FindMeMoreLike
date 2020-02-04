@@ -7,7 +7,8 @@ from tqdm import tqdm
 
 from find_more_like_algorithm import utils
 
-from find_more_like_algorithm.constants import PROJECT_CONFIG, SAVING_MOVIES_LIMIT, root_path
+from find_more_like_algorithm.constants import SAVING_MOVIES_LIMIT
+from find_more_like_algorithm.utils import PROJECT_CONFIG
 
 
 def calculate(vectors_df, batch=False, save=False):
@@ -34,7 +35,6 @@ def calculate(vectors_df, batch=False, save=False):
     else:
         similarity_array = metrics.pairwise.cosine_similarity(vectors_df)
         similarity_df = build_similarity_df(similarity_array, index_list=vectors_df.index.tolist())
-
 
     if save:
         save_similarity_measures(similarity_df)

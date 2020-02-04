@@ -1,24 +1,41 @@
-import asyncio
-import gc
+import json
 import math
+import os
 import pathlib
+import re
 from datetime import datetime
 from importlib import import_module
-
-import aiofiles
 import requests
-from bs4 import BeautifulSoup
-import re
-import os
-import json
-import pandas as pd
-from sklearn import metrics
-from tqdm import tqdm
 import yaml
-import numpy as np
-import glob
-from find_more_like_algorithm.constants import PROJECT_CONFIG, SAVING_MOVIES_LIMIT, root_path, IMDB_ID, TITLE, \
-    SIMILAR_LIST_SAVING_PATH, RAW_IMDB_DATA_PATH, IMDB_ID_REGEX_PATTERN
+from bs4 import BeautifulSoup
+
+from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN
+
+ROOT_PATH = pathlib.Path(__file__).parent.parent.absolute()
+RUN_SIGNATURE = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
+
+
+if "PYTEST_CURRENT_TEST" in os.environ or 'TRAVIS' in os.environ:
+    PROJECT_CONFIG_FILE_PATH = ROOT_PATH.joinpath("tests", "testing_config.yaml")
+else:
+    PROJECT_CONFIG_FILE_PATH = ROOT_PATH.joinpath("project_config.yaml")
+
+with PROJECT_CONFIG_FILE_PATH.open() as project_config_yaml_file:
+    PROJECT_CONFIG = yaml.load(project_config_yaml_file)
+PROJECT_CONFIG[RUN_SIGNATURE_STRING] = RUN_SIGNATURE
+
+RAW_IMDB_DATA_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG["api_data_saving_path"]["imdb"])
+RAW_WIKI_DATA_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG["api_data_saving_path"]["wiki"])
+SIMILAR_LIST_SAVING_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['similar_list_saving_path'])
+VECTORS_CACHE_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['vectors_cache_path'])
+DOC2VEC_MODEL_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['doc2vec_model_path'])
+keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
+if keys_config_path.exists():
+    with keys_config_path.open() as keys_config_yaml_file:
+        KEYS_CONFIG = yaml.load(keys_config_yaml_file)
+else:
+    assert FileNotFoundError(f"Save you OMDb api key in the file {keys_config_path}.\n"
+                             f"Please read the README file for more info")
 
 
 def open_json(full_file_path):
@@ -102,8 +119,8 @@ def create_title_and_id_mapping():
             IMDB_ID: imdb_id
         })
 
-    title_and_id_mapping_path = pathlib.Path(root_path, "webapp", "static", "title_and_id_mapping.json")
-    # create_title_and_id_mapping_path = pathlib.Path(root_path, "webapp", "static", "title_and_id_mapping__old.json")
+    title_and_id_mapping_path = pathlib.Path(ROOT_PATH, "webapp", "static", "title_and_id_mapping.json")
+    # create_title_and_id_mapping_path = pathlib.Path(ROOT_PATH, "webapp", "static", "title_and_id_mapping__old.json")
     with title_and_id_mapping_path.open("w") as title_and_id_mapping_file:
         json.dump(title_and_id, title_and_id_mapping_file)
 

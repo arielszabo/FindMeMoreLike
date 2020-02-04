@@ -1,12 +1,10 @@
-from tqdm import tqdm
-import pandas as pd
-from datetime import datetime
-import logging
 import pathlib
-import glob
+from datetime import datetime
+import pandas as pd
+from tqdm import tqdm
 from find_more_like_algorithm import utils
-from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME, PROJECT_CONFIG, \
-    RAW_IMDB_DATA_PATH, RAW_WIKI_DATA_PATH, TITLE, PLOT
+from find_more_like_algorithm.constants import WIKI_TEXT, FULL_TEXT, IMDB_ID, INSERTION_TIME, PLOT
+from find_more_like_algorithm.utils import RAW_IMDB_DATA_PATH, RAW_WIKI_DATA_PATH
 
 
 def load_saved_data():

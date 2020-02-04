@@ -1,17 +1,14 @@
-import os
-import pathlib
-
-from tqdm import tqdm
 import logging
-import pandas as pd
+import pathlib
 import re
-from sklearn.feature_extraction.text import CountVectorizer
-from find_more_like_algorithm import text_vectors
-from find_more_like_algorithm.constants import INSERTION_TIME, root_path, FULL_TEXT, PROJECT_CONFIG, VECTORS_CACHE_PATH, \
-    TITLE
 
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+
+from find_more_like_algorithm import text_vectors
+from find_more_like_algorithm.constants import FULL_TEXT, TITLE
 from find_more_like_algorithm.utils import get_imdb_id_prefix_folder_name, open_json, \
-    get_method_file_last_modified_time, get_file_path_last_modified_time
+    get_method_file_last_modified_time, get_file_path_last_modified_time, VECTORS_CACHE_PATH
 
 
 def create_vectors(df):

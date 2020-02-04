@@ -1,14 +1,14 @@
 import os
 import nltk
 import pandas as pd
-from find_more_like_algorithm.utils import generate_list_chunks
+from find_more_like_algorithm.utils import generate_list_chunks, DOC2VEC_MODEL_PATH
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 import string
 import re
 import numpy as np
 from gensim.models import Doc2Vec
-from find_more_like_algorithm.constants import RANDOM_SEED, DOC2VEC_MODEL_PATH
+from find_more_like_algorithm.constants import RANDOM_SEED
 from tqdm import tqdm
 import multiprocessing
 np.random.seed(RANDOM_SEED)
