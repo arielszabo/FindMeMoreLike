@@ -30,12 +30,8 @@ SIMILAR_LIST_SAVING_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['similar_list_savin
 VECTORS_CACHE_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['vectors_cache_path'])
 DOC2VEC_MODEL_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['doc2vec_model_path'])
 keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
-if keys_config_path.exists():
-    with keys_config_path.open() as keys_config_yaml_file:
-        KEYS_CONFIG = yaml.load(keys_config_yaml_file)
-else:
-    assert FileNotFoundError(f"Save you OMDb api key in the file {keys_config_path}.\n"
-                             f"Please read the README file for more info")
+with keys_config_path.open() as keys_config_yaml_file:
+    KEYS_CONFIG = yaml.load(keys_config_yaml_file)
 
 
 def open_json(full_file_path):

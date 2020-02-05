@@ -1,7 +1,6 @@
 IMDB_ID_REGEX_PATTERN = r"tt\d+"
 
 IMDB_ID = "imdbID"
-INSERTION_TIME = "insertion_time"
 FULL_TEXT = "full_text"
 WIKI_TEXT = "wiki_text"
 RANDOM_SEED = 123

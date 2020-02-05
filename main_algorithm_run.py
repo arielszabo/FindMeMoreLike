@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     # Load saved data
     df = load_and_clean.load_saved_data()
-    logging.info("data loaded")
+    logging.info(f"data of shape {df.shape} was loaded")
 
     # CREATE The Vectors
     # df = None
