@@ -116,7 +116,8 @@ def _save_cached_data(df, vectorization):
 
 
 def _rated_vectors(df, rated_column_name):
-    return pd.get_dummies(df[rated_column_name].apply(_change_rating), dummy_na=True)
+    standardized_rated_column_series = df[rated_column_name].apply(_standardized_rated_column)
+    return pd.get_dummies(standardized_rated_column_series, dummy_na=True)  # TODO: maybe do a pca ?
 
 
 def _tokenizer_comma_separated_strings(full_string):
@@ -138,7 +139,7 @@ def _extract_from_comma_separated_strings(df, column_name):
     return vectored_df
 
 
-def _change_rating(movie_rating):
+def _standardized_rated_column(movie_rating):
     # what todo with UNRATED is it as Not Rated?
     ratings_convertor = {
         'R': 'Restricted',
