@@ -37,10 +37,14 @@ def create_vectors(df):
             },
             'cache': False
         },
-        # 'rated_vectors': {
-        #     'callable': _rated_vectors,
-        #     'params': {'rated_col_name': 'Rated'}
-        # }
+        {
+            'name': 'rated_vectors',
+            'callable': _rated_vectors,
+            'params': {
+                'rated_col_name': 'Rated'
+            },
+            'cache': False
+        }
     ]
 
     VECTORS_CACHE_PATH.mkdir(parents=True, exist_ok=True)
@@ -56,12 +60,11 @@ def create_vectors(df):
 def apply_vectorization(df, vectorization):
     if vectorization['cache']:
         df_to_vectorize, cached_vectors = _load_cached_data(df, vectorization)
+        logging.info(f"{cached_vectors.shape[0]} of {df.shape[0]} {vectorization['name']} were found in cache")
 
         if df_to_vectorize.empty:
-            logging.info(f"All {cached_vectors.shape[0]} {vectorization['name']} vectors were found in cache")
             return cached_vectors
         else:
-            logging.info(f"only {cached_vectors.shape[0]} {vectorization['name']} vectors were found in cache")
             vectors = _apply_vectorization(df_to_vectorize, vectorization)
 
             vectors_with_cache = pd.concat([cached_vectors, vectors])
@@ -72,7 +75,7 @@ def apply_vectorization(df, vectorization):
 
 
 def _apply_vectorization(df, vectorization):
-    logging.info(f"Starting to create {vectorization['name']} vectors on {df.shape[0]} rows")
+    logging.info(f"Starting to create {vectorization['name']} on {df.shape[0]} rows")
     vectors = vectorization['callable'](df, **vectorization['params'])
     vectors.columns = [f"{vectorization['name']}__{col}" for col in vectors.columns]
     if vectorization['cache']:
@@ -82,8 +85,7 @@ def _apply_vectorization(df, vectorization):
 
 def _get_cache_file_path(imdb_id, vectorization_name):
     prefix = get_imdb_id_prefix_folder_name(imdb_id)
-    # TODO use VECTORS_CACHE_PATH
-    cache_file_path = pathlib.Path(VECTORS_CACHE_PATH, prefix, f"{imdb_id}__{vectorization_name}.json")
+    cache_file_path = VECTORS_CACHE_PATH.joinpath(prefix, f"{imdb_id}__{vectorization_name}.json")
     return cache_file_path
 
 
@@ -94,7 +96,7 @@ def _load_cached_data(df, vectorization):
         cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
         method_file_last_modified_time = get_method_file_last_modified_time(vectorization["callable"])
         cache_file_file_last_modified_time = get_file_path_last_modified_time(cache_file_path)
-        if cache_file_path.exists() and cache_file_file_last_modified_time >= method_file_last_modified_time:  # TODO cache function
+        if cache_file_path.exists() and cache_file_file_last_modified_time >= method_file_last_modified_time:  # TODO hash function
             imdb_id_cached_results = open_json(cache_file_path)
             cached_results.append(imdb_id_cached_results)
             existing_cached_imdb_ids.append(imdb_id)
