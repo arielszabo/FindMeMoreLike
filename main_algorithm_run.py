@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 
 from find_more_like_algorithm import extractors, vectorization, utils, load_and_clean, similarity
-from find_more_like_algorithm.constants import LOGFILE_BASE_PATH, PROJECT_CONFIG, RUN_SIGNATURE
-from find_more_like_algorithm.utils import create_title_and_id_mapping
+from find_more_like_algorithm.constants import LOGFILE_BASE_PATH
+from find_more_like_algorithm.utils import create_title_and_id_mapping, RUN_SIGNATURE, PROJECT_CONFIG
 
 os.makedirs(LOGFILE_BASE_PATH, exist_ok=True)
 
