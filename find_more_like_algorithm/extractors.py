@@ -116,7 +116,7 @@ class IMDBApiExtractor(DataExtractor):
                     raise ExceptedExtractorFail("Request limit reached!")
 
                 if response_json['Response'] == 'False':
-                    raise ExceptedExtractorFail("Response == False ? at {}".format(movie_id))  #todo: change this
+                    raise ExceptedExtractorFail("Response == False ? at {}".format(movie_id))
                     # raise ValueError("Response == False ? at {}".format(movie_id))
 
                 return await response.json()

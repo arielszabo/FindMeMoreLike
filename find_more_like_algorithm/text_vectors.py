@@ -68,10 +68,10 @@ def token_text(full_text, remove_stop_words=True, remove_punctuations=True, remo
 
 def infer_doc2vec_vector(text, doc2vec_model):
     clean_token_text = token_text(full_text=text,
-                                  remove_stop_words=False, # todo: maybe it's better if this would be False
+                                  remove_stop_words=False,
                                   remove_punctuations=True,
                                   remove_if_not_alpha=True,
                                   stem_word=False)
-    return doc2vec_model.infer_vector(clean_token_text).tolist() # todo: , epochs=1000 ?
+    return doc2vec_model.infer_vector(clean_token_text).tolist()  # todo: , epochs=1000 ?
 
 

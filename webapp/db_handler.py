@@ -56,5 +56,3 @@ class MissingTitles(Base):
     id = Column(INTEGER, primary_key=True, autoincrement=True)
     imdb_link = Column(TEXT, nullable=False)
     imdb_id = Column(TEXT, nullable=False)
-    # todo: change this
-

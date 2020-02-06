@@ -133,15 +133,13 @@ def _extract_from_comma_separated_strings(df, column_name):
     df_sparse_array = count_vectorizer.fit_transform(df[column_name].fillna('not_provided'))
     df_dense_array = df_sparse_array.toarray()
     feature_names = count_vectorizer.get_feature_names()
-    # feature_names = [f"{column_name}_{col}".lower() for col in count_vectorizer.get_feature_names()]  # todo: why comment out?
 
     vectored_df = pd.DataFrame(df_dense_array, columns=feature_names, index=df.index)
     return vectored_df
 
 
 def _standardized_rated_column(movie_rating):
-    # what todo with UNRATED is it as Not Rated?
-    ratings_convertor = {
+    ratings_converter = {
         'R': 'Restricted',
         'G': 'General Audiences',
         'TV-Y': 'General Audiences',
@@ -164,11 +162,10 @@ def _standardized_rated_column(movie_rating):
         'Not Rated': 'Not Rated',
         'APPROVED': 'APPROVED',
         'PASSED': 'PASSED',
-        'UNRATED': 'UNRATED'
-
+        'UNRATED': 'Not Rated'
     }
 
-    if movie_rating not in ratings_convertor:
-        raise ValueError('This movie rating: {} does not exist in the convertor...'.format(movie_rating))
+    if movie_rating not in ratings_converter:
+        raise ValueError('This movie rating: {} does not exist in the converter...'.format(movie_rating))
     else:
-        return ratings_convertor[movie_rating]
+        return ratings_converter[movie_rating]
