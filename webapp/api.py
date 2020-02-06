@@ -8,7 +8,8 @@ import requests
 import re
 from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT
-from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, ROOT_PATH, RAW_IMDB_DATA_PATH
+from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, ROOT_PATH, RAW_IMDB_DATA_PATH, \
+    SIMILAR_LIST_SAVING_PATH
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -140,7 +141,7 @@ def search_redirect():
 @app.route('/get_search_results/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
 def get_search_results(imdb_id, hide_seen_titles, page_index):
     prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
-    file_path = os.path.join(ROOT_PATH, PROJECT_CONFIG["similar_list_saving_path"], prefix, f'{imdb_id}.json')
+    file_path = SIMILAR_LIST_SAVING_PATH.joinpath(prefix, f'{imdb_id}.json')
     similarity_list = utils.open_json(file_path)
     title = load_presentation_data(imdb_id)["Title"]
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0

@@ -8,7 +8,7 @@ from tqdm import tqdm
 from find_more_like_algorithm import utils
 
 from find_more_like_algorithm.constants import SAVING_MOVIES_LIMIT
-from find_more_like_algorithm.utils import PROJECT_CONFIG
+from find_more_like_algorithm.utils import PROJECT_CONFIG, SIMILAR_LIST_SAVING_PATH
 
 
 def calculate(vectors_df, batch=False, save=False):
@@ -53,9 +53,9 @@ def save_similarity_measures(similarity_df):
 
     :param similarity_df: [pandas' DataFrame]
     """
-    def save(idx, row):
-        prefix = utils.get_imdb_id_prefix_folder_name(idx)
-        file_path = pathlib.Path(PROJECT_CONFIG['similar_list_saving_path'], prefix, f'{idx}.json')
+    def save(imdb_id, row):
+        prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
+        file_path = SIMILAR_LIST_SAVING_PATH.joinpath(prefix, f'{imdb_id}.json')
         file_path.parent.mkdir(parents=True, exist_ok=True)
         row_data = row.sort_values(ascending=False).reset_index(name='similarity_value')
         top_row_data = list(row_data.itertuples(index=False, name=None))
@@ -67,8 +67,8 @@ def save_similarity_measures(similarity_df):
         with file_path.open('w') as json_file:
             json_file.write(json_dumped_data)
 
-    for idx, row in tqdm(similarity_df.iterrows()):
-        save(idx, row)
+    for imdb_id, similarity_row in tqdm(similarity_df.iterrows()):
+        save(imdb_id, similarity_row)
 
 
 def batch_cosine_similarity(vectors_df):
