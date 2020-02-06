@@ -11,7 +11,7 @@ def load_saved_data():
     all_data = []
 
     imdb_data_dir_list = list(RAW_IMDB_DATA_PATH.glob(f"*/tt*.json"))
-    imdb_data_dir_list = sorted(imdb_data_dir_list)[:200]
+    # imdb_data_dir_list = sorted(imdb_data_dir_list)[:200]
 
     for full_imdb_file_path in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
         imdb_data = utils.open_json(full_imdb_file_path)
