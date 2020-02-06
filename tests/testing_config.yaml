@@ -9,6 +9,8 @@ api_data_saving_path:
 
 similar_list_saving_path: 'tests/testing_similar_list_data'
 
+vectors_cache_path: 'tests/testing_vectors_cache_path'
+
 doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
 
 
