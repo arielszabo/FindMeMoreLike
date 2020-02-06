@@ -7,8 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from find_more_like_algorithm import text_vectors
 from find_more_like_algorithm.constants import FULL_TEXT, TITLE
-from find_more_like_algorithm.utils import get_imdb_id_prefix_folder_name, open_json, \
-    get_method_file_last_modified_time, get_file_path_last_modified_time, VECTORS_CACHE_PATH
+from find_more_like_algorithm.cache_handler import load_cached_data, save_cached_data
 
 
 def create_vectors(df):
@@ -47,8 +46,6 @@ def create_vectors(df):
         }
     ]
 
-    VECTORS_CACHE_PATH.mkdir(parents=True, exist_ok=True)
-
     all_vectors = []
     for vectorization in vectorizations_config:
         result = apply_vectorization(df, vectorization)
@@ -59,7 +56,7 @@ def create_vectors(df):
 
 def apply_vectorization(df, vectorization):
     if vectorization['cache']:
-        df_to_vectorize, cached_vectors = _load_cached_data(df, vectorization)
+        df_to_vectorize, cached_vectors = load_cached_data(df, vectorization)
         logging.info(f"{cached_vectors.shape[0]} of {df.shape[0]} {vectorization['name']} were found in cache")
 
         if df_to_vectorize.empty:
@@ -79,40 +76,8 @@ def _apply_vectorization(df, vectorization):
     vectors = vectorization['callable'](df, **vectorization['params'])
     vectors.columns = [f"{vectorization['name']}__{col}" for col in vectors.columns]
     if vectorization['cache']:
-        _save_cached_data(vectors, vectorization)
+        save_cached_data(vectors, vectorization)
     return vectors
-
-
-def _get_cache_file_path(imdb_id, vectorization_name):
-    prefix = get_imdb_id_prefix_folder_name(imdb_id)
-    cache_file_path = VECTORS_CACHE_PATH.joinpath(prefix, f"{imdb_id}__{vectorization_name}.json")
-    return cache_file_path
-
-
-def _load_cached_data(df, vectorization):
-    cached_results = []
-    existing_cached_imdb_ids = []
-    for imdb_id in df.index.tolist():
-        cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
-        method_file_last_modified_time = get_method_file_last_modified_time(vectorization["callable"])
-        cache_file_file_last_modified_time = get_file_path_last_modified_time(cache_file_path)
-        if cache_file_path.exists() and cache_file_file_last_modified_time >= method_file_last_modified_time:  # TODO hash function
-            imdb_id_cached_results = open_json(cache_file_path)
-            cached_results.append(imdb_id_cached_results)
-            existing_cached_imdb_ids.append(imdb_id)
-
-    cached_vectors = pd.DataFrame(cached_results, index=existing_cached_imdb_ids)
-
-    df_to_vectorize = df[~df.index.isin(existing_cached_imdb_ids)]
-
-    return df_to_vectorize, cached_vectors
-
-
-def _save_cached_data(df, vectorization):
-    for imdb_id in df.index.tolist():
-        cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
-        cache_file_path.parent.mkdir(exist_ok=True, parents=True)
-        df.loc[imdb_id].to_json(cache_file_path)
 
 
 def _rated_vectors(df, rated_column_name):
