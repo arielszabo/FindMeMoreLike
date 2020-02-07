@@ -40,7 +40,7 @@ def create_vectors(df):
             'name': 'rated_vectors',
             'callable': _rated_vectors,
             'params': {
-                'rated_col_name': 'Rated'
+                'rated_column_name': 'Rated'
             },
             'cache': False
         }

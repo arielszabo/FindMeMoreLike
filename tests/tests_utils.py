@@ -22,3 +22,12 @@ def test_generate_list_chunks():
     assert len(list_of_chunk) == 2
     assert list_of_chunk[0] == [1, 2, 3]
     assert list_of_chunk[1] == [4, 5, 6]
+
+    list_of_chunk = list(generate_list_chunks([1, 2, 3, 4, 5, 6], chunks_amount=7))
+    assert len(list_of_chunk) == 6
+    assert list_of_chunk[0] == [1]
+    assert list_of_chunk[-1] == [6]
+
+    list_of_chunk = list(generate_list_chunks([1, 2, 3, 4, 5, 6], chunk_size=7))
+    assert len(list_of_chunk) == 1
+    assert list_of_chunk[0] == [1, 2, 3, 4, 5, 6]
