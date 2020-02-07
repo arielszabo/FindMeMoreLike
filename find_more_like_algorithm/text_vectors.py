@@ -1,3 +1,4 @@
+import logging
 import os
 import nltk
 import pandas as pd
@@ -24,7 +25,7 @@ def get_text_vectors(df, text_column_name):
 
     with multiprocessing.Pool(number_of_process) as pool:
         results = tqdm(iterable=pool.imap(get_text_vectors_on_batch_text_series, iterable=text_series_batches),
-                       total=number_of_process)
+                       total=chunks_amount, desc=f"get text vectors on {text_column_name}")
         vectors_batch_df_list = list(results)
 
     vectors_df = pd.concat(vectors_batch_df_list)
@@ -35,7 +36,10 @@ def get_text_vectors(df, text_column_name):
 
 
 def get_text_vectors_on_batch_text_series(batch_text_series):
+    gensim_package_logger = logging.getLogger("gensim")
+    gensim_package_logger.setLevel(logging.WARNING)  # disable the gensim's package logging
     doc2vec = Doc2Vec.load(str(DOC2VEC_MODEL_PATH))
+    gensim_package_logger.setLevel(logging.INFO)  # enable the gensim's package logging
     list_of_vectors = batch_text_series.apply(infer_doc2vec_vector, doc2vec_model=doc2vec).tolist()
     vectors_batch_df = pd.DataFrame(list_of_vectors, index=batch_text_series.index)
     vectors_batch_df.columns = ['doc2vec__{}'.format(col) for col in vectors_batch_df.columns]
