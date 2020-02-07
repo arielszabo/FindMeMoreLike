@@ -34,5 +34,9 @@ def save_cached_data(df, vectorization):
     for imdb_id in df.index.tolist():
         cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
         cache_file_path.parent.mkdir(exist_ok=True, parents=True)
-        df.loc[imdb_id].to_json(cache_file_path)
+        try:
+            df.loc[imdb_id].to_json(cache_file_path)
+        except Exception as e:
+            print(e, imdb_id)
+            continue
 
