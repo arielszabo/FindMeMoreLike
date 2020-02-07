@@ -12,14 +12,14 @@ from find_more_like_algorithm.cache_handler import load_cached_data, save_cached
 
 def create_vectors(df):
     vectorizations_config = [
-        # {
-        #     'name': 'text_vectors',
-        #     'callable': text_vectors.get_text_vectors,
-        #     'params': {
-        #         'text_column_name': FULL_TEXT
-        #     },
-        #     'cache': True
-        # },
+        {
+            'name': 'text_vectors',
+            'callable': text_vectors.get_text_vectors,
+            'params': {
+                'text_column_name': FULL_TEXT
+            },
+            'cache': True
+        },
         {
             'name': 'title_vectors',
             'callable': text_vectors.get_text_vectors,
