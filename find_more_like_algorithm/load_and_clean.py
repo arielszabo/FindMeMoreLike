@@ -1,4 +1,5 @@
 import pathlib
+from collections import Counter
 from datetime import datetime
 import pandas as pd
 from tqdm import tqdm
@@ -38,6 +39,7 @@ def load_saved_data():
 
 
 def standardized(df):
+    df.drop_duplicates(subset=[IMDB_ID], keep="first")  # TODO: find out why is there any at all: # tt9214844 tt5311542 tt10550884
     df.set_index(IMDB_ID, inplace=True)
     df[WIKI_TEXT] = df[WIKI_TEXT].fillna('')
     df[FULL_TEXT] = df[[PLOT, WIKI_TEXT]].apply(lambda plot_and_wiki_text: ' '.join(plot_and_wiki_text), axis=1)
