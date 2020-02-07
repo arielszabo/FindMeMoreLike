@@ -19,7 +19,8 @@ nltk.download('punkt')
 
 def get_text_vectors(df, text_column_name):
     number_of_process = os.cpu_count() - 2
-    batch_df_index_lists = generate_list_chunks(df.index.tolist(), chunks_amount=number_of_process)
+    chunks_amount = number_of_process * 10
+    batch_df_index_lists = generate_list_chunks(df.index.tolist(), chunks_amount=chunks_amount)
 
     text_series_batches = (df.loc[batch_index_list, text_column_name] for batch_index_list in batch_df_index_lists)
 
@@ -29,6 +30,8 @@ def get_text_vectors(df, text_column_name):
         vectors_batch_df_list = list(results)
 
     vectors_df = pd.concat(vectors_batch_df_list)
+    print(df.index)
+    print(vectors_df.index)
     assert sorted(vectors_df.index) == sorted(df.index)
     vectors_df = vectors_df.loc[vectors_df.index]
 
