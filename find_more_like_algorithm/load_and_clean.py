@@ -30,6 +30,9 @@ def load_saved_data():
 
     df = pd.DataFrame(all_data)
     df = standardized(df)
+    print(len(df.index), len(set(df.index)))
+    index_value_counts = df.index.value_counts()
+    print(index_value_counts[index_value_counts > 1])
 
     return df
 
