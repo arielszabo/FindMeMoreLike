@@ -12,6 +12,11 @@ rm $logging_file
 python main_algorithm_run.py
 # >> $logging_file 2>> $logging_file
 
+sleep 30
+
+# save logs in bucket
+gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
+
 sleep 60
 # stop instance
 VM_NAME=instance-2
