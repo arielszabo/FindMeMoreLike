@@ -132,6 +132,6 @@ def _standardized_rated_column(movie_rating):
     }
 
     if movie_rating not in ratings_converter:
-        raise ValueError('This movie rating: {} does not exist in the converter...'.format(movie_rating))
+        raise ValueError('This movie rating: "{}" does not exist in the converter...'.format(movie_rating))
     else:
         return ratings_converter[movie_rating]
