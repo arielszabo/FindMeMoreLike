@@ -36,14 +36,14 @@ def create_vectors(df):
             },
             'cache': False
         },
-        {
-            'name': 'rated_vectors',
-            'callable': _rated_vectors,
-            'params': {
-                'rated_column_name': 'Rated'
-            },
-            'cache': False
-        }
+        # {
+        #     'name': 'rated_vectors',
+        #     'callable': _rated_vectors,
+        #     'params': {
+        #         'rated_column_name': 'Rated'
+        #     },
+        #     'cache': False
+        # }
     ]
 
     all_vectors = []
@@ -127,6 +127,7 @@ def _standardized_rated_column(movie_rating):
         'Not Rated': 'Not Rated',
         'APPROVED': 'APPROVED',
         'PASSED': 'PASSED',
+        'Passed': 'PASSED',
         'UNRATED': 'Not Rated'
     }
 
