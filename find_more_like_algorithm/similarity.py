@@ -46,10 +46,10 @@ def save_similarity_measures(similarity_df):
 
     :param similarity_df: [pandas' DataFrame]
     """
-    # for imdb_id, similarity_row in tqdm(similarity_df.iterrows(),
-    #                                     desc="save similarity measures",
-    #                                     total=similarity_df.shape[0]):
-    for imdb_id, similarity_row in similarity_df.iterrows():
+    for imdb_id, similarity_row in tqdm(similarity_df.iterrows(),
+                                        desc="save similarity measures",
+                                        total=similarity_df.shape[0]):
+    # for imdb_id, similarity_row in similarity_df.iterrows():
         _save_single_similarity_row(imdb_id, similarity_row)
 
 
@@ -78,11 +78,12 @@ def get_vectors_df_and_vectors_df_batch(vectors_df):
 def get_cosine_similarity_batches(vectors_df, use_multiprocessing=False):
     # TODO make this more readable:
     if use_multiprocessing:
+        chunk_size = NUMBER_OF_CONCURRENT_PROCESS * 2
         list_of_batch_arguments = utils.generate_list_chunks(get_vectors_df_and_vectors_df_batch(vectors_df),
-                                                             chunk_size=NUMBER_OF_CONCURRENT_PROCESS)
+                                                             chunk_size=chunk_size)
         for batch_cosine_similarity_arguments in tqdm(list(list_of_batch_arguments),
                                                       desc="calculating batch cosine similarity with multiprocessing"):
-            with multiprocessing.Pool(NUMBER_OF_CONCURRENT_PROCESS) as pool:
+            with multiprocessing.Pool(chunk_size) as pool:
                 list_of_batch_similarity_df = pool.starmap(_batch_cosine_similarity, batch_cosine_similarity_arguments)
 
             for batch_similarity_df in list_of_batch_similarity_df:
