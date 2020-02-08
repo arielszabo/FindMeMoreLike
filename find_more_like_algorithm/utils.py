@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, RUN_SIGNATURE_STRING
 
-NUMBER_CONCURRENT_OF_PROCESS = os.cpu_count() - 1
+NUMBER_OF_CONCURRENT_PROCESS = os.cpu_count() - 1
 ROOT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 RUN_SIGNATURE = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
 

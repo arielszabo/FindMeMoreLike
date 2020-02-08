@@ -13,9 +13,9 @@ from tqdm import tqdm
 from find_more_like_algorithm import utils
 
 from find_more_like_algorithm.constants import SAVING_MOVIES_LIMIT
-from find_more_like_algorithm.utils import PROJECT_CONFIG, SIMILAR_LIST_SAVING_PATH, NUMBER_CONCURRENT_OF_PROCESS
+from find_more_like_algorithm.utils import PROJECT_CONFIG, SIMILAR_LIST_SAVING_PATH, NUMBER_OF_CONCURRENT_PROCESS
 
-CALCULATE_CHUNKS_AMOUNT = 250
+CALCULATE_CHUNKS_AMOUNT = 10_000
 
 
 def calculate(vectors_df, use_multiprocessing=False):
@@ -79,10 +79,10 @@ def get_cosine_similarity_batches(vectors_df, use_multiprocessing=False):
     # TODO make this more readable:
     if use_multiprocessing:
         list_of_batch_arguments = utils.generate_list_chunks(get_vectors_df_and_vectors_df_batch(vectors_df),
-                                                             chunk_size=NUMBER_CONCURRENT_OF_PROCESS)
+                                                             chunk_size=NUMBER_OF_CONCURRENT_PROCESS)
         for batch_cosine_similarity_arguments in tqdm(list(list_of_batch_arguments),
                                                       desc="calculating batch cosine similarity with multiprocessing"):
-            with multiprocessing.Pool(NUMBER_CONCURRENT_OF_PROCESS) as pool:
+            with multiprocessing.Pool(NUMBER_OF_CONCURRENT_PROCESS) as pool:
                 list_of_batch_similarity_df = pool.starmap(_batch_cosine_similarity, batch_cosine_similarity_arguments)
 
             for batch_similarity_df in list_of_batch_similarity_df:
