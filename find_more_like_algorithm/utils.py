@@ -3,6 +3,7 @@ import math
 import os
 import pathlib
 import re
+from collections import Generator, Iterator
 from datetime import datetime
 from importlib import import_module
 import requests
@@ -74,6 +75,9 @@ def generate_list_chunks(list_, chunk_size=None, chunks_amount=None):
 
     if chunks_amount is not None:
         chunk_size = math.ceil(len(list_) / chunks_amount)
+
+    if isinstance(list_, (Generator, Iterator)):
+        list_ = list(list_)
 
     i = 0
     while True:
