@@ -1,4 +1,5 @@
 import json
+import multiprocessing
 import pathlib
 import gc
 import pandas as pd
@@ -11,7 +12,7 @@ from find_more_like_algorithm.constants import SAVING_MOVIES_LIMIT
 from find_more_like_algorithm.utils import PROJECT_CONFIG, SIMILAR_LIST_SAVING_PATH
 
 
-def calculate(vectors_df, batch=False, save=False):
+def calculate(vectors_df, batch=False, save=False, use_multiprocessing=False):
     """
     calculate the similarity for the vectors.
     Save for each movie id a dict with the other movie id's as the keys and their similarity as values.
@@ -20,10 +21,11 @@ def calculate(vectors_df, batch=False, save=False):
     :param vectors_df: [pandas' DataFrame] index must be the movies' id
     :param batch:
     :param save:
+    :param use_multiprocessing:
 
     """
     if batch and save:
-        for batch_similarity_df in batch_cosine_similarity(vectors_df):
+        for batch_similarity_df in batch_cosine_similarity(vectors_df, use_multiprocessing):
             save_similarity_measures(batch_similarity_df)
             gc.collect()
         return
@@ -67,18 +69,33 @@ def save_similarity_measures(similarity_df):
         with file_path.open('w') as json_file:
             json_file.write(json_dumped_data)
 
-    for imdb_id, similarity_row in tqdm(similarity_df.iterrows()):
+    for imdb_id, similarity_row in tqdm(similarity_df.iterrows(),
+                                        desc="save similarity measures",
+                                        total=similarity_df.shape[0]):
         save(imdb_id, similarity_row)
 
 
-def batch_cosine_similarity(vectors_df):
-    for vectors_df_batch_idxs in tqdm(utils.generate_list_chunks(vectors_df.index.tolist(), chunk_size=1_000)):
-        vectors_df_batch = vectors_df.loc[vectors_df_batch_idxs]
-        batch_similarity_array = metrics.pairwise.cosine_similarity(vectors_df_batch, vectors_df)
-        batch_similarity_df = build_similarity_df(batch_similarity_array,
-                                                  index_list=vectors_df_batch_idxs,
-                                                  columns_list=vectors_df.index.tolist())
-        yield batch_similarity_df
+def batch_cosine_similarity(vectors_df, use_multiprocessing=False):
+    list_of_vectors_df_batch_indexs = utils.generate_list_chunks(vectors_df.index.tolist(), chunk_size=1_000)
+    if use_multiprocessing:
+        _batch_cosine_similarity_arguments = ((vectors_df, vectors_df_batch_idxs)
+                                              for vectors_df_batch_idxs in list_of_vectors_df_batch_indexs)
+        with multiprocessing.Pool() as pool:
+            results = pool.starmap(_batch_cosine_similarity, _batch_cosine_similarity_arguments)
+        return list(results)
+    else:
+        for vectors_df_batch_indexs in tqdm(list_of_vectors_df_batch_indexs):
+            batch_similarity_df = _batch_cosine_similarity(vectors_df, vectors_df_batch_indexs)
+            yield batch_similarity_df
+
+
+def _batch_cosine_similarity(vectors_df, vectors_df_batch_idxs):
+    vectors_df_batch = vectors_df.loc[vectors_df_batch_idxs]
+    batch_similarity_array = metrics.pairwise.cosine_similarity(vectors_df_batch, vectors_df)
+    batch_similarity_df = build_similarity_df(batch_similarity_array,
+                                              index_list=vectors_df_batch_idxs,
+                                              columns_list=vectors_df.index.tolist())
+    yield batch_similarity_df
 
 
 def build_similarity_df(similarity_array, index_list, columns_list=None):
