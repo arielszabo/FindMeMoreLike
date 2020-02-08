@@ -30,10 +30,10 @@ def get_text_vectors(df, text_column_name):
         vectors_batch_df_list = list(results)
 
     vectors_df = pd.concat(vectors_batch_df_list)
-    print(df.index)
-    print(vectors_df.index)
-    assert sorted(vectors_df.index) == sorted(df.index)
-    vectors_df = vectors_df.loc[vectors_df.index]
+    # print(df.index)
+    # print(vectors_df.index)
+    # assert sorted(vectors_df.index) == sorted(df.index)
+    # vectors_df = vectors_df.loc[df.index]
 
     return vectors_df
 

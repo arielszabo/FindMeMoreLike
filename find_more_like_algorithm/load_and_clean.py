@@ -1,4 +1,5 @@
 import pathlib
+from collections import Counter
 from datetime import datetime
 import pandas as pd
 from tqdm import tqdm
@@ -11,7 +12,7 @@ def load_saved_data():
     all_data = []
 
     imdb_data_dir_list = list(RAW_IMDB_DATA_PATH.glob(f"*/tt*.json"))
-    imdb_data_dir_list = imdb_data_dir_list[:100_000]
+    # imdb_data_dir_list = imdb_data_dir_list[:100_000]
 
     for full_imdb_file_path in tqdm(imdb_data_dir_list, desc='Loading saved data ...'):
         imdb_data = utils.open_json(full_imdb_file_path)
@@ -35,6 +36,7 @@ def load_saved_data():
 
 
 def standardized(df):
+    df.drop_duplicates(subset=[IMDB_ID], keep="first", inplace=True)  # TODO: find out why is there any at all: # tt9214844 tt5311542 tt10550884
     df.set_index(IMDB_ID, inplace=True)
     df[WIKI_TEXT] = df[WIKI_TEXT].fillna('')
     df[FULL_TEXT] = df[[PLOT, WIKI_TEXT]].apply(lambda plot_and_wiki_text: ' '.join(plot_and_wiki_text), axis=1)
