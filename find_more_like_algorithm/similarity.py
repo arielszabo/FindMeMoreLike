@@ -1,4 +1,5 @@
 import json
+import logging
 import multiprocessing
 import pathlib
 import gc
@@ -78,10 +79,12 @@ def save_similarity_measures(similarity_df):
 def batch_cosine_similarity(vectors_df, use_multiprocessing=False):
     list_of_vectors_df_batch_indexs = utils.generate_list_chunks(vectors_df.index.tolist(), chunk_size=1_000)
     if use_multiprocessing:
-        _batch_cosine_similarity_arguments = ((vectors_df, vectors_df_batch_idxs)
-                                              for vectors_df_batch_idxs in list_of_vectors_df_batch_indexs)
+        logging.info("use multiprocessing")
+        list_of_batch_cosine_similarity_arguments = [(vectors_df, vectors_df_batch_idxs)
+                                                     for vectors_df_batch_idxs in list_of_vectors_df_batch_indexs]
+        logging.info("start calculating batch cosine similarity multiprocessing")
         with multiprocessing.Pool() as pool:
-            results = pool.starmap(_batch_cosine_similarity, _batch_cosine_similarity_arguments)
+            results = pool.starmap(_batch_cosine_similarity, list_of_batch_cosine_similarity_arguments)
         return list(results)
     else:
         for vectors_df_batch_indexs in tqdm(list_of_vectors_df_batch_indexs):
