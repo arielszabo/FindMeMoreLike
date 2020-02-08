@@ -98,7 +98,7 @@ def _batch_cosine_similarity(vectors_df, vectors_df_batch_idxs):
     batch_similarity_df = build_similarity_df(batch_similarity_array,
                                               index_list=vectors_df_batch_idxs,
                                               columns_list=vectors_df.index.tolist())
-    yield batch_similarity_df
+    return batch_similarity_df
 
 
 def build_similarity_df(similarity_array, index_list, columns_list=None):
