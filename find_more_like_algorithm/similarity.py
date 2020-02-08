@@ -15,7 +15,7 @@ from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import SAVING_MOVIES_LIMIT
 from find_more_like_algorithm.utils import PROJECT_CONFIG, SIMILAR_LIST_SAVING_PATH, NUMBER_OF_CONCURRENT_PROCESS
 
-CALCULATE_CHUNKS_AMOUNT = 10_000
+CALCULATE_CHUNKS_AMOUNT = 1_000
 
 
 def calculate(vectors_df, use_multiprocessing=False):

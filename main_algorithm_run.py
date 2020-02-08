@@ -37,7 +37,7 @@ if __name__ == '__main__':
     logging.info("vectors created")
 
     # CALCULATE similarity
-    similarity_df = similarity.calculate(vectors_df, use_multiprocessing=True)
+    similarity_df = similarity.calculate(vectors_df, use_multiprocessing=False)
     logging.info("similarity_df created")
     logging.info("Done saving")
 
