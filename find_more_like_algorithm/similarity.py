@@ -30,9 +30,20 @@ def calculate(vectors_df, use_multiprocessing=False):
     :param use_multiprocessing:
 
     """
-    for batch_similarity_df in get_cosine_similarity_batches(vectors_df, use_multiprocessing):
-        save_similarity_measures(batch_similarity_df)
-        gc.collect()
+    # TODO make this more readable:
+    if use_multiprocessing:
+        with multiprocessing.Pool(NUMBER_OF_CONCURRENT_PROCESS) as pool:
+            run_batch_cosine_similarity_in_multiprocessing = pool.imap(apply_concurrent_batch_cosine_similarity,
+                                                                       get_vectors_df_and_vectors_df_batch(vectors_df))
+            list(tqdm(iterable=run_batch_cosine_similarity_in_multiprocessing,
+                      desc="calculating batch cosine similarity with multiprocessing",
+                      total=CALCULATE_CHUNKS_AMOUNT))
+
+    else:
+        for vectors_df, vectors_df_batch in tqdm(get_vectors_df_and_vectors_df_batch(vectors_df),
+                                                 desc="calculating batch cosine similarity",
+                                                 total=CALCULATE_CHUNKS_AMOUNT):
+            _batch_cosine_similarity(vectors_df, vectors_df_batch)
 
 
 def save_similarity_measures(similarity_df):
@@ -46,10 +57,10 @@ def save_similarity_measures(similarity_df):
 
     :param similarity_df: [pandas' DataFrame]
     """
-    for imdb_id, similarity_row in tqdm(similarity_df.iterrows(),
-                                        desc="save similarity measures",
-                                        total=similarity_df.shape[0]):
-    # for imdb_id, similarity_row in similarity_df.iterrows():
+    # for imdb_id, similarity_row in tqdm(similarity_df.iterrows(),
+    #                                     desc="save similarity measures",
+    #                                     total=similarity_df.shape[0]):
+    for imdb_id, similarity_row in similarity_df.iterrows():
         _save_single_similarity_row(imdb_id, similarity_row)
 
 
@@ -75,26 +86,8 @@ def get_vectors_df_and_vectors_df_batch(vectors_df):
         yield (vectors_df, vectors_df_batch)
 
 
-def get_cosine_similarity_batches(vectors_df, use_multiprocessing=False):
-    # TODO make this more readable:
-    if use_multiprocessing:
-        chunk_size = NUMBER_OF_CONCURRENT_PROCESS * 2
-        list_of_batch_arguments = utils.generate_list_chunks(get_vectors_df_and_vectors_df_batch(vectors_df),
-                                                             chunk_size=chunk_size)
-        for batch_cosine_similarity_arguments in tqdm(list(list_of_batch_arguments),
-                                                      desc="calculating batch cosine similarity with multiprocessing"):
-            with multiprocessing.Pool(chunk_size) as pool:
-                list_of_batch_similarity_df = pool.starmap(_batch_cosine_similarity, batch_cosine_similarity_arguments)
-
-            for batch_similarity_df in list_of_batch_similarity_df:
-                yield batch_similarity_df
-
-    else:
-        for vectors_df, vectors_df_batch in tqdm(get_vectors_df_and_vectors_df_batch(vectors_df),
-                                                 desc="calculating batch cosine similarity",
-                                                 total=CALCULATE_CHUNKS_AMOUNT):
-            batch_similarity_df = _batch_cosine_similarity(vectors_df, vectors_df_batch)
-            yield batch_similarity_df
+def apply_concurrent_batch_cosine_similarity(args):
+    return _batch_cosine_similarity(*args)
 
 
 def _batch_cosine_similarity(vectors_df, vectors_df_batch):
@@ -102,7 +95,7 @@ def _batch_cosine_similarity(vectors_df, vectors_df_batch):
     batch_similarity_df = build_similarity_df_from_array(batch_similarity_array,
                                                          index_list=vectors_df_batch.index.tolist(),
                                                          columns_list=vectors_df.index.tolist())
-    return batch_similarity_df
+    save_similarity_measures(batch_similarity_df)
 
 
 def build_similarity_df_from_array(similarity_array, index_list, columns_list=None):
