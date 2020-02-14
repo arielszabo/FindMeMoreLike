@@ -22,3 +22,9 @@ zip_folder_containing_folders_and_save similar_list_data
 #zip_folder_containing_folders_and_save raw_imdb_data
 #zip_folder_containing_folders_and_save raw_wiki_data
 zip_folder_containing_folders_and_save vectors_cache
+
+
+sleep 60
+# stop instance
+VM_NAME=instance-2
+gcloud compute instances stop $VM_NAME --zone us-east1-b -q
