@@ -112,6 +112,8 @@ def create_title_and_id_mapping():
         imdb_id = similar_list_file_path.stem
         imdb_id_prefix = get_imdb_id_prefix_folder_name(imdb_id)
         raw_imdb_file_path = RAW_IMDB_DATA_PATH.joinpath(imdb_id_prefix, similar_list_file_path.name)
+        if not raw_imdb_file_path.exists():  # TODO remove this after new main run
+            continue
         with raw_imdb_file_path.open() as raw_imdb_file:
             raw_imdb_file_content = json.load(raw_imdb_file)
 
