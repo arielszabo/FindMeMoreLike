@@ -14,6 +14,7 @@ zip_folder_containing_folders_and_save () {
 
 # save logs in bucket
 gsutil -m cp -r find_me_more_like_logs gs://ariel-szabo/find-me-more-like/
+gsutil -m cp webapp/static/title_and_id_mapping.json gs://ariel-szabo/find-me-more-like/
 
 
 
