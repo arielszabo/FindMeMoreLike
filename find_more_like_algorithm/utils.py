@@ -3,6 +3,7 @@ import math
 import os
 import pathlib
 import re
+from collections import Generator, Iterator
 from datetime import datetime
 from importlib import import_module
 import requests
@@ -11,7 +12,7 @@ from bs4 import BeautifulSoup
 
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, RUN_SIGNATURE_STRING
 
-NUMBER_CONCURRENT_OF_PROCESS = os.cpu_count() - 1
+NUMBER_OF_CONCURRENT_PROCESS = os.cpu_count() - 1
 ROOT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 RUN_SIGNATURE = f"find_me_more_like_{datetime.now().strftime('%Y-%m-%d')}"
 
@@ -74,6 +75,9 @@ def generate_list_chunks(list_, chunk_size=None, chunks_amount=None):
 
     if chunks_amount is not None:
         chunk_size = math.ceil(len(list_) / chunks_amount)
+
+    if isinstance(list_, (Generator, Iterator)):
+        list_ = list(list_)
 
     i = 0
     while True:

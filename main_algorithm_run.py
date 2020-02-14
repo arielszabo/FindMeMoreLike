@@ -27,19 +27,19 @@ if __name__ == '__main__':
     # extractors.IMDBApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
     # extractors.WikiApiExtractor(project_config).extract_data(all_movies_ids_to_query, skip_previously_failed=False)
 
-    # # Load saved data
-    # df = load_and_clean.load_saved_data()
-    # logging.info(f"data of shape {df.shape} was loaded")
-    #
-    # # CREATE The Vectors
-    # # df = None
-    # vectors_df = vectorization.create_vectors(df)
-    # logging.info("vectors created")
-    #
-    # # CALCULATE similarity
-    # similarity_df = similarity.calculate(vectors_df, batch=True, save=True, use_multiprocessing=True)
-    # logging.info("similarity_df created")
-    # logging.info("Done saving")
+    # Load saved data
+    df = load_and_clean.load_saved_data()
+    logging.info(f"data of shape {df.shape} was loaded")
+
+    # CREATE The Vectors
+    # df = None
+    vectors_df = vectorization.create_vectors(df)
+    logging.info("vectors created")
+
+    # CALCULATE similarity
+    similarity_df = similarity.calculate(vectors_df, use_multiprocessing=False)
+    logging.info("similarity_df created")
+    logging.info("Done saving")
 
     # For the webapp
     create_title_and_id_mapping()
