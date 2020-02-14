@@ -1,4 +1,5 @@
 import pandas as pd
+from tqdm import tqdm
 
 from find_more_like_algorithm.utils import get_imdb_id_prefix_folder_name, VECTORS_CACHE_PATH, \
     get_method_file_last_modified_time, get_file_path_last_modified_time, open_json
@@ -13,7 +14,7 @@ def _get_cache_file_path(imdb_id, vectorization_name):
 def load_cached_data(df, vectorization):
     cached_results = []
     existing_cached_imdb_ids = []
-    for imdb_id in df.index.tolist():
+    for imdb_id in tqdm(df.index.tolist(), desc="load cached data"):
         cache_file_path = _get_cache_file_path(imdb_id, vectorization['name'])
         if cache_file_path.exists():
             method_file_last_modified_time = get_method_file_last_modified_time(vectorization["callable"])

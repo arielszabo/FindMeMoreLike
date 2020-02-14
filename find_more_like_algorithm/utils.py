@@ -9,6 +9,7 @@ from importlib import import_module
 import requests
 import yaml
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, RUN_SIGNATURE_STRING
 
@@ -108,7 +109,7 @@ def _get_all_existing_imdb_ids():
 
 def create_title_and_id_mapping():
     title_and_id = []
-    for similar_list_file_path in SIMILAR_LIST_SAVING_PATH.rglob("*/*.json"):
+    for similar_list_file_path in tqdm(SIMILAR_LIST_SAVING_PATH.rglob("*/*.json"), "create title and id mapping"):
         imdb_id = similar_list_file_path.stem
         imdb_id_prefix = get_imdb_id_prefix_folder_name(imdb_id)
         raw_imdb_file_path = RAW_IMDB_DATA_PATH.joinpath(imdb_id_prefix, similar_list_file_path.name)
