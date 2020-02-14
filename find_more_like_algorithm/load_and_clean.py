@@ -20,6 +20,8 @@ def load_saved_data():
             continue
 
         imdb_id = full_imdb_file_path.stem
+        imdb_data[IMDB_ID] = imdb_id  # Sometimes the IMDb ID in the json is not like the file name but the point out (some time redirect) the same movie  TODO find out why tt10596948.json tt10298012.json tt10731818.json tt10644978.json tt10592746.json tt6467492.json tt9315000.json
+
         folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
         full_wiki_file_path = RAW_WIKI_DATA_PATH.joinpath(folder_prefix, f"{imdb_id}.json")
         if full_wiki_file_path.exists():
