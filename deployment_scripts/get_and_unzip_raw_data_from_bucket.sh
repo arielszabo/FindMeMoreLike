@@ -10,7 +10,6 @@ zip_folder=raw_data_zip_files
 
 
 get_and_unzip () {
-    gsutil -m cp -r "gs://ariel-szabo/find-me-more-like/$zip_folder/${1}"_zip .
     mkdir $1
     for zipped_file in "$zip_folder/${1}"_zip/*
     do
@@ -20,6 +19,9 @@ get_and_unzip () {
     done
 
 }
+
+# get raw data from bucket
+gsutil -m cp -r gs://ariel-szabo/find-me-more-like/$zip_folder .
 
 # unzip
 get_and_unzip raw_imdb_data
