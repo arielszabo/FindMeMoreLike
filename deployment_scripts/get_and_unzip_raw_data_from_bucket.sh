@@ -6,24 +6,21 @@ embedding_file=enwiki_dbow
 #gunzip "${embedding_file}.tar.gz"
 #tar -xf "${embedding_file}.tar"
 
-zip_folder=raw_data_zip_files
-
 
 get_and_unzip () {
     mkdir $1
-    for zipped_file in "$zip_folder/${1}"_zip/*
+    zip_folder="${1}"_zip
+    gsutil -m cp -r gs://ariel-szabo/find-me-more-like/raw_data_zip_files/${zip_folder} .
+    for zipped_file in ${zip_folder}/*
     do
         zipped_file_with_tar_suffix="${zipped_file%.*}"
         gunzip "$zipped_file_with_tar_suffix.gz"
         tar -xf "$zipped_file_with_tar_suffix" -C "${1}/"
     done
-
+    rm -r ${zip_folder}
 }
-
-# get raw data from bucket
-gsutil -m cp -r gs://ariel-szabo/find-me-more-like/$zip_folder .
 
 # unzip
 get_and_unzip raw_imdb_data
-get_and_unzip raw_wiki_data
+#get_and_unzip raw_wiki_data
 get_and_unzip similar_list_data_zip
