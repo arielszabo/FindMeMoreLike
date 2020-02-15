@@ -111,8 +111,8 @@ def _get_all_existing_imdb_ids():
 
 
 def create_title_and_id_mapping():
-    title_and_id = []
-    for similar_list_file_path in tqdm(SIMILAR_LIST_SAVING_PATH.rglob("*/*.json"), "create title and id mapping"):
+    title_to_id = {}
+    for similar_list_file_path in tqdm(list(SIMILAR_LIST_SAVING_PATH.rglob("*/*.json")), "create title and id mapping"):
         imdb_id = similar_list_file_path.stem
         imdb_id_prefix = get_imdb_id_prefix_folder_name(imdb_id)
         raw_imdb_file_path = RAW_IMDB_DATA_PATH.joinpath(imdb_id_prefix, similar_list_file_path.name)
@@ -121,15 +121,14 @@ def create_title_and_id_mapping():
         with raw_imdb_file_path.open() as raw_imdb_file:
             raw_imdb_file_content = json.load(raw_imdb_file)
 
-        title_and_id.append({
-            TITLE: raw_imdb_file_content[TITLE],
-            IMDB_ID: imdb_id
-        })
+        title_to_id[raw_imdb_file_content[TITLE]] = imdb_id
 
-    title_and_id_mapping_path = pathlib.Path(ROOT_PATH, "webapp", "static", "title_and_id_mapping.json")
-    # create_title_and_id_mapping_path = pathlib.Path(ROOT_PATH, "webapp", "static", "title_and_id_mapping__old.json")
-    with title_and_id_mapping_path.open("w") as title_and_id_mapping_file:
-        json.dump(title_and_id, title_and_id_mapping_file)
+    titles = list(title_to_id.keys())
+    with WEBAPP_PATH.joinpath("static", "only_titles.json").open("w") as only_titles_json_file:
+        json.dump(titles, only_titles_json_file)
+
+    with WEBAPP_PATH.joinpath("title_to_id.json").open("w") as title_to_id_json_file:
+        json.dump(title_to_id, title_to_id_json_file)
 
 
 def get_method_file_last_modified_time(method_object):

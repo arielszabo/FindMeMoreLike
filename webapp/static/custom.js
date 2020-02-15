@@ -7,10 +7,10 @@ $().ready(function() {
                 enabled: true
             },
             maxNumberOfElements: 10,
-            onSelectItemEvent: function() {
-                var value = $("#provider-json").getSelectedItemData().imdbID;
-
-            },
+//            onSelectItemEvent: function() {
+//                var value = $("#provider-json").getSelectedItemData().imdbID;
+//
+//            },
         },
         highlightPhrase: true,
 
