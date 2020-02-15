@@ -21,6 +21,6 @@ get_and_unzip () {
 }
 
 # unzip
-get_and_unzip raw_imdb_data
+#get_and_unzip raw_imdb_data
 #get_and_unzip raw_wiki_data
-get_and_unzip similar_list_data_zip
+get_and_unzip similar_list_data
