@@ -1,8 +1,6 @@
 $().ready(function() {
     var options = {
-        url: "static/title_and_id_mapping.json",
-
-        getValue: "Title",
+        url: "static/only_titles.json",
 
         list: {
             match: {
@@ -12,7 +10,6 @@ $().ready(function() {
             onSelectItemEvent: function() {
                 var value = $("#provider-json").getSelectedItemData().imdbID;
 
-                $("#data-holder").val(value).trigger("change");
             },
         },
         highlightPhrase: true,

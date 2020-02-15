@@ -8,8 +8,8 @@ import requests
 import re
 from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT
-from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, ROOT_PATH, RAW_IMDB_DATA_PATH, \
-    SIMILAR_LIST_SAVING_PATH
+from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
+    SIMILAR_LIST_SAVING_PATH, open_json
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -32,6 +32,8 @@ DB().create_tables()
 
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
+title_to_id_mapping = open_json(WEBAPP_PATH.joinpath("title_to_id.json"))
 
 
 # Flask-Login helper to retrieve a user from our db
@@ -131,7 +133,7 @@ def main():
 
 @app.route('/search')
 def search_redirect():
-    query = request.args.get('imdbid')
+    query = request.args.get('selected-title')
     hide_seen_titles = request.args.get('hide-seen-titles')
     page_index = request.args.get('page_index', default=0)
     app.logger.info(hide_seen_titles)
@@ -168,8 +170,9 @@ def get_search_results(imdb_id, hide_seen_titles, page_index):
     return jsonify(data)
 
 
-@app.route('/search/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
-def search(imdb_id, hide_seen_titles, page_index):
+@app.route('/search/<string:title>/<string:hide_seen_titles>/<int:page_index>')
+def search(title, hide_seen_titles, page_index):
+    imdb_id = title_to_id_mapping[title]
     search_results_response = get_search_results(imdb_id, hide_seen_titles, page_index)
     search_results = json.loads(search_results_response.data)
     return render_template('search_results.html',
