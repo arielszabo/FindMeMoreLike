@@ -48,5 +48,15 @@ mkdir ~/letsencrypt
 As root:
 
 ```
-certbot certonly --webroot -w /home/ariel/letsencrypt/ -d find-me-more-like.szabgab.com
+certbot certonly --webroot -w /home/ariel/letsencrypt/ -d find-alike.szabgab.com
+certbot renew
 ```
+Your cert will expire on 2020-05-15.
+
+
+
+### restart your webapp
+`sudo systemctl restart uwsgi`
+
+## logs are at:
+`sudo less /var/log/uwsgi/app/find-me-more-like.log`
