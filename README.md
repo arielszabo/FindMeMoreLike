@@ -56,7 +56,9 @@ Your cert will expire on 2020-05-15.
 
 
 ### restart your webapp
-`sudo systemctl restart uwsgi`
+```
+sudo systemctl restart uwsgi
+```
 
 ## logs are at:
 `sudo less /var/log/uwsgi/app/find-me-more-like.log`

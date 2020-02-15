@@ -9,7 +9,7 @@ import re
 from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT
 from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
-    SIMILAR_LIST_SAVING_PATH, open_json
+    SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -33,7 +33,7 @@ DB().create_tables()
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-title_to_id_mapping = open_json(WEBAPP_PATH.joinpath("title_to_id.json"))
+title_to_id_mapping = open_json(TITLE_TO_ID_JSON_PATH)
 
 
 # Flask-Login helper to retrieve a user from our db

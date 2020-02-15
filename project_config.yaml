@@ -11,3 +11,5 @@ vectors_cache_path: 'vectors_cache'
 similar_list_saving_path: 'similar_list_data'
 
 doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
+
+title_to_id_json_name: 'title_to_id.json'

@@ -35,6 +35,8 @@ RAW_WIKI_DATA_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG["api_data_saving_path"]["
 SIMILAR_LIST_SAVING_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['similar_list_saving_path'])
 VECTORS_CACHE_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['vectors_cache_path'])
 DOC2VEC_MODEL_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['doc2vec_model_path'])
+TITLE_TO_ID_JSON_PATH = WEBAPP_PATH.joinpath(PROJECT_CONFIG['title_to_id_json_name'])
+
 keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
 with keys_config_path.open() as keys_config_yaml_file:
     KEYS_CONFIG = yaml.load(keys_config_yaml_file)
