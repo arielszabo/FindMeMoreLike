@@ -17,3 +17,5 @@ doc2vec_model_path: 'enwiki_dbow/doc2vec.bin'
 similarity_method: 'cosine'
 
 title_to_id_json_name: 'title_to_id_sample.json'
+
+available_titles_json_name: 'available_titles_sample.json'

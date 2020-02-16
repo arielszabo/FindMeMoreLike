@@ -36,6 +36,7 @@ SIMILAR_LIST_SAVING_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['similar_list_savin
 VECTORS_CACHE_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['vectors_cache_path'])
 DOC2VEC_MODEL_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['doc2vec_model_path'])
 TITLE_TO_ID_JSON_PATH = WEBAPP_PATH.joinpath(PROJECT_CONFIG['title_to_id_json_name'])
+AVAILABLE_TITLES_JSON_PATH = WEBAPP_PATH.joinpath("static", PROJECT_CONFIG['available_titles_json_name'])
 
 keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
 with keys_config_path.open() as keys_config_yaml_file:
@@ -126,10 +127,10 @@ def create_title_and_id_mapping():
         title_to_id[raw_imdb_file_content[TITLE]] = imdb_id
 
     titles = list(title_to_id.keys())
-    with WEBAPP_PATH.joinpath("static", "only_titles.json").open("w") as only_titles_json_file:
-        json.dump(titles, only_titles_json_file)
+    with AVAILABLE_TITLES_JSON_PATH.open("w") as available_titles_json_file:
+        json.dump(titles, available_titles_json_file)
 
-    with WEBAPP_PATH.joinpath("title_to_id.json").open("w") as title_to_id_json_file:
+    with TITLE_TO_ID_JSON_PATH.open("w") as title_to_id_json_file:
         json.dump(title_to_id, title_to_id_json_file)
 
 

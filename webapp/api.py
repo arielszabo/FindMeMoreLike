@@ -6,10 +6,9 @@ import os
 import math
 import requests
 import re
-from find_more_like_algorithm import utils
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT
 from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
-    SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH
+    SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, get_imdb_id_prefix_folder_name
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -34,7 +33,7 @@ DB().create_tables()
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 title_to_id_mapping = open_json(TITLE_TO_ID_JSON_PATH)
-
+AVAILABLE_TITLES = open_json(AVAILABLE_TITLES_JSON_PATH)
 
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
@@ -142,9 +141,9 @@ def search_redirect():
 
 @app.route('/get_search_results/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
 def get_search_results(imdb_id, hide_seen_titles, page_index):
-    prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
+    prefix = get_imdb_id_prefix_folder_name(imdb_id)
     file_path = SIMILAR_LIST_SAVING_PATH.joinpath(prefix, f'{imdb_id}.json')
-    similarity_list = utils.open_json(file_path)
+    similarity_list = open_json(file_path)
     title = load_presentation_data(imdb_id)["Title"]
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
     if page_index > max_page_number:
@@ -203,10 +202,10 @@ def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_lis
 
 
 def load_presentation_data(imdb_id):
-    imdb_id_folder_prefix = utils.get_imdb_id_prefix_folder_name(imdb_id)
+    imdb_id_folder_prefix = get_imdb_id_prefix_folder_name(imdb_id)
     file_path = os.path.join(RAW_IMDB_DATA_PATH, imdb_id_folder_prefix, f'{imdb_id}.json')
     if os.path.exists(file_path):
-        imdb_data = utils.open_json(file_path)
+        imdb_data = open_json(file_path)
         return {
             TITLE: imdb_data[TITLE],
             'Director': imdb_data['Director'],
