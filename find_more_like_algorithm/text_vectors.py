@@ -1,8 +1,7 @@
 import logging
-import os
 import nltk
 import pandas as pd
-from find_more_like_algorithm.utils import generate_list_chunks, DOC2VEC_MODEL_PATH
+from find_more_like_algorithm.utils import generate_list_chunks, DOC2VEC_MODEL_PATH, NUMBER_OF_CONCURRENT_PROCESS
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 import string
@@ -18,13 +17,12 @@ nltk.download('punkt')
 
 
 def get_text_vectors(df, text_column_name):
-    number_of_process = os.cpu_count() - 2
-    chunks_amount = number_of_process * 10
+    chunks_amount = NUMBER_OF_CONCURRENT_PROCESS * 10
     batch_df_index_lists = generate_list_chunks(df.index.tolist(), chunks_amount=chunks_amount)
 
     text_series_batches = (df.loc[batch_index_list, text_column_name] for batch_index_list in batch_df_index_lists)
 
-    with multiprocessing.Pool(number_of_process) as pool:
+    with multiprocessing.Pool(NUMBER_OF_CONCURRENT_PROCESS) as pool:
         results = tqdm(iterable=pool.imap(get_text_vectors_on_batch_text_series, iterable=text_series_batches),
                        total=chunks_amount, desc=f"get text vectors on {text_column_name}")
         vectors_batch_df_list = list(results)
