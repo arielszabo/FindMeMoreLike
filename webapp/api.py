@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for
+from flask import Flask, jsonify, render_template,  Response, request, redirect, abort, url_for
+from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from oauthlib.oauth2 import WebApplicationClient
 import json
@@ -20,6 +21,7 @@ GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", KEYS_CONFIG["googl
 GOOGLE_DISCOVERY_URL = ("https://accounts.google.com/.well-known/openid-configuration")
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
 # User session management setup - https://flask-login.readthedocs.io/en/latest
@@ -43,6 +45,24 @@ def load_user(user_id):
 
 def get_google_provider_cfg():  # todo: add error handling
     return requests.get(GOOGLE_DISCOVERY_URL).json()
+
+
+@app.route("/get_available_titles")
+def get_titles():
+    title_amount_to_return = 100
+    searched_term = request.args.get("term")
+
+    titles_containing_term = []
+    for title in AVAILABLE_TITLES:
+        if searched_term.lower() in title.lower():  # TODO maybe use a different
+            titles_containing_term.append(title)
+
+    amount_of_titles_containing_term = len(titles_containing_term)
+    if amount_of_titles_containing_term > title_amount_to_return:
+        titles_containing_term = titles_containing_term[:title_amount_to_return]
+        titles_containing_term.append(
+            f"*** There are {amount_of_titles_containing_term- title_amount_to_return} more titles matching to the search, please refine your search ***")
+    return jsonify(titles_containing_term)
 
 
 @app.route("/login")

@@ -5,6 +5,10 @@ body {
     /* font-family: "Bookman Old Style"*/
 }
 
+.ui-autocomplete-loading {
+    background: white url("../ui-anim_basic_16x16.gif") right center no-repeat;
+  }
+
 /* a { color: #D69A19; } */
 .boxed {
       background-color: #F5C518;
@@ -108,7 +112,7 @@ body {
 .main_search form .inner-form .input-field input {
     height: 100%;
     width: 100%;
-    background: transparent;
+    /*background: transparent;*/
     border: 0;
     display: inline-block;
       /*display: inline-flex;*/

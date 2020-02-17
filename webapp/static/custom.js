@@ -1,23 +1,13 @@
 $().ready(function() {
-    var options = {
-        url: "static/only_titles.json",
+    function log( message ) {
+      $( ".display_loading_message" ).text( message ).prependTo( "#log" );
+      $( "#log" ).scrollTop( 0 );
+    }
 
-        list: {
-            match: {
-                enabled: true
-            },
-            maxNumberOfElements: 10,
-//            onSelectItemEvent: function() {
-//                var value = $("#provider-json").getSelectedItemData().imdbID;
-//
-//            },
-        },
-        highlightPhrase: true,
-
-        theme: "bootstrap"
-    };
-
-    $("#provider-json").easyAutocomplete(options);
+    $("#provider-json").autocomplete({
+      source: "/get_available_titles",
+      minLength: 2
+    });
 
     $(".seen-checkbox").click(function(){
         $.ajax({
