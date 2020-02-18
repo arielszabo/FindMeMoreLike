@@ -49,20 +49,30 @@ def get_google_provider_cfg():  # todo: add error handling
 
 @app.route("/get_available_titles")
 def get_titles():
-    title_amount_to_return = 100
+    max_title_amount_to_return = 100
     searched_term = request.args.get("term")
 
     titles_containing_term = []
     for title in AVAILABLE_TITLES:
-        if searched_term.lower() in title.lower():  # TODO maybe use a different
+        if _is_searched_term_contained_in_title(searched_term, title):
             titles_containing_term.append(title)
 
     amount_of_titles_containing_term = len(titles_containing_term)
-    if amount_of_titles_containing_term > title_amount_to_return:
-        titles_containing_term = titles_containing_term[:title_amount_to_return]
+    if amount_of_titles_containing_term > max_title_amount_to_return:
+        titles_containing_term = titles_containing_term[:max_title_amount_to_return]
         titles_containing_term.append(
-            f"*** There are {amount_of_titles_containing_term- title_amount_to_return} more titles matching to the search, please refine your search ***")
+            f"*** There are {amount_of_titles_containing_term - max_title_amount_to_return} more titles matching to the search, please refine your search ***")
     return jsonify(titles_containing_term)
+
+
+def _is_searched_term_contained_in_title(searched_term, title):
+    # TODO maybe remove non [A-Z\d], maybe remove stop words
+    title_lowered = title.lower()
+    searched_term_lowered = searched_term.lower()
+    if searched_term_lowered in title_lowered:
+        return True
+    else:
+        return False
 
 
 @app.route("/login")
