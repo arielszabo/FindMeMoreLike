@@ -34,22 +34,12 @@ DB().create_tables()
 # OAuth 2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
-title_to_id_mapping = open_json(TITLE_TO_ID_JSON_PATH)
+TITLE_TO_ID_MAPPING = open_json(TITLE_TO_ID_JSON_PATH)
 AVAILABLE_TITLES = open_json(AVAILABLE_TITLES_JSON_PATH)
-
-# Flask-Login helper to retrieve a user from our db
-@login_manager.user_loader
-def load_user(user_id):
-    return get_user_by_id(user_id)
-
-
-def get_google_provider_cfg():  # todo: add error handling
-    return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 @app.route("/get_available_titles")
 def get_titles():
-    max_title_amount_to_return = 100
     searched_term = request.args.get("term")
 
     titles_containing_term = []
@@ -58,6 +48,7 @@ def get_titles():
             titles_containing_term.append(title)
 
     amount_of_titles_containing_term = len(titles_containing_term)
+    max_title_amount_to_return = 100
     if amount_of_titles_containing_term > max_title_amount_to_return:
         titles_containing_term = titles_containing_term[:max_title_amount_to_return]
         titles_containing_term.append(
@@ -73,6 +64,16 @@ def _is_searched_term_contained_in_title(searched_term, title):
         return True
     else:
         return False
+
+
+# Flask-Login helper to retrieve a user from our db
+@login_manager.user_loader
+def load_user(user_id):
+    return get_user_by_id(user_id)
+
+
+def get_google_provider_cfg():  # todo: add error handling
+    return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 @app.route("/login")
@@ -169,12 +170,20 @@ def search_redirect():
     return redirect(f'/search/{query}/{hide_seen_titles}/{page_index}')
 
 
+@app.route('/search/<string:title>/<string:hide_seen_titles>/<int:page_index>')
+def search(title, hide_seen_titles, page_index):
+    # hide_seen_titles = hide_seen_titles.lower() == "on"  # TODO make this boolean
+    imdb_id = TITLE_TO_ID_MAPPING[title]
+    search_results_response = get_search_results(imdb_id, hide_seen_titles, page_index)
+    search_results = json.loads(search_results_response.data)
+    return render_template('search_results.html',
+                           **search_results,
+                           version_number=VERSION_NUMBER)
+
+
 @app.route('/get_search_results/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
 def get_search_results(imdb_id, hide_seen_titles, page_index):
-    prefix = get_imdb_id_prefix_folder_name(imdb_id)
-    file_path = SIMILAR_LIST_SAVING_PATH.joinpath(prefix, f'{imdb_id}.json')
-    similarity_list = open_json(file_path)
-    title = load_presentation_data(imdb_id)["Title"]
+    similarity_list = _get_similarity_list(imdb_id)
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
     if page_index > max_page_number:
         abort(404, description="Resource not found")
@@ -184,9 +193,15 @@ def get_search_results(imdb_id, hide_seen_titles, page_index):
 
     user_seen_imdb_ids = get_user_seen_imdb_ids()
 
-    results = get_movies_to_show(imdb_id, hide_seen_titles, sliced_similarity_list, user_seen_imdb_ids)
+    is_filter_out_seen_titles = hide_seen_titles.lower() == "on"
+    results = get_movies_presentation_data(imdb_id,
+                                           sliced_similarity_list,
+                                           user_seen_imdb_ids,
+                                           filter_out_seen_titles=is_filter_out_seen_titles,
+                                           limit_returned_amount=True)
     results_imdb_ids = [result[IMDB_ID] for result in results]
     page_user_seen_titles_amount = len(user_seen_imdb_ids.intersection(results_imdb_ids))
+    title = load_presentation_data(imdb_id)["Title"]
     data = {
         "similarity_results": results,
         "request_title": title,
@@ -199,35 +214,37 @@ def get_search_results(imdb_id, hide_seen_titles, page_index):
     return jsonify(data)
 
 
-@app.route('/search/<string:title>/<string:hide_seen_titles>/<int:page_index>')
-def search(title, hide_seen_titles, page_index):
-    imdb_id = title_to_id_mapping[title]
-    search_results_response = get_search_results(imdb_id, hide_seen_titles, page_index)
-    search_results = json.loads(search_results_response.data)
-    return render_template('search_results.html',
-                           **search_results,
-                           version_number=VERSION_NUMBER)
+@app.route('/get_all_search_results/<string:imdb_id>')
+def get_all_search_results(imdb_id):
+    similarity_list = _get_similarity_list(imdb_id)
+    user_seen_imdb_ids = get_user_seen_imdb_ids()
+    results = get_movies_presentation_data(imdb_id, similarity_list, user_seen_imdb_ids, limit_returned_amount=False)
+    return jsonify(results)
 
 
-def get_movies_to_show(requested_imdbid, hide_seen_titles, sliced_similarity_list, user_seen_imdb_id):
+def _get_similarity_list(imdb_id):
+    prefix = get_imdb_id_prefix_folder_name(imdb_id)
+    similarity_list_file_path = SIMILAR_LIST_SAVING_PATH.joinpath(prefix, f'{imdb_id}.json')
+    similarity_list = open_json(similarity_list_file_path)
+
+    return similarity_list
+
+
+def get_movies_presentation_data(requested_imdb_id, similarity_list, user_seen_imdb_ids, filter_out_seen_titles=False,
+                                 limit_returned_amount=False):
     results = []
-    for similar_movie in sliced_similarity_list:
-        imdb_id, _ = similar_movie
-        if imdb_id == requested_imdbid:
+    for imdb_id, similarity_value in similarity_list:  # TODO use similarity_value
+        if imdb_id == requested_imdb_id:
             continue
 
         imdb_id_presentation_data = load_presentation_data(imdb_id)
-
-        if imdb_id_presentation_data[IMDB_ID] in user_seen_imdb_id:
-            imdb_id_presentation_data["user_seen"] = True
-            if hide_seen_titles.lower() == 'on':
-                continue
-        else:
-            imdb_id_presentation_data["user_seen"] = False
+        imdb_id_presentation_data["user_seen"] = imdb_id_presentation_data[IMDB_ID] in user_seen_imdb_ids
+        if filter_out_seen_titles and imdb_id_presentation_data["user_seen"]:
+            continue
         results.append(imdb_id_presentation_data)
 
-        if len(results) == ONE_PAGE_SUGGESTIONS_AMOUNT:
-            return results
+        if limit_returned_amount and len(results) == ONE_PAGE_SUGGESTIONS_AMOUNT:
+            break
     return results
 
 
