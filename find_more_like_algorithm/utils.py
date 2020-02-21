@@ -113,7 +113,7 @@ def _get_all_existing_imdb_ids():
     return existing_ids
 
 
-def create_title_and_id_mapping():
+def create_available_titles_and_title_to_id_mapping():
     title_to_id = {}
     for similar_list_file_path in tqdm(list(SIMILAR_LIST_SAVING_PATH.rglob("*/*.json")), "create title and id mapping"):
         imdb_id = similar_list_file_path.stem

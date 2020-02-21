@@ -4,7 +4,7 @@ from datetime import datetime
 
 from find_more_like_algorithm import extractors, vectorization, utils, load_and_clean, similarity
 from find_more_like_algorithm.constants import LOGFILE_BASE_PATH
-from find_more_like_algorithm.utils import create_title_and_id_mapping, RUN_SIGNATURE, PROJECT_CONFIG
+from find_more_like_algorithm.utils import create_available_titles_and_title_to_id_mapping, RUN_SIGNATURE, PROJECT_CONFIG
 
 os.makedirs(LOGFILE_BASE_PATH, exist_ok=True)
 
@@ -42,4 +42,4 @@ if __name__ == '__main__':
     logging.info("Done saving")
 
     # For the webapp
-    create_title_and_id_mapping()
+    create_available_titles_and_title_to_id_mapping()
