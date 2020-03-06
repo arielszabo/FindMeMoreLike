@@ -41,6 +41,8 @@ AVAILABLE_TITLES = open_json(AVAILABLE_TITLES_JSON_PATH)
 @app.route("/get_available_titles")
 def get_titles():
     searched_term = request.args.get("term")
+    if searched_term is None:
+        return jsonify(None)
 
     titles_containing_term = []
     for title in AVAILABLE_TITLES:
