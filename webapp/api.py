@@ -355,7 +355,7 @@ def get_poster_image(imdb_id):
     # TODO: make sure imdb_id_ is valid
     # TODO: resize images ?
     cached_image_path = get_image_path(imdb_id)
-    if cached_image_path.exits():
+    if cached_image_path.exists():
         return send_file(cached_image_path, mimetype='image/PNG')
 
     api_key = KEYS_CONFIG[OMDB_USER_KEY]
