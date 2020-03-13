@@ -353,18 +353,16 @@ def save_missing_titles():
 @app.route('/get_poster_image/<string:imdb_id>')
 def get_poster_image(imdb_id):
     # TODO: make sure imdb_id_ is valid
+    # TODO: resize images ?
     api_key = KEYS_CONFIG[OMDB_USER_KEY]
     response = requests.get(f"http://img.omdbapi.com/?apikey={api_key}&i={imdb_id}", stream=True)
     if response.status_code == 200:
-        # TODO: resize images ?
-        # response.raw.decode_content
         return send_file(response.raw, mimetype='image/PNG')
     else:
         imdb_data = _load_imdb_data(imdb_id)
         imdb_poster_link = imdb_data["Poster"]
         if "http" in imdb_poster_link:  # TODO: make this better
-            response = requests.get(imdb_poster_link)
-            # response.raw.decode_content
+            response = requests.get(imdb_poster_link, stream=True)
             return send_file(response.raw, mimetype='image/PNG')
         else:
             no_poster_image_found_image_path = ROOT_PATH.joinpath("webapp", "static", "no_poster_image_found.png")
