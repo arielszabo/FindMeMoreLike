@@ -1,7 +1,3 @@
-import io
-import pathlib
-import tempfile
-
 from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file
 from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
@@ -16,6 +12,8 @@ from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_P
     SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, \
     get_imdb_id_prefix_folder_name, ROOT_PATH
 from webapp.db_handler import DB, SeenTitles, MissingTitles
+from webapp.poster_images_handling import delete_oldest_cached_image_if_cached_poster_images_limit_reached, \
+    _get_cached_image_path, _save_image
 from webapp.user import User, get_user_by_id
 
 VERSION_NUMBER = "0.0.1"
@@ -359,6 +357,7 @@ def get_poster_image(imdb_id):
     if cached_image_path.exists():
         return send_file(cached_image_path, mimetype='image/PNG')
 
+    delete_oldest_cached_image_if_cached_poster_images_limit_reached()
     api_key = KEYS_CONFIG[OMDB_USER_KEY]
     response = requests.get(f"http://img.omdbapi.com/?apikey={api_key}&i={imdb_id}", stream=True)
     if response.status_code == 200:
@@ -374,16 +373,6 @@ def get_poster_image(imdb_id):
         else:
             no_poster_image_found_image_path = ROOT_PATH.joinpath("webapp", "static", "no_poster_image_found.png")
             return send_file(no_poster_image_found_image_path, mimetype='image/PNG')
-
-
-def _save_image(image_path, response_content):
-    with image_path.open("wb") as image_file:
-        image_file.write(response_content)
-
-
-def _get_cached_image_path(imdb_id):
-    image_path = pathlib.Path("/tmp", f"{imdb_id}.png")
-    return image_path
 
 
 if __name__ == "__main__":

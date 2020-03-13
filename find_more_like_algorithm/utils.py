@@ -42,6 +42,9 @@ keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
 with keys_config_path.open() as keys_config_yaml_file:
     KEYS_CONFIG = yaml.load(keys_config_yaml_file)
 
+CACHED_POSTER_IMAGES_PATH = pathlib.Path("/tmp", "cached_images")
+CACHED_POSTER_IMAGES_PATH.mkdir(exist_ok=True)
+
 
 def open_json(full_file_path):
     try:
