@@ -40,7 +40,6 @@ AVAILABLE_TITLES_JSON_PATH = WEBAPP_PATH.joinpath("static", PROJECT_CONFIG['avai
 
 
 POSTER_IMAGES_CACHE_PATH = ROOT_PATH.joinpath("webapp", "poster_images_cache")
-POSTER_IMAGES_CACHE_PATH.mkdir(exist_ok=True)
 
 keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
 with keys_config_path.open() as keys_config_yaml_file:
