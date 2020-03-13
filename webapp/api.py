@@ -12,7 +12,8 @@ import requests
 import re
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT, OMDB_USER_KEY
 from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
-    SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, get_imdb_id_prefix_folder_name
+    SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, \
+    get_imdb_id_prefix_folder_name, ROOT_PATH
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -253,23 +254,27 @@ def get_movies_presentation_data(requested_imdb_id, similarity_list, user_seen_i
     return results
 
 
-def load_presentation_data(imdb_id):
+def _load_imdb_data(imdb_id):
     imdb_id_folder_prefix = get_imdb_id_prefix_folder_name(imdb_id)
     file_path = os.path.join(RAW_IMDB_DATA_PATH, imdb_id_folder_prefix, f'{imdb_id}.json')
     if os.path.exists(file_path):
         imdb_data = open_json(file_path)
+        return imdb_data
+    else:
+        raise FileNotFoundError(f'.... {file_path} ... ')  # todo: is this how you should do it ?
+
+
+def load_presentation_data(imdb_id):
+    imdb_data = _load_imdb_data(imdb_id)
+    if imdb_data:
         return {
             TITLE: imdb_data[TITLE],
             'Director': imdb_data['Director'],
             PLOT: imdb_data[PLOT],
             'Year': imdb_data['Year'],
-            'Poster': imdb_data['Poster'],
             'imdbID': imdb_data['imdbID'],
             'IMDb_path': 'https://www.imdb.com/title/{}/'.format(imdb_id)
         }
-
-    else:
-        raise FileNotFoundError(f'.... {file_path} ... ')  # todo: is this how you should do it ?
 
 
 def get_user_seen_imdb_ids():
@@ -349,6 +354,17 @@ def save_missing_titles():
 def get_poster_image(imdb_id):
     apikey = KEYS_CONFIG[OMDB_USER_KEY]
     response = requests.get(f"http://img.omdbapi.com/?apikey={apikey}&i={imdb_id}")
+    if response.status_code != 200:
+        imdb_data = _load_imdb_data(imdb_id)
+        imdb_poster_link = imdb_data["Poster"]
+        if "http" in imdb_poster_link:  # TODO: make this better
+            response = requests.get(imdb_poster_link)
+        else:
+            no_poster_image_found_image_path = ROOT_PATH.joinpath("webapp", "static", "no_poster_image_found.png")
+            with no_poster_image_found_image_path.open("rb") as no_poster_image_found_image_content:
+                content = io.BytesIO(no_poster_image_found_image_content.read())
+            return send_file(content, mimetype='image/PNG')
+
     # TODO: resize images ?
     content = io.BytesIO(response.content)
     return send_file(content, mimetype='image/PNG')
