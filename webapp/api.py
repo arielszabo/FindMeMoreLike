@@ -1,7 +1,7 @@
 import io
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file
+from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file, make_response
 from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from oauthlib.oauth2 import WebApplicationClient
@@ -13,7 +13,7 @@ import re
 from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT, OMDB_USER_KEY
 from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
     SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, \
-    get_imdb_id_prefix_folder_name, ROOT_PATH
+    get_imdb_id_prefix_folder_name, ROOT_PATH, POSTER_IMAGES_CACHE_PATH
 from webapp.db_handler import DB, SeenTitles, MissingTitles
 from webapp.user import User, get_user_by_id
 
@@ -354,19 +354,35 @@ def save_missing_titles():
 def get_poster_image(imdb_id):
     # TODO: make sure imdb_id_ is valid
     # TODO: resize images ?
+    cached_image_path = get_image_path(imdb_id)
+    if cached_image_path.exits():
+        return send_file(cached_image_path, mimetype='image/PNG')
+
     api_key = KEYS_CONFIG[OMDB_USER_KEY]
     response = requests.get(f"http://img.omdbapi.com/?apikey={api_key}&i={imdb_id}", stream=True)
     if response.status_code == 200:
-        return send_file(response.raw, mimetype='image/PNG')
+        _save_image(cached_image_path, response.content)
+        return send_file(cached_image_path, mimetype='image/PNG')
     else:
         imdb_data = _load_imdb_data(imdb_id)
         imdb_poster_link = imdb_data["Poster"]
         if "http" in imdb_poster_link:  # TODO: make this better
             response = requests.get(imdb_poster_link, stream=True)
-            return send_file(response.raw, mimetype='image/PNG')
+            _save_image(cached_image_path, response.content)
+            return send_file(cached_image_path, mimetype='image/PNG')
         else:
             no_poster_image_found_image_path = ROOT_PATH.joinpath("webapp", "static", "no_poster_image_found.png")
             return send_file(no_poster_image_found_image_path, mimetype='image/PNG')
+
+
+def _save_image(image_path, response_content):
+    with image_path.open("wb") as image_file:
+        image_file.write(response_content)
+
+
+def get_image_path(imdb_id):
+    image_path = POSTER_IMAGES_CACHE_PATH.joinpath(f"{imdb_id}.png")
+    return image_path
 
 
 if __name__ == "__main__":

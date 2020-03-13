@@ -38,6 +38,9 @@ DOC2VEC_MODEL_PATH = ROOT_PATH.joinpath(PROJECT_CONFIG['doc2vec_model_path'])
 TITLE_TO_ID_JSON_PATH = WEBAPP_PATH.joinpath(PROJECT_CONFIG['title_to_id_json_name'])
 AVAILABLE_TITLES_JSON_PATH = WEBAPP_PATH.joinpath("static", PROJECT_CONFIG['available_titles_json_name'])
 
+
+POSTER_IMAGES_CACHE_PATH = ROOT_PATH.joinpath("webapp", "poster_images_cache")
+
 keys_config_path = ROOT_PATH.joinpath(PROJECT_CONFIG['keys_config_path'])
 with keys_config_path.open() as keys_config_yaml_file:
     KEYS_CONFIG = yaml.load(keys_config_yaml_file)
