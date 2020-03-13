@@ -1,4 +1,7 @@
-from flask import Flask, jsonify, render_template,  Response, request, redirect, abort, url_for
+import io
+from pathlib import Path
+
+from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file
 from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from oauthlib.oauth2 import WebApplicationClient
@@ -7,7 +10,7 @@ import os
 import math
 import requests
 import re
-from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT
+from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT, OMDB_USER_KEY
 from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
     SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, get_imdb_id_prefix_folder_name
 from webapp.db_handler import DB, SeenTitles, MissingTitles
@@ -340,6 +343,15 @@ def save_missing_titles():
             db.session.commit()
 
     return jsonify({"missing_link": link_to_imdb})  # todo: return warning if bad input / return success and failure
+
+
+@app.route('/get_poster_image/<string:imdb_id>')
+def get_poster_image(imdb_id):
+    apikey = KEYS_CONFIG[OMDB_USER_KEY]
+    response = requests.get(f"http://img.omdbapi.com/?apikey={apikey}&i={imdb_id}")
+    # TODO: resize images ?
+    content = io.BytesIO(response.content)
+    return send_file(content, mimetype='image/PNG')
 
 
 if __name__ == "__main__":
