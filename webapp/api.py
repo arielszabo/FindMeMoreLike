@@ -296,7 +296,7 @@ def get_user_seen_imdb_ids():
 
 @app.route('/save_seen_checkbox', methods=["POST"])
 def save_seen_checkbox():
-    imdbID, _ = request.form.get("id").split("_")
+    imdb_id, _ = request.form.get("id").split("_")
     checkbox_status = request.form.get("status")
     checkbox_status = checkbox_status.lower() == 'true'  # todo: this value return stings
 
@@ -304,14 +304,14 @@ def save_seen_checkbox():
         user_id = current_user.get_id()
         with DB() as db:
             if checkbox_status:
-                seen_title = SeenTitles(user_id=user_id, imdb_id=imdbID)
+                seen_title = SeenTitles(user_id=user_id, imdb_id=imdb_id)
                 db.session.add(seen_title)
             else:
                 seen_titles = db.session.query(
                     SeenTitles
                 ).filter(
                     SeenTitles.user_id == user_id,
-                    SeenTitles.imdb_id == imdbID
+                    SeenTitles.imdb_id == imdb_id
                 ).all()
 
                 for seen_title in seen_titles:
