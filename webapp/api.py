@@ -1,4 +1,6 @@
-from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file, make_response
+import io
+
+from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file
 from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from oauthlib.oauth2 import WebApplicationClient
@@ -355,13 +357,15 @@ def get_poster_image(imdb_id):
     api_key = KEYS_CONFIG[OMDB_USER_KEY]
     response = requests.get(f"http://img.omdbapi.com/?apikey={api_key}&i={imdb_id}", stream=True)
     if response.status_code == 200:
-        return send_file(response.raw, mimetype='image/png')
+        content = io.BytesIO(response.content)
+        return send_file(content, mimetype='image/png')
     else:
         imdb_data = _load_imdb_data(imdb_id)
         imdb_poster_link = imdb_data["Poster"]
         if "http" in imdb_poster_link:  # TODO: make this better
             response = requests.get(imdb_poster_link, stream=True)
-            return send_file(response.raw, mimetype='image/png')
+            content = io.BytesIO(response.content)
+            return send_file(content, mimetype='image/png')
         else:
             no_poster_image_found_image_path = ROOT_PATH.joinpath("webapp", "static", "no_poster_image_found.png")
             return send_file(no_poster_image_found_image_path, mimetype='image/png')
