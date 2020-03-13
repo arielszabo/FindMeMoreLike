@@ -1,4 +1,6 @@
 import io
+import pathlib
+import tempfile
 
 from flask import Flask, jsonify, render_template, Response, request, redirect, abort, url_for, send_file
 from flask_cors import CORS
@@ -353,22 +355,35 @@ def save_missing_titles():
 def get_poster_image(imdb_id):
     # TODO: make sure imdb_id_ is valid
     # TODO: resize images ?
+    cached_image_path = _get_cached_image_path(imdb_id)
+    if cached_image_path.exists():
+        return send_file(cached_image_path, mimetype='image/PNG')
 
     api_key = KEYS_CONFIG[OMDB_USER_KEY]
     response = requests.get(f"http://img.omdbapi.com/?apikey={api_key}&i={imdb_id}", stream=True)
     if response.status_code == 200:
-        content = io.BytesIO(response.content)
-        return send_file(content, mimetype='image/png')
+        _save_image(cached_image_path, response.content)
+        return send_file(cached_image_path, mimetype='image/PNG')
     else:
         imdb_data = _load_imdb_data(imdb_id)
         imdb_poster_link = imdb_data["Poster"]
         if "http" in imdb_poster_link:  # TODO: make this better
             response = requests.get(imdb_poster_link, stream=True)
-            content = io.BytesIO(response.content)
-            return send_file(content, mimetype='image/png')
+            _save_image(cached_image_path, response.content)
+            return send_file(cached_image_path, mimetype='image/PNG')
         else:
             no_poster_image_found_image_path = ROOT_PATH.joinpath("webapp", "static", "no_poster_image_found.png")
-            return send_file(no_poster_image_found_image_path, mimetype='image/png')
+            return send_file(no_poster_image_found_image_path, mimetype='image/PNG')
+
+
+def _save_image(image_path, response_content):
+    with image_path.open("wb") as image_file:
+        image_file.write(response_content)
+
+
+def _get_cached_image_path(imdb_id):
+    image_path = pathlib.Path("/tmp", f"{imdb_id}.png")
+    return image_path
 
 
 if __name__ == "__main__":
