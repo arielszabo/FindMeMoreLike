@@ -9,7 +9,7 @@ logging_file=find_me_more_like_logs/main_algorithm_run.log
 
 rm $logging_file
 # run python code
-python main_algorithm_run.py
+python $1
 # >> $logging_file 2>> $logging_file
 
 sleep 30
