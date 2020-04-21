@@ -41,7 +41,8 @@ def get_text_vectors_on_batch_text_series(batch_text_series):
     gensim_package_logger.setLevel(logging.WARNING)  # disable the gensim's package logging
     doc2vec = Doc2Vec.load(str(DOC2VEC_MODEL_PATH))
     gensim_package_logger.setLevel(logging.INFO)  # enable the gensim's package logging
-    list_of_vectors = batch_text_series.apply(infer_doc2vec_vector, doc2vec_model=doc2vec).tolist()
+    tqdm.pandas(desc="infer_doc2vec_vector")
+    list_of_vectors = batch_text_series.progress_apply(infer_doc2vec_vector, doc2vec_model=doc2vec).tolist()
     vectors_batch_df = pd.DataFrame(list_of_vectors, index=batch_text_series.index)
     vectors_batch_df.columns = ['doc2vec__{}'.format(col) for col in vectors_batch_df.columns]
 
