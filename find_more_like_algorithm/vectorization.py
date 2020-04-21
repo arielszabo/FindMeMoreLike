@@ -20,14 +20,14 @@ def create_vectors(df):
             },
             'cache': True
         },
-        {
-            'name': 'title_vectors',
-            'callable': text_vectors.get_text_vectors,
-            'params': {
-                'text_column_name': TITLE
-            },
-            'cache': True
-        },
+        # {
+        #     'name': 'title_vectors',
+        #     'callable': text_vectors.get_text_vectors,
+        #     'params': {
+        #         'text_column_name': TITLE
+        #     },
+        #     'cache': True
+        # },
         {
             'name': 'genre_vectors',
             'callable': _extract_from_comma_separated_strings,
