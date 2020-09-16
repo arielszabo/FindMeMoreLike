@@ -3,7 +3,7 @@
     <div class="row">
         <div class="panel panel-default widget">
             <div class="panel-heading">
-                <h3 class="titles">These are similar to "{{request_title}}":</h3>
+                <h3 class="titles">These are similar to "{{requested_title_data.Title}}":</h3>
                     <center>
                          <div>
                           <a href="/" role="button">
@@ -14,17 +14,17 @@
                           </a>
                         {% if current_user.is_authenticated %}
                             {% if hide_seen_titles.lower() == 'on' %}
-                                <a href="/search/{{search_request}}/None/{{current_page_index}}" role="button">
+                                <a href="/search/{{requested_title_data.imdbID}}/None/{{current_page_index}}" role="button">
                                     <label class="btn btn-custom">
                                         <span class="glyphicon glyphicon-eye-open"></span>
                                         Show titles you have already seen
                                     </label>
                                 </a>
                             {% else %}
-                                <a href="/search/{{search_request}}/on/{{current_page_index}}" role="button">
+                                <a href="/search/{{requested_title_data.imdbID}}/on/{{current_page_index}}" role="button">
                                     <label class="btn btn-custom">
                                         <span class="glyphicon glyphicon-eye-open"></span>
-                                        Hide titles you have already seen ({{ page_user_seen_titles_amount }} on this page)
+                                        Hide titles you have already seen
                                     </label>
                                 </a>
                             {% endif %}
@@ -87,14 +87,14 @@
                 <div class="row">
                       <div class="col">
                           {% if current_page_index > 0 %}
-                            <a href="/search/{{request_title}}/{{hide_seen_titles}}/{{current_page_index - 1}}"
+                            <a href="/search/{{requested_title_data.imdbID}}/{{hide_seen_titles}}/{{current_page_index - 1}}"
                                class="btn btn-sm btn-block prev_next_btns" role="button">
                               <span class="glyphicon glyphicon-chevron-left"></span> Previous Page</a>
                           {% endif %}
                       </div>
                       <div class="col">
                           {% if current_page_index < max_page_number %}
-                          <a href="/search/{{request_title}}/{{hide_seen_titles}}/{{current_page_index + 1}}"
+                          <a href="/search/{{requested_title_data.imdbID}}/{{hide_seen_titles}}/{{current_page_index + 1}}"
                              class="btn btn-sm btn-block prev_next_btns" role="button">
                               Next Page <span class="glyphicon glyphicon-chevron-right"></span></a>
                           {% endif %}

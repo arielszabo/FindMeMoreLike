@@ -7,7 +7,7 @@ import os
 import math
 import requests
 import re
-from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT, OMDB_USER_KEY
+from find_more_like_algorithm.constants import IMDB_ID, TITLE, IMDB_ID_REGEX_PATTERN, PLOT, OMDB_USER_KEY, USER_SEEN
 from find_more_like_algorithm.utils import KEYS_CONFIG, PROJECT_CONFIG, WEBAPP_PATH, RAW_IMDB_DATA_PATH, \
     SIMILAR_LIST_SAVING_PATH, open_json, TITLE_TO_ID_JSON_PATH, AVAILABLE_TITLES_JSON_PATH, \
     get_imdb_id_prefix_folder_name, ROOT_PATH
@@ -179,42 +179,38 @@ def search_redirect():
 def search(title, hide_seen_titles, page_index):
     # hide_seen_titles = hide_seen_titles.lower() == "on"  # TODO make this boolean
     imdb_id = TITLE_TO_ID_MAPPING[title]
-    search_results_response = get_search_results(imdb_id, hide_seen_titles, page_index)
+    search_results_response = get_limited_search_results(imdb_id, hide_seen_titles, page_index)
     search_results = json.loads(search_results_response.data)
     return render_template('search_results.html',
                            **search_results,
                            version_number=VERSION_NUMBER)
 
 
-@app.route('/get_search_results/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
-def get_search_results(imdb_id, hide_seen_titles, page_index):
+@app.route('/get_limited_search_results/<string:imdb_id>/<string:hide_seen_titles>/<int:page_index>')
+def get_limited_search_results(imdb_id, hide_seen_titles, page_index):  # TODO: move this logic to search
     similarity_list = _get_similarity_list(imdb_id)
     max_page_number = math.ceil(len(similarity_list) / ONE_PAGE_SUGGESTIONS_AMOUNT) - 1  # page number starts from 0
     if page_index > max_page_number:
         abort(404, description="Resource not found")
 
-    start_index = ONE_PAGE_SUGGESTIONS_AMOUNT * page_index
-    sliced_similarity_list = similarity_list[start_index:]
-
     user_seen_imdb_ids = get_user_seen_imdb_ids()
-
-    is_filter_out_seen_titles = hide_seen_titles.lower() == "on"
     results = get_movies_presentation_data(imdb_id,
-                                           sliced_similarity_list,
-                                           user_seen_imdb_ids,
-                                           filter_out_seen_titles=is_filter_out_seen_titles,
-                                           limit_returned_amount=True)
-    results_imdb_ids = [result[IMDB_ID] for result in results]
-    page_user_seen_titles_amount = len(user_seen_imdb_ids.intersection(results_imdb_ids))
-    title = load_presentation_data(imdb_id)["Title"]
+                                           similarity_list,
+                                           user_seen_imdb_ids)
+    if hide_seen_titles.lower() == "on":
+        results = [result for result in results if results[USER_SEEN]]
+
+    start_index = ONE_PAGE_SUGGESTIONS_AMOUNT * page_index
+    end_index = start_index + ONE_PAGE_SUGGESTIONS_AMOUNT
+    results = results[start_index: end_index]
+
+    requested_title_data = load_presentation_data(imdb_id)
     data = {
         "similarity_results": results,
-        "request_title": title,
-        "search_request": imdb_id,  # todo: rename
+        "requested_title_data": requested_title_data,
         "current_page_index": page_index,
         "max_page_number": max_page_number,
         "hide_seen_titles": hide_seen_titles,
-        "page_user_seen_titles_amount": page_user_seen_titles_amount
     }
     return jsonify(data)
 
@@ -223,8 +219,13 @@ def get_search_results(imdb_id, hide_seen_titles, page_index):
 def get_all_search_results(imdb_id):
     similarity_list = _get_similarity_list(imdb_id)
     user_seen_imdb_ids = get_user_seen_imdb_ids()
-    results = get_movies_presentation_data(imdb_id, similarity_list, user_seen_imdb_ids, limit_returned_amount=False)
-    return jsonify(results)
+    results = get_movies_presentation_data(imdb_id, similarity_list, user_seen_imdb_ids)
+    requested_title_data = load_presentation_data(imdb_id)
+    data = {
+        "similarity_results": results,
+        "requested_title_data": requested_title_data,
+    }
+    return jsonify(data)
 
 
 def _get_similarity_list(imdb_id):
@@ -235,21 +236,16 @@ def _get_similarity_list(imdb_id):
     return similarity_list
 
 
-def get_movies_presentation_data(requested_imdb_id, similarity_list, user_seen_imdb_ids, filter_out_seen_titles=False,
-                                 limit_returned_amount=False):
+def get_movies_presentation_data(requested_imdb_id, similarity_list, user_seen_imdb_ids):
     results = []
     for imdb_id, similarity_value in similarity_list:  # TODO use similarity_value
         if imdb_id == requested_imdb_id:
             continue
 
         imdb_id_presentation_data = load_presentation_data(imdb_id)
-        imdb_id_presentation_data["user_seen"] = imdb_id_presentation_data[IMDB_ID] in user_seen_imdb_ids
-        if filter_out_seen_titles and imdb_id_presentation_data["user_seen"]:
-            continue
+        imdb_id_presentation_data[USER_SEEN] = imdb_id_presentation_data[IMDB_ID] in user_seen_imdb_ids
         results.append(imdb_id_presentation_data)
 
-        if limit_returned_amount and len(results) == ONE_PAGE_SUGGESTIONS_AMOUNT:
-            break
     return results
 
 
@@ -267,11 +263,7 @@ def load_presentation_data(imdb_id):
     imdb_data = _load_imdb_data(imdb_id)
     if imdb_data:
         return {
-            TITLE: imdb_data[TITLE],
-            'Director': imdb_data['Director'],
-            PLOT: imdb_data[PLOT],
-            'Year': imdb_data['Year'],
-            'imdbID': imdb_data['imdbID'],
+            **imdb_data,
             'IMDb_path': 'https://www.imdb.com/title/{}/'.format(imdb_id)
         }
 
